@@ -22,7 +22,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotController;
 
-public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> implements DriveIO {
+public class DriveIOSim extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> implements DriveIO {
 
     private static class moduleSignalStruct {
         public StatusSignal<Voltage> turnAppliedVolts;
@@ -37,7 +37,7 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
     private int oldDaqs; //Number of successul daqs from previous main loop cycle
     protected AtomicInteger Daqs = new AtomicInteger(0);
     
-    public DriveIOHardware(SwerveDrivetrainConstants drivetrainConstants, double odometryUpdateFrequency, SwerveModuleConstants<?,?,?>... moduleConstants){
+    public DriveIOSim(SwerveDrivetrainConstants drivetrainConstants, double odometryUpdateFrequency, SwerveModuleConstants<?,?,?>... moduleConstants){
         super(
             TalonFX::new,
             TalonFX::new,
@@ -63,7 +63,7 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
         }
     }
 
-    public DriveIOHardware(CommandSwerveDrivetrain constants){
+    public DriveIOSim(CommandSwerveDrivetrain constants){
         this(
             constants.DrivetrainConstants(), 
             250.0,
@@ -124,7 +124,6 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
 
     @Override
     public void periodic(){
-        
+        updateSimState(0.02, 12);
     }
-
 }

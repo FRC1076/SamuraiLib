@@ -23,6 +23,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic(){
+        io.periodic(); //current just for calling sim
         io.updateInputs(driveInputs);
         io.updateModuleInputs(frontLeftInputs,0);
         io.updateModuleInputs(frontRightInputs,1);

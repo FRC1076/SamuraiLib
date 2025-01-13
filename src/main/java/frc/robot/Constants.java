@@ -21,7 +21,7 @@ public final class Constants {
     }
 
     public static class Akit {
-        public static final int currentMode = 0;
+        public static final int currentMode = 1;
     }
     
 }

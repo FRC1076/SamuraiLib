@@ -10,8 +10,10 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.drive.DriveIOHardware;
+import frc.robot.subsystems.drive.DriveIOSim;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.drive.TunerConstants;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -46,7 +48,7 @@ public class RobotContainer {
     if (Akit.currentMode == 0) {
         m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()));
     } else if (Akit.currentMode == 1) {
-        //m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
+        m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
     }
 
     // Configure the trigger bindings
@@ -70,6 +72,12 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+
+    m_drive.driveFO(new ChassisSpeeds(
+      -m_driverController.getLeftY(),
+      -m_driverController.getLeftX(),
+      -m_driverController.getRightX()
+    ));
   }
 
   /**
