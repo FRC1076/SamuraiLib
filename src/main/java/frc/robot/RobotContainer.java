@@ -47,7 +47,6 @@ public class RobotContainer {
         m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()));
     } else if (Akit.currentMode == 1) {
         //m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
-        System.out.println("Simulation");
     }
 
     // Configure the trigger bindings
