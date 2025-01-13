@@ -13,7 +13,9 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Current;
@@ -35,7 +37,7 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
     private int oldDaqs; //Number of successul daqs from previous main loop cycle
     protected AtomicInteger Daqs = new AtomicInteger(0);
     
-    public DriveIOHardware(SwerveDrivetrainConstants drivetrainConstants, double odometryUpdateFrequency, SwerveModuleConstants<?,?,?> moduleConstants){
+    public DriveIOHardware(SwerveDrivetrainConstants drivetrainConstants, double odometryUpdateFrequency, SwerveModuleConstants<?,?,?>... moduleConstants){
         super(
             TalonFX::new,
             TalonFX::new,
@@ -61,19 +63,41 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
         }
     }
 
-    private void drainCache(){
+    public DriveIOHardware(CommandSwerveDrivetrain constants){
+        this(
+            constants.DrivetrainConstants(), 
+            250.0,
+            constants.FrontLeft(),
+            constants.FrontRight(),
+            constants.RearLeft(),
+            constants.RearRight()
+        );
+    }
+
+    private int drainCache(){
         oldDaqs = Daqs.getAndSet(0);
         odomDrain = new SwerveDriveState[oldDaqs];
         for (int i = 0; i < oldDaqs; i++){
             odomDrain[i] = odometryCache.poll();
         }
+        return oldDaqs;
     }
 
     @Override
     public void updateInputs(DriveIOInputs inputs) {
-        drainCache();
+        int drainSize = drainCache();
         inputs.fromSwerveDriveState(getState());
-        inputs.odometryStates = odomDrain;
+        inputs.odometryTimestamps = new double[drainSize];
+        inputs.odometryHeadings = new Rotation2d[drainSize];
+        inputs.odometryPoses = new Pose2d[drainSize];
+        inputs.odometrySpeeds = new ChassisSpeeds[drainSize];
+        for (int i = 0; i < drainSize; i++) {
+            inputs.odometryTimestamps[i] = odomDrain[i].Timestamp;
+            inputs.odometryHeadings[i] = odomDrain[i].RawHeading;
+            inputs.odometryPoses[i] = odomDrain[i].Pose;
+            inputs.odometrySpeeds[i] = odomDrain[i].Speeds;
+        }
+
     }
 
     @Override

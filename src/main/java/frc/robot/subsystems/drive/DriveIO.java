@@ -9,6 +9,9 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 
@@ -17,7 +20,10 @@ public interface DriveIO {
     @AutoLog
     public static class DriveIOInputs extends SwerveDriveState {
 
-        public SwerveDriveState[] odometryStates = new SwerveDriveState[] {};
+        public double[] odometryTimestamps = new double[] {};
+        public ChassisSpeeds[] odometrySpeeds = new ChassisSpeeds[] {};
+        public Pose2d[] odometryPoses = new Pose2d[] {};
+        public Rotation2d[] odometryHeadings = new Rotation2d[] {};
 
         public void fromSwerveDriveState(SwerveDriveState stateIn) {
             this.Pose = stateIn.Pose;
@@ -45,6 +51,10 @@ public interface DriveIO {
         public Rotation2d turnPosition = new Rotation2d();
         public double turnAppliedVolts = 0.0;
         public double turnStatorCurrentAmps = 0.0;
+
+        public SwerveModulePosition[] odometryPositions = new SwerveModulePosition[] {};
+        public SwerveModuleState[] odometryStates = new SwerveModuleState[] {};
+        public double[] odometryTimestamps = new double[] {};
     }
 
     /** updateInputs MUST be called before updateModuleInputs */
