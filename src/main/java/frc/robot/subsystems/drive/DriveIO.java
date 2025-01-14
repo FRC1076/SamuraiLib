@@ -64,4 +64,5 @@ public interface DriveIO {
     public abstract Translation2d[] getModuleLocations();
     public abstract void addVisionMeasurement(Pose2d poseEstimate,double timestampSeconds,Matrix<N3,N1> StdDevs);
 
+    public abstract void periodic();
 }

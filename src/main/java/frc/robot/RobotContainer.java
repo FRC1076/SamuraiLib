@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.Constants.Akit;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
+import frc.robot.commands.drive.DriveClosedLoopTeleop;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.drive.DriveIOHardware;
@@ -51,6 +52,14 @@ public class RobotContainer {
         m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
     }
 
+    m_drive.setDefaultCommand(
+      new DriveClosedLoopTeleop(
+        () -> -m_driverController.getLeftY(), 
+        () -> -m_driverController.getLeftX(),
+        () -> -m_driverController.getRightX(), 
+        m_drive)
+    );
+
     // Configure the trigger bindings
     configureBindings();
   }
@@ -73,11 +82,7 @@ public class RobotContainer {
     // cancelling on release.
     m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
 
-    m_drive.driveFO(new ChassisSpeeds(
-      -m_driverController.getLeftY(),
-      -m_driverController.getLeftX(),
-      -m_driverController.getRightX()
-    ));
+    
   }
 
   /**
