@@ -5,7 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.Akit;
-import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.drive.DriveClosedLoopTeleop;
 import frc.robot.commands.ExampleCommand;
@@ -14,7 +14,7 @@ import frc.robot.subsystems.drive.DriveIOHardware;
 import frc.robot.subsystems.drive.DriveIOSim;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.drive.TunerConstants;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -32,7 +32,7 @@ public class RobotContainer {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+      new CommandXboxController(OIConstants.kDriverControllerPort);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -54,9 +54,9 @@ public class RobotContainer {
 
     m_drive.setDefaultCommand(
       new DriveClosedLoopTeleop(
-        () -> -m_driverController.getLeftY(), 
-        () -> -m_driverController.getLeftX(),
-        () -> -m_driverController.getRightX(), 
+        () -> MathUtil.applyDeadband(-m_driverController.getLeftY(), OIConstants.kControllerDeadband), 
+        () -> MathUtil.applyDeadband(-m_driverController.getLeftX(), OIConstants.kControllerDeadband),
+        () -> MathUtil.applyDeadband(-m_driverController.getRightX(), OIConstants.kControllerDeadband), 
         m_drive)
     );
 

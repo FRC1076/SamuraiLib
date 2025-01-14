@@ -16,12 +16,20 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
  */
 public final class Constants {
 
-    public static class OperatorConstants {
+    public static class OIConstants {
         public static final int kDriverControllerPort = 0;
+        public static final double kControllerDeadband = 0.15;
+        public static final double kControllerTriggerThreshold = 0.7;
     }
 
     public static class Akit {
         public static final int currentMode = 1;
     }
     
+    public static class DriveConstants{
+        public static final double singleClutchTranslationFactor = 0.5;
+        public static final double singleClutchRotationFactor = 0.5;
+        public static final double doubleClutchTranslationFactor = 0.3;
+        public static final double doubleClutchRotationFactor = 0.35;
+    }
 }
