@@ -123,6 +123,11 @@ public class DriveIOSim extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> imple
     }
 
     @Override
+    public void resetPose(Pose2d pose){
+        super.resetPose(pose);
+    }
+
+    @Override
     public void periodic(){
         updateSimState(0.02, 12);
     }

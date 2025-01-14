@@ -123,6 +123,11 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
     }
 
     @Override
+    public void resetPose(Pose2d pose){
+        super.resetPose(pose);
+    }
+
+    @Override
     public void periodic(){
         
     }

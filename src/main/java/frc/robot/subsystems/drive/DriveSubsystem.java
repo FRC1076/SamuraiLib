@@ -7,7 +7,15 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.swerve.SwerveRequest.ApplyFieldSpeeds;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.math.geometry.Pose2d;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
 
 public class DriveSubsystem extends SubsystemBase {
     private final DriveIO io;
@@ -19,6 +27,26 @@ public class DriveSubsystem extends SubsystemBase {
 
     public DriveSubsystem(DriveIO io) {
         this.io = io;
+        try{
+            AutoBuilder.configure(
+            () -> driveInputs.Pose,
+            (Pose2d pose) -> resetPose(pose),
+            () -> driveInputs.Speeds,
+            (speeds) -> driveCO(speeds),
+            new PPHolonomicDriveController(
+                    // PID constants for translation
+                    new PIDConstants(5, 0, 0),
+                    // PID constants for rotation
+                    new PIDConstants(5, 0, 0)
+            ),
+            RobotConfig.fromGUISettings(),
+            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+            this
+        );
+        } catch (Exception ex) {
+            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
+        }
+        
     }
 
     @Override
@@ -44,5 +72,7 @@ public class DriveSubsystem extends SubsystemBase {
         io.acceptRequest(new ApplyFieldSpeeds().withSpeeds(speeds));
     }
 
-
+    public void resetPose(Pose2d pose){
+        io.resetPose(pose);
+    }
 }

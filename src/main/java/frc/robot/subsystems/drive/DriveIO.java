@@ -14,6 +14,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.geometry.Pose2d;
 
 public interface DriveIO {
 
@@ -63,6 +64,7 @@ public interface DriveIO {
     public abstract void updateModuleInputs(ModuleIOInputs inputs, int moduleIndex);
     public abstract Translation2d[] getModuleLocations();
     public abstract void addVisionMeasurement(Pose2d poseEstimate,double timestampSeconds,Matrix<N3,N1> StdDevs);
+    public abstract void resetPose(Pose2d pose);
 
     public abstract void periodic();
 }
