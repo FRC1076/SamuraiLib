@@ -10,10 +10,12 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.geometry.Pose2d;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 
@@ -75,4 +77,13 @@ public class DriveSubsystem extends SubsystemBase {
     public void resetPose(Pose2d pose){
         io.resetPose(pose);
     }
+
+    public Command getPathfindToPoseCommand(Pose2d targetPose) {
+        return AutoBuilder.pathfindToPose(
+            targetPose,
+            new PathConstraints(4, 4, (540*(1/180*Math.PI)), (720*(1/180*Math.PI))),
+            0.0
+        );
+    }
+
 }
