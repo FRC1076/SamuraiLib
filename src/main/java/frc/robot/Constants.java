@@ -4,7 +4,14 @@
 
 package frc.robot;
 
+import java.util.List;
+import java.util.Arrays;
+
+import static edu.wpi.first.units.Units.Rotation;
+
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -31,5 +38,22 @@ public final class Constants {
         public static final double singleClutchRotationFactor = 0.5;
         public static final double doubleClutchTranslationFactor = 0.3;
         public static final double doubleClutchRotationFactor = 0.35;
+    }
+
+    public static class Coordinates{
+        public static final List<Pose2d> reefAprilCoordinates = Arrays.asList(
+            new Pose2d(4.073906, 3.306318, Rotation2d.fromDegrees(240)), // 17
+            new Pose2d(3.6576, 4.0259, Rotation2d.fromDegrees(180)), //18
+            new Pose2d(4.073906, 4.745482, Rotation2d.fromDegrees(120)), //19
+            new Pose2d(4.90474, 4.74582, Rotation2d.fromDegrees(60)), //20
+            new Pose2d(5.321046, 4.0259, Rotation2d.fromDegrees(0)), //21
+            new Pose2d(4.90474, 3.306318, Rotation2d.fromDegrees(300)), // 22 - end of blue
+            new Pose2d(13.474446, 3.306318, Rotation2d.fromDegrees(300)), //6
+            new Pose2d(13.890498, 4.0259, Rotation2d.fromDegrees(0)), //7
+            new Pose2d(13.474446, 4.745482, Rotation2d.fromDegrees(60)), //8
+            new Pose2d(12.643358, 4.745482, Rotation2d.fromDegrees(120)), //9
+            new Pose2d(12.227306, 4.0259, Rotation2d.fromDegrees(180)), //10
+            new Pose2d(12.643358, 3.306318, Rotation2d.fromDegrees(240)) //11
+        );
     }
 }

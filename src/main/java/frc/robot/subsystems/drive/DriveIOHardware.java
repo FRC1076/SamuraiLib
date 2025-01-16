@@ -128,6 +128,11 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
     }
 
     @Override
+    public Pose2d getPose(){
+        return super.getState().Pose;
+    }
+
+    @Override
     public void periodic(){
         
     }

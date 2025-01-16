@@ -22,6 +22,8 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotController;
 
+import org.littletonrobotics.junction.Logger;
+
 public class DriveIOSim extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> implements DriveIO {
 
     private static class moduleSignalStruct {
@@ -125,6 +127,11 @@ public class DriveIOSim extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> imple
     @Override
     public void resetPose(Pose2d pose){
         super.resetPose(pose);
+    }
+
+    @Override
+    public Pose2d getPose(){
+        return super.getState().Pose;
     }
 
     @Override

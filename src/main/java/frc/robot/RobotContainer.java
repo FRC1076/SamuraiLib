@@ -95,7 +95,7 @@ public class RobotContainer {
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    m_driverController.b().whileTrue(m_drive.getPathfindToPoseCommand(new Pose2d(1, 1, Rotation2d.fromDegrees(0))));
+    m_driverController.b().whileTrue(m_drive.getPathfindToPoseCommand((m_drive.getPose().nearest(Constants.Coordinates.reefAprilCoordinates))));
 
     
   }

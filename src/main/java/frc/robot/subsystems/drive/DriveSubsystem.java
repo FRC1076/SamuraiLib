@@ -78,10 +78,14 @@ public class DriveSubsystem extends SubsystemBase {
         io.resetPose(pose);
     }
 
+    public Pose2d getPose(){
+        return io.getPose();
+    }
+
     public Command getPathfindToPoseCommand(Pose2d targetPose) {
         return AutoBuilder.pathfindToPose(
             targetPose,
-            new PathConstraints(4, 4, (540*(1/180*Math.PI)), (720*(1/180*Math.PI))),
+            new PathConstraints(4.69, 7, (540*(1/180*Math.PI)), (720*(1/180*Math.PI))),
             0.0
         );
     }
