@@ -11,8 +11,16 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 
+import java.util.List;
+
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.Waypoint;
+import com.pathplanner.lib.path.GoalEndState;
+
+
 /** An example command that uses an example subsystem. */
-public class DriveToNearestBranch extends Command {
+public class DirectDriveToNearestBranch extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final DriveSubsystem m_subsystem;
   private final Boolean isLeftBranch;
@@ -25,7 +33,7 @@ public class DriveToNearestBranch extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public DriveToNearestBranch(DriveSubsystem subsystem, Boolean isLeftBranch) {
+  public DirectDriveToNearestBranch(DriveSubsystem subsystem, Boolean isLeftBranch) {
     m_subsystem = subsystem;
     this.isLeftBranch = isLeftBranch;
     // Use addRequirements() here to declare subsystem dependencies.
@@ -42,7 +50,14 @@ public class DriveToNearestBranch extends Command {
     else{
       nearestBranch = nearestApril.plus(new Transform2d(0.4572, 0.161163, Rotation2d.fromDegrees(0)));
     }
-    m_subsystem.getPathfindToPoseCommand(nearestBranch).schedule();
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
+        new Pose2d(m_subsystem.getPose().getTranslation(), nearestBranch.getTranslation().minus(m_subsystem.getPose().getTranslation()).getAngle()),
+        new Pose2d(nearestBranch.getTranslation(), nearestBranch.getRotation().rotateBy(Rotation2d.fromDegrees(180)))
+    );
+    PathConstraints constraints = new PathConstraints(4.69, 4.69, (1080*(1/180*Math.PI)), (1080*(1/180*Math.PI)));
+    PathPlannerPath path = new PathPlannerPath(waypoints, constraints, null, new GoalEndState(0, nearestBranch.getRotation()));
+    path.preventFlipping = true;
+    m_subsystem.getFollowPathCommand(path).schedule();
   }
 
   // Called every time the scheduler runs while the command is scheduled.

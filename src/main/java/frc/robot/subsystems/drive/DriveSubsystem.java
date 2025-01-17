@@ -18,6 +18,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.path.PathPlannerPath;
 
 public class DriveSubsystem extends SubsystemBase {
     private final DriveIO io;
@@ -88,6 +89,10 @@ public class DriveSubsystem extends SubsystemBase {
             new PathConstraints(4.69, 4.69, (1080*(1/180*Math.PI)), (1080*(1/180*Math.PI))),
             0.0
         );
+    }
+
+    public Command getFollowPathCommand(PathPlannerPath path){
+        return AutoBuilder.followPath(path);
     }
 
 }
