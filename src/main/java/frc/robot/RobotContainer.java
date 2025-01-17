@@ -8,7 +8,7 @@ import frc.robot.Constants.Akit;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.drive.DriveClosedLoopTeleop;
-import frc.robot.commands.drive.DriveToNearestApril;
+import frc.robot.commands.drive.DriveToNearestBranch;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.drive.DriveIOHardware;
 import frc.robot.subsystems.drive.DriveIOSim;
@@ -90,7 +90,8 @@ public class RobotContainer {
    */
   private void configureBindings() {
 
-    m_driverController.b().whileTrue(new DriveToNearestApril(m_drive));
+    m_driverController.leftTrigger(0.7).whileTrue(new DriveToNearestBranch(m_drive, true));
+    m_driverController.rightTrigger(0.7).whileTrue(new DriveToNearestBranch(m_drive, false));
     
   }
 
