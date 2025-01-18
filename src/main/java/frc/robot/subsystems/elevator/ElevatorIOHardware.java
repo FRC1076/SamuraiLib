@@ -18,10 +18,6 @@ import static frc.robot.Constants.ElevatorConstants.Control.kP;
 import static frc.robot.Constants.ElevatorConstants.Control.kS;
 import static frc.robot.Constants.ElevatorConstants.Control.kV;
 import static frc.robot.Constants.ElevatorConstants.Control.kG;
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Volts;
-import static edu.wpi.first.units.Units.VoltsPerMeterPerSecond;
-import static edu.wpi.first.units.Units.VoltsPerMeterPerSecondSquared;
 import static frc.robot.Constants.ElevatorConstants.kMotorPort0;
 import static frc.robot.Constants.ElevatorConstants.kMotorPort1;
 import static frc.robot.Constants.ElevatorConstants.kPositionConversionFactor;
@@ -41,10 +37,10 @@ public class ElevatorIOHardware implements ElevatorIO {
     private SparkClosedLoopController m_closedLoopController;
 
     private ElevatorFeedforward FFController = new ElevatorFeedforward(
-        kS.in(Volts), 
-        kG.in(Volts),
-        kV.in(VoltsPerMeterPerSecond), 
-        kA.in(VoltsPerMeterPerSecondSquared)
+        kS, 
+        kG,
+        kV, 
+        kA
     );
 
     public ElevatorIOHardware() {
@@ -59,8 +55,8 @@ public class ElevatorIOHardware implements ElevatorIO {
 
         m_leadMotorConfig
             .inverted(ElevatorConstants.leadMotorInverted)
-            .smartCurrentLimit((int) kCurrentLimit.in(Amps))
-            .voltageCompensation(kVoltageCompensation.in(Volts));
+            .smartCurrentLimit((int) kCurrentLimit)
+            .voltageCompensation(kVoltageCompensation);
         m_leadMotorConfig.closedLoop
             .pid(kP, kI, kD);
         m_leadMotorConfig.encoder
@@ -71,8 +67,8 @@ public class ElevatorIOHardware implements ElevatorIO {
 
         m_followMotorConfig
             .inverted(ElevatorConstants.followMotorInverted)
-            .smartCurrentLimit((int) kCurrentLimit.in(Amps))
-            .voltageCompensation(kVoltageCompensation.in(Volts))
+            .smartCurrentLimit((int) kCurrentLimit)
+            .voltageCompensation(kVoltageCompensation)
             .follow(m_leadMotor);
         
         m_leadMotor.configure(m_leadMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -90,7 +86,7 @@ public class ElevatorIOHardware implements ElevatorIO {
 
     @Override
     public void setVoltage(double volts){
-        m_leadMotor.setVoltage(volts + kG.in(Volts));
+        m_leadMotor.setVoltage(volts + kG);
     }
 
     @Override

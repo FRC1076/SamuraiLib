@@ -7,25 +7,9 @@ package frc.robot;
 import java.util.List;
 import java.util.Arrays;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Rotation;
-import static edu.wpi.first.units.Units.Volts;
-import static edu.wpi.first.units.Units.VoltsPerMeterPerSecond;
-import static edu.wpi.first.units.Units.VoltsPerMeterPerSecondSquared;
-
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.LinearAccelerationUnit;
-import edu.wpi.first.units.LinearVelocityUnit;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.VoltageUnit;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.units.measure.Per;
-import edu.wpi.first.units.measure.Velocity;
-import edu.wpi.first.units.measure.Voltage;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -92,8 +76,8 @@ public final class Constants {
         public static final double kVelocityConversionFactor = (11/60.0) * 22 * 0.00635 / 60.0; //Gear ratio & chain pitch & rpm -> m/s
         public static final double kPositionConversionFactor = (11/60.0) * 22 * 0.00635; //Gear ratio & chain pitch
         public static class Electrical {
-            public static final Voltage kVoltageCompensation = Volts.of(12);
-            public static final Current kCurrentLimit = Amps.of(40);
+            public static final double kVoltageCompensation = 12;
+            public static final double kCurrentLimit = 40;
         }
 
 
@@ -104,10 +88,10 @@ public final class Constants {
             public static final double kD = 0.0;
 
             //Feedforward Constants - STILL SET TO WAPUR ELEVATOR VALUES
-            public static final Voltage kS = Volts.of(0); //Static gain (voltage)
-            public static final Voltage kG = Volts.of(0.6); //Gravity gain (voltage)
-            public static final Per<VoltageUnit,LinearVelocityUnit> kV = VoltsPerMeterPerSecond.ofNative(12); // velocity game
-            public static final Per<VoltageUnit,LinearAccelerationUnit> kA = VoltsPerMeterPerSecondSquared.ofNative(0); //Acceleration Gain
+            public static final double kS = 0; //Static gain (voltage)
+            public static final double kG = 0.6; //Gravity gain (voltage)
+            public static final double kV = 12; // velocity game
+            public static final double kA = 0; //Acceleration Gain
         }
     }
 }
