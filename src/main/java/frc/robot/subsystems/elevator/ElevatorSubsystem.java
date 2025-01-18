@@ -3,6 +3,7 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static edu.wpi.first.units.Units.*;
 
@@ -31,8 +32,12 @@ public class ElevatorSubsystem extends SubsystemBase {
         io.setVelocity(velocity);
     }
 
-    public void setVoltage(double volts){
+    public void setVoltage(double volts) {
         io.setVoltage(volts);
+    }
+
+    public void setVoltage(Voltage voltage) {
+        io.setVoltage(voltage.in(Volts));
     }
 
     /** Returns position of the elevator, as a Measure<Distance> */
