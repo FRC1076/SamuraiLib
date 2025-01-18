@@ -31,8 +31,8 @@ public class ElevatorIOHardware implements ElevatorIO {
     private SparkMax m_leadMotor; //Leader
     private SparkMax m_followMotor; //Follower
 
-    SparkMaxConfig m_leadMotorConfig;
-    SparkMaxConfig m_followMotorConfig;
+    private SparkMaxConfig m_leadMotorConfig;
+    private SparkMaxConfig m_followMotorConfig;
     
     private RelativeEncoder m_encoder;
 
