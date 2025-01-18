@@ -66,7 +66,6 @@ public final class Constants {
         public static final int kLeftMotorPort = -1;
         public static final int kRightMotorPort = -1;
         
-        public static final Current kCurrentLimit = Amps.of(40); 
-        public static final Voltage kVoltageCompensation = Volts.of(12);
+        public static final double kCurrentLimit = 40; 
     }
 }
