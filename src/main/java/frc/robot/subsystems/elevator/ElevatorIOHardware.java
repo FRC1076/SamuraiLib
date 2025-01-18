@@ -80,11 +80,6 @@ public class ElevatorIOHardware implements ElevatorIO {
         m_closedLoopController = m_leadMotor.getClosedLoopController();
 
         m_encoder.setPosition(0);
-        
-        /* DEPRECATED for 2025 -- not yet implented via new method
-        m_encoder.setMeasurementPeriod(10);
-        m_encoder.setAverageDepth(2);
-        */
 
         m_leadMotor.setCANTimeout(0);
         m_followMotor.setCANTimeout(0);
