@@ -89,10 +89,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-
-    m_driverController.leftTrigger(0.7).whileTrue(new DirectDriveToNearestBranch(m_drive, true));
-    m_driverController.rightTrigger(0.7).whileTrue(new DirectDriveToNearestBranch(m_drive, false));
-    
+    m_driverController.leftTrigger(OIConstants.kControllerTriggerThreshold).whileTrue(new DirectDriveToNearestBranch(m_drive, true));
+    m_driverController.rightTrigger(OIConstants.kControllerTriggerThreshold).whileTrue(new DirectDriveToNearestBranch(m_drive, false));
   }
 
   /**
