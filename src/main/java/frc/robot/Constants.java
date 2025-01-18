@@ -63,5 +63,23 @@ public final class Constants {
 
         public static final boolean kLeadMotorInverted = false;
         public static final boolean kFollowMotorInverted = false;
+
+        // source: https://docs.revrobotics.com/brushless/spark-max/encoders/alternate-encoder
+        public static final int kCountsPerRevolution = 8192;
+        public static final double kPositionConversionFactor = 2*Math.PI; // rotations to radians
+        public static final double kVelocityConversionFactor = (2*Math.PI) / 60.0; // rpm to radians/second
+
+        public static final class Control {
+            // PID constants
+            public static final double kP = 0.0;
+            public static final double kI = 0.0;
+            public static final double kD = 0.0;
+
+            // feed forward constants
+            public static final double kS = 0.0; // static gain in volts
+            public static final double kG = 0.0; // gravity gain in volts
+            public static final double kV = 0.0; // velocity gain in volts per radian per second
+            public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
+        }
     }
 }

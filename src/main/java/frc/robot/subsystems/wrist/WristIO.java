@@ -1,10 +1,6 @@
 package frc.robot.subsystems.wrist;
 
-import static edu.wpi.first.units.Units.Volts;
-
 import org.littletonrobotics.junction.AutoLog;
-
-import edu.wpi.first.units.measure.Voltage;
 
 public interface WristIO {
     @AutoLog
@@ -18,7 +14,5 @@ public interface WristIO {
 
     public default void setVoltage(double volts) {}
 
-    public default void setVoltage(Voltage voltage) {
-        setVoltage(voltage.in(Volts));
-    }
+    public default void setPosition(double position) {}
 }

@@ -1,10 +1,7 @@
 package frc.robot.subsystems.wrist;
 
-import static edu.wpi.first.units.Units.Volts;
-
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class WristSubsystem extends SubsystemBase {
@@ -17,10 +14,6 @@ public class WristSubsystem extends SubsystemBase {
 
     public void setVoltage(double volts) {
         io.setVoltage(volts);
-    }
-
-    public void setVoltage(Voltage voltage) {
-        io.setVoltage(voltage.in(Volts));
     }
 
     public void stop() {
