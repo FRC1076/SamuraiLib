@@ -7,9 +7,16 @@ package frc.robot;
 import java.util.List;
 import java.util.Arrays;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Rotation;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -93,5 +100,11 @@ public final class Constants {
             public static final double kV = 12; // velocity game
             public static final double kA = 0; //Acceleration Gain
         }
+    }
+    public static final class GrabberConstants {
+        public static final int kLeftMotorPort = -1;
+        public static final int kRightMotorPort = -1;
+        
+        public static final double kCurrentLimit = 40; 
     }
 }
