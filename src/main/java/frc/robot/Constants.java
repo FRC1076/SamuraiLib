@@ -98,12 +98,12 @@ public final class Constants {
 
 
         public static class Control {
-            //PID Constants
+            //PID Constants - STILL SET TO WAPUR ELEVATOR VALUES
             public static final double kP = 8;
             public static final double kI = 0.0;
             public static final double kD = 0.0;
 
-            //Feedforward Constants
+            //Feedforward Constants - STILL SET TO WAPUR ELEVATOR VALUES
             public static final Voltage kS = Volts.of(0); //Static gain (voltage)
             public static final Voltage kG = Volts.of(0.6); //Gravity gain (voltage)
             public static final Per<VoltageUnit,LinearVelocityUnit> kV = VoltsPerMeterPerSecond.ofNative(12); // velocity game
