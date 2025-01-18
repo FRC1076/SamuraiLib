@@ -1,0 +1,35 @@
+package frc.robot.subsystems.wrist;
+
+import static edu.wpi.first.units.Units.Volts;
+
+import org.littletonrobotics.junction.Logger;
+
+import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+public class WristSubsystem extends SubsystemBase {
+    private final WristIO io;
+    private final WristIOInputsAutoLogged inputs = new WristIOInputsAutoLogged();
+
+    public WristSubsystem(WristIO io) {
+        this.io = io;
+    }
+
+    public void setVoltage(double volts) {
+        io.setVoltage(volts);
+    }
+
+    public void setVoltage(Voltage voltage) {
+        io.setVoltage(voltage.in(Volts));
+    }
+
+    public void stop() {
+        setVoltage(0);
+    }
+
+    @Override
+    public void periodic() {
+        io.updateInputs(inputs);
+        Logger.processInputs("Wrist", inputs);
+    }
+}

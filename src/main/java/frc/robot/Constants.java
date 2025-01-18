@@ -56,4 +56,12 @@ public final class Constants {
             new Pose2d(12.643358, 3.306318, Rotation2d.fromDegrees(240)) //11
         );
     }
+
+    public static class WristConstants {
+        public static final int kLeadMotorPort = -1;
+        public static final int kFollowMotorPort = -1;
+
+        public static final boolean kLeadMotorInverted = false;
+        public static final boolean kFollowMotorInverted = false;
+    }
 }
