@@ -7,11 +7,25 @@ package frc.robot;
 import java.util.List;
 import java.util.Arrays;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Rotation;
+import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.VoltsPerMeterPerSecond;
+import static edu.wpi.first.units.Units.VoltsPerMeterPerSecondSquared;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.LinearAccelerationUnit;
+import edu.wpi.first.units.LinearVelocityUnit;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.VoltageUnit;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Per;
+import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.units.measure.Voltage;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -55,5 +69,45 @@ public final class Constants {
             new Pose2d(12.227306, 4.0259, Rotation2d.fromDegrees(180)), //10
             new Pose2d(12.643358, 3.306318, Rotation2d.fromDegrees(240)) //11
         );
+    }
+
+    public static class ElevatorConstants {
+        public static final int kMotorPort0 = -1;
+        public static final int kMotorPort1 = -1;
+
+        public static final boolean leadMotorInverted = false;
+        public static final boolean followMotorInverted = false;
+
+        //Heights measured in meters
+        public static final double lowHeight = 0;
+        public static final double autonHeight = 0;
+        public static final double midHeight = 0;
+        public static final double highHeight = 0;
+
+        //public static final double minHeightMeters = 0;
+        //public static final double maxHeightMeters = 0.85; //Temporary
+
+        //https://wcproducts.com/collections/gearboxes/products/wcp-single-stage-gearbox  Inches.of(0.25).in(Meters)
+        // still set to WAPUR elevator units, need to be changed
+        public static final double kVelocityConversionFactor = (11/60.0) * 22 * 0.00635 / 60.0; //Gear ratio & chain pitch & rpm -> m/s
+        public static final double kPositionConversionFactor = (11/60.0) * 22 * 0.00635; //Gear ratio & chain pitch
+        public static class Electrical {
+            public static final Voltage kVoltageCompensation = Volts.of(12);
+            public static final Current kCurrentLimit = Amps.of(40);
+        }
+
+
+        public static class Control {
+            //PID Constants
+            public static final double kP = 8;
+            public static final double kI = 0.0;
+            public static final double kD = 0.0;
+
+            //Feedforward Constants
+            public static final Voltage kS = Volts.of(0); //Static gain (voltage)
+            public static final Voltage kG = Volts.of(0.6); //Gravity gain (voltage)
+            public static final Per<VoltageUnit,LinearVelocityUnit> kV = VoltsPerMeterPerSecond.ofNative(12); // velocity game
+            public static final Per<VoltageUnit,LinearAccelerationUnit> kA = VoltsPerMeterPerSecondSquared.ofNative(0); //Acceleration Gain
+        }
     }
 }
