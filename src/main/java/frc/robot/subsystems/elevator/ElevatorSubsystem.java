@@ -2,8 +2,6 @@ package frc.robot.subsystems.elevator;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static edu.wpi.first.units.Units.*;
 
@@ -20,24 +18,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         io.setPosition(positionMeters);
     }
 
-    public void setPosition(Distance positionMeters) {
-        io.setPosition(positionMeters);
-    }
-
-    public void setVelocity(double velocityMetersPerSecond){
-        io.setVelocity(velocityMetersPerSecond);
-    }
-
-    public void setVelocity(LinearVelocity velocity){
-        io.setVelocity(velocity);
-    }
-
     public void setVoltage(double volts) {
         io.setVoltage(volts);
-    }
-
-    public void setVoltage(Voltage voltage) {
-        io.setVoltage(voltage.in(Volts));
     }
 
     /** Returns position of the elevator, as a Measure<Distance> */

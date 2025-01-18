@@ -18,14 +18,16 @@ import static frc.robot.Constants.ElevatorConstants.Control.kP;
 import static frc.robot.Constants.ElevatorConstants.Control.kS;
 import static frc.robot.Constants.ElevatorConstants.Control.kV;
 import static frc.robot.Constants.ElevatorConstants.Control.kG;
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.VoltsPerMeterPerSecond;
+import static edu.wpi.first.units.Units.VoltsPerMeterPerSecondSquared;
 import static frc.robot.Constants.ElevatorConstants.kMotorPort0;
 import static frc.robot.Constants.ElevatorConstants.kMotorPort1;
 import static frc.robot.Constants.ElevatorConstants.kPositionConversionFactor;
 import static frc.robot.Constants.ElevatorConstants.kVelocityConversionFactor;
-import static frc.robot.Constants.ElevatorConstants.*;
 import static frc.robot.Constants.ElevatorConstants.Electrical.*;
 import frc.robot.Constants.ElevatorConstants;
-import static edu.wpi.first.units.Units.*;
 
 public class ElevatorIOHardware implements ElevatorIO {
     private SparkMax m_leadMotor; //Leader
@@ -100,17 +102,6 @@ public class ElevatorIOHardware implements ElevatorIO {
             FFController.calculate(0),
             ArbFFUnits.kVoltage
         );
-    }
-
-    @Override
-    public void setVelocity(double velocityMetersPerSecond){
-        m_closedLoopController.setReference(
-            velocityMetersPerSecond,
-            ControlType.kVelocity,
-            ClosedLoopSlot.kSlot0,
-            FFController.calculate(velocityMetersPerSecond),
-            ArbFFUnits.kVoltage
-        ); //CONVERSION FACTOR IS NOT IMPLEMENTED, DO NOT USE
     }
 
     @Override
