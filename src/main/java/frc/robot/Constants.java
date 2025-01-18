@@ -7,16 +7,9 @@ package frc.robot;
 import java.util.List;
 import java.util.Arrays;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Rotation;
-import static edu.wpi.first.units.Units.Volts;
-
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Voltage;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -106,5 +99,30 @@ public final class Constants {
         public static final int kRightMotorPort = -1;
         
         public static final double kCurrentLimit = 40; 
+    }
+    public static class WristConstants {
+        public static final int kLeadMotorPort = -1;
+        public static final int kFollowMotorPort = -1;
+
+        public static final boolean kLeadMotorInverted = false;
+        public static final boolean kFollowMotorInverted = false;
+
+        // source: https://docs.revrobotics.com/brushless/spark-max/encoders/alternate-encoder
+        public static final int kCountsPerRevolution = 8192;
+        public static final double kPositionConversionFactor = 2*Math.PI; // rotations to radians
+        public static final double kVelocityConversionFactor = (2*Math.PI) / 60.0; // rpm to radians/second
+
+        public static final class Control {
+            // PID constants
+            public static final double kP = 0.0;
+            public static final double kI = 0.0;
+            public static final double kD = 0.0;
+
+            // feed forward constants
+            public static final double kS = 0.0; // static gain in volts
+            public static final double kG = 0.0; // gravity gain in volts
+            public static final double kV = 0.0; // velocity gain in volts per radian per second
+            public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
+        }
     }
 }
