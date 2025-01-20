@@ -11,7 +11,11 @@ import static edu.wpi.first.units.Units.Rotation;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
+
+import com.pathplanner.lib.path.PathConstraints;;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -23,7 +27,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
  */
 public final class Constants {
 
-    public static class OIConstants {
+    public static class OIConstants{
         public static final int kDriverControllerPort = 0;
         public static final double kControllerDeadband = 0.15;
         public static final double kControllerTriggerThreshold = 0.7;
@@ -34,10 +38,16 @@ public final class Constants {
     }
     
     public static class DriveConstants{
-        public static final double singleClutchTranslationFactor = 0.5;
-        public static final double singleClutchRotationFactor = 0.5;
-        public static final double doubleClutchTranslationFactor = 0.3;
-        public static final double doubleClutchRotationFactor = 0.35;
+        public static class DriverControlConstants{
+            public static final double singleClutchTranslationFactor = 0.5;
+            public static final double singleClutchRotationFactor = 0.5;
+            public static final double doubleClutchTranslationFactor = 0.3;
+            public static final double doubleClutchRotationFactor = 0.35;
+        }
+
+        public static class PathPlannerConstants{
+            public static final PathConstraints pathConstraints = new PathConstraints(4.69, 25, Units.degreesToRadians(1080), Units.degreesToRadians(1080));
+        }
     }
 
     public static class Coordinates{
@@ -55,5 +65,42 @@ public final class Constants {
             new Pose2d(12.227306, 4.0259, Rotation2d.fromDegrees(180)), //10
             new Pose2d(12.643358, 3.306318, Rotation2d.fromDegrees(240)) //11
         );
+
+        public static final List<Pose2d> leftBranchCoordinates = Arrays.asList(
+            new Pose2d(3.93, 3.39, Rotation2d.fromDegrees(-120.00)),
+            new Pose2d(3.66, 4.19, Rotation2d.fromDegrees(180.00)),
+            new Pose2d(4.21, 4.83, Rotation2d.fromDegrees(120.00)),
+            new Pose2d(5.04, 4.67, Rotation2d.fromDegrees(60.00)),
+            new Pose2d(5.32, 3.86, Rotation2d.fromDegrees(0.00)),
+            new Pose2d(4.77, 3.23, Rotation2d.fromDegrees(-60.00)),
+            new Pose2d(13.33, 3.23, Rotation2d.fromDegrees(-60.00)),
+            new Pose2d(13.89, 3.86, Rotation2d.fromDegrees(0.00)),
+            new Pose2d(13.61, 4.66, Rotation2d.fromDegrees(60.00)),
+            new Pose2d(12.78, 4.83, Rotation2d.fromDegrees(120.00)),
+            new Pose2d(12.23, 4.19, Rotation2d.fromDegrees(180.00)),
+            new Pose2d(12.50, 3.39, Rotation2d.fromDegrees(-120.00))
+        );
+
+        public static final List<Pose2d> rightBranchCoordinates = Arrays.asList(
+            new Pose2d(4.21, 3.23, Rotation2d.fromDegrees(-120.00)),
+            new Pose2d(3.66, 3.86, Rotation2d.fromDegrees(180.00)),
+            new Pose2d(3.93, 4.66, Rotation2d.fromDegrees(120.00)),
+            new Pose2d(4.77, 4.83, Rotation2d.fromDegrees(60.00)),
+            new Pose2d(5.32, 4.19, Rotation2d.fromDegrees(0.00)),
+            new Pose2d(5.04, 3.39, Rotation2d.fromDegrees(-60.00)),
+            new Pose2d(13.61, 3.39, Rotation2d.fromDegrees(-60.00)),
+            new Pose2d(13.89, 4.19, Rotation2d.fromDegrees(0.00)),
+            new Pose2d(13.33, 4.83, Rotation2d.fromDegrees(60.00)),
+            new Pose2d(12.50, 4.66, Rotation2d.fromDegrees(120.00)),
+            new Pose2d(12.23, 3.86, Rotation2d.fromDegrees(180.00)),
+            new Pose2d(12.78, 3.23, Rotation2d.fromDegrees(-120.00))
+        );
+    }
+
+    public enum DriveMode{
+        NORMAL,
+        SINGLE_CLUTCH,
+        DOUBLE_CLUTCH,
+        POINT_TO_REEF,
     }
 }

@@ -5,6 +5,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ApplyRobotSpeeds;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.swerve.SwerveRequest.ApplyFieldSpeeds;
+import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentricFacingAngle;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -12,6 +13,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -19,6 +21,8 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
+
+import frc.robot.Constants.DriveConstants.PathPlannerConstants;
 
 public class DriveSubsystem extends SubsystemBase {
     private final DriveIO io;
@@ -75,6 +79,18 @@ public class DriveSubsystem extends SubsystemBase {
         io.acceptRequest(new ApplyFieldSpeeds().withSpeeds(speeds));
     }
 
+    public void driveFOHeadingLocked(double xMetersPerSecond, double yMetersPerSecond, Rotation2d targetDirection){
+        FieldCentricFacingAngle request = new FieldCentricFacingAngle()
+        .withVelocityX(xMetersPerSecond)
+        .withVelocityY(yMetersPerSecond)
+        .withTargetDirection(targetDirection);
+        request.HeadingController.setPID(3.5, 0, 0);
+        request.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
+        io.acceptRequest(
+            request
+        );
+    }
+
     public void resetPose(Pose2d pose){
         io.resetPose(pose);
     }
@@ -86,7 +102,7 @@ public class DriveSubsystem extends SubsystemBase {
     public Command getPathfindToPoseCommand(Pose2d targetPose) {
         return AutoBuilder.pathfindToPose(
             targetPose,
-            new PathConstraints(4.69, 4.69, (1080*(1/180*Math.PI)), (1080*(1/180*Math.PI))),
+            PathPlannerConstants.pathConstraints,
             0.0
         );
     }

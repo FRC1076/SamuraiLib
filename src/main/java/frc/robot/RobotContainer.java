@@ -37,7 +37,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final DriveSubsystem m_drive;
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -45,6 +44,8 @@ public class RobotContainer {
       new CommandXboxController(OIConstants.kDriverControllerPort);
     
   private final SendableChooser<Command> m_autoChooser;
+
+  private DriveClosedLoopTeleop driveCommand;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -64,12 +65,15 @@ public class RobotContainer {
         m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
     }
 
+    driveCommand = new DriveClosedLoopTeleop(
+    () -> MathUtil.applyDeadband(-m_driverController.getLeftY(), OIConstants.kControllerDeadband), 
+    () -> MathUtil.applyDeadband(-m_driverController.getLeftX(), OIConstants.kControllerDeadband),
+    () -> MathUtil.applyDeadband(-m_driverController.getRightX(), OIConstants.kControllerDeadband),
+    () -> m_driverController.a().getAsBoolean(),
+    m_drive);
+
     m_drive.setDefaultCommand(
-      new DriveClosedLoopTeleop(
-        () -> MathUtil.applyDeadband(-m_driverController.getLeftY(), OIConstants.kControllerDeadband), 
-        () -> MathUtil.applyDeadband(-m_driverController.getLeftX(), OIConstants.kControllerDeadband),
-        () -> MathUtil.applyDeadband(-m_driverController.getRightX(), OIConstants.kControllerDeadband), 
-        m_drive)
+      driveCommand
     );
 
     // Configure the trigger bindings
