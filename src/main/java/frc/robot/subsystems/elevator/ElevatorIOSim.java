@@ -150,7 +150,7 @@ public class ElevatorIOSim implements ElevatorIO{
         m_PIDController.setGoal(positionMeters);
 
         // With the setpoint value we run PID control like normal
-        double pidOutput = m_PIDController.calculate(m_encoder.getDistance());
+        double pidOutput = m_PIDController.calculate(m_encoderSim.getPosition());
         double feedforwardOutput = FFController.calculate(m_PIDController.getSetpoint().velocity);
         m_leadMotor.setVoltage(pidOutput + feedforwardOutput);
     }
