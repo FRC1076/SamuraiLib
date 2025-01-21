@@ -15,7 +15,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 
-import com.pathplanner.lib.path.PathConstraints;;
+import com.pathplanner.lib.path.PathConstraints;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -47,6 +47,20 @@ public final class Constants {
 
         public static class PathPlannerConstants{
             public static final PathConstraints pathConstraints = new PathConstraints(4.69, 25, Units.degreesToRadians(1080), Units.degreesToRadians(1080));
+        }
+
+        public enum HeadingMode{
+            NORMAL,
+            POINT_TO_REEF,
+            LEFT_CORAL_STATION,
+            RIGHT_CORAL_STATION,
+            STRAIGHT,
+        }
+
+        public enum ClutchMode{
+            NORMAL,
+            SINGLE_CLUTCH,
+            DOUBLE_CLUTCH,
         }
     }
 
@@ -95,12 +109,11 @@ public final class Constants {
             new Pose2d(12.23, 3.86, Rotation2d.fromDegrees(180.00)),
             new Pose2d(12.78, 3.23, Rotation2d.fromDegrees(-120.00))
         );
-    }
+        
+        public static final Translation2d blueReefCenter = new Translation2d(4.487, 4.010);
+        public static final Translation2d redReefCenter = new Translation2d(13.062, 4.010);
 
-    public enum DriveMode{
-        NORMAL,
-        SINGLE_CLUTCH,
-        DOUBLE_CLUTCH,
-        POINT_TO_REEF,
+        public static final Rotation2d leftCoralStationAngle = Rotation2d.fromDegrees(-55);
+        public static final Rotation2d rightCoralStationAngle = Rotation2d.fromDegrees(55);
     }
 }

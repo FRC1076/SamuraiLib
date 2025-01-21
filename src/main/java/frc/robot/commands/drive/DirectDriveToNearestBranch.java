@@ -58,7 +58,7 @@ public class DirectDriveToNearestBranch extends WrapperCommand {
         new Pose2d(m_subsystem.getPose().getTranslation(), nearestBranch.getTranslation().minus(m_subsystem.getPose().getTranslation()).getAngle()),
         new Pose2d(nearestBranch.getTranslation(), nearestBranch.getRotation().rotateBy(Rotation2d.fromDegrees(180)))
     );
-    PathPlannerPath path = new PathPlannerPath(waypoints, PathPlannerConstants.pathConstraints, null, new GoalEndState(0, nearestBranch.getRotation()));
+    PathPlannerPath path = new PathPlannerPath(waypoints, PathPlannerConstants.pathConstraints, null, new GoalEndState(0, nearestBranch.getRotation().rotateBy(Rotation2d.fromDegrees(180))));
     path.preventFlipping = true;
     pathfindCommand = m_subsystem.getFollowPathCommand(path);
     pathfindCommand.schedule();

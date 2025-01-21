@@ -20,6 +20,8 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 
 public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> implements DriveIO {
@@ -91,6 +93,7 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
         inputs.odometryHeadings = new Rotation2d[drainSize];
         inputs.odometryPoses = new Pose2d[drainSize];
         inputs.odometrySpeeds = new ChassisSpeeds[drainSize];
+        inputs.operatorForwardDirection = getOperatorForwardDirection();
         for (int i = 0; i < drainSize; i++) {
             inputs.odometryTimestamps[i] = odomDrain[i].Timestamp;
             inputs.odometryHeadings[i] = odomDrain[i].RawHeading;
@@ -130,6 +133,11 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
     @Override
     public Pose2d getPose(){
         return super.getState().Pose;
+    }
+
+    @Override
+    public void setAllianceRotation(Rotation2d allianceRotation){
+        setOperatorPerspectiveForward(allianceRotation);
     }
 
     @Override

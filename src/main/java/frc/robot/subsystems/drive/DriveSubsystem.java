@@ -6,6 +6,7 @@ import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.swerve.SwerveRequest.ApplyFieldSpeeds;
 import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentricFacingAngle;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -31,6 +32,7 @@ public class DriveSubsystem extends SubsystemBase {
     private final ModuleIOInputsAutoLogged frontRightInputs = new ModuleIOInputsAutoLogged();
     private final ModuleIOInputsAutoLogged rearLeftInputs = new ModuleIOInputsAutoLogged();
     private final ModuleIOInputsAutoLogged rearRightInputs = new ModuleIOInputsAutoLogged();
+    private Boolean hasSetAlliance = false;
 
     public DriveSubsystem(DriveIO io) {
         this.io = io;
@@ -69,6 +71,16 @@ public class DriveSubsystem extends SubsystemBase {
         Logger.processInputs("Drive/FrontRight",frontRightInputs);
         Logger.processInputs("Drive/RearLeft",rearLeftInputs);
         Logger.processInputs("Drive/RearRight",rearRightInputs);
+
+        if(DriverStation.getAlliance().isPresent()){
+            hasSetAlliance = true;
+            if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
+                io.setAllianceRotation(Rotation2d.fromDegrees(180));
+            }
+            else{
+                io.setAllianceRotation(Rotation2d.fromDegrees(0));
+            }
+        }
     }
 
     public void driveCO(ChassisSpeeds speeds){
@@ -76,14 +88,15 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void driveFO(ChassisSpeeds speeds){
-        io.acceptRequest(new ApplyFieldSpeeds().withSpeeds(speeds));
+        io.acceptRequest(new ApplyFieldSpeeds().withSpeeds(speeds).withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective));
     }
 
     public void driveFOHeadingLocked(double xMetersPerSecond, double yMetersPerSecond, Rotation2d targetDirection){
         FieldCentricFacingAngle request = new FieldCentricFacingAngle()
         .withVelocityX(xMetersPerSecond)
         .withVelocityY(yMetersPerSecond)
-        .withTargetDirection(targetDirection);
+        .withTargetDirection(targetDirection)
+        .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective);
         request.HeadingController.setPID(3.5, 0, 0);
         request.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
         io.acceptRequest(

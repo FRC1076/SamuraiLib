@@ -66,11 +66,13 @@ public class RobotContainer {
     }
 
     driveCommand = new DriveClosedLoopTeleop(
-    () -> MathUtil.applyDeadband(-m_driverController.getLeftY(), OIConstants.kControllerDeadband), 
-    () -> MathUtil.applyDeadband(-m_driverController.getLeftX(), OIConstants.kControllerDeadband),
-    () -> MathUtil.applyDeadband(-m_driverController.getRightX(), OIConstants.kControllerDeadband),
-    () -> m_driverController.a().getAsBoolean(),
-    m_drive);
+      () -> MathUtil.applyDeadband(-m_driverController.getLeftY(), OIConstants.kControllerDeadband), 
+      () -> MathUtil.applyDeadband(-m_driverController.getLeftX(), OIConstants.kControllerDeadband),
+      () -> MathUtil.applyDeadband(-m_driverController.getRightX(), OIConstants.kControllerDeadband),
+      m_drive);
+
+      driveCommand.setNormalClutchMode();
+      driveCommand.setNormalHeadingMode();
 
     m_drive.setDefaultCommand(
       driveCommand
@@ -95,6 +97,31 @@ public class RobotContainer {
   private void configureBindings() {
     m_driverController.leftTrigger(OIConstants.kControllerTriggerThreshold).whileTrue(new DirectDriveToNearestBranch(m_drive, true));
     m_driverController.rightTrigger(OIConstants.kControllerTriggerThreshold).whileTrue(new DirectDriveToNearestBranch(m_drive, false));
+
+    m_driverController.a()
+      .onTrue(driveCommand.setPointToReefHeadingMode())
+      .onFalse(driveCommand.setNormalHeadingMode());
+
+    m_driverController.rightBumper()
+      .onTrue(driveCommand.setSingleClutchMode())
+      .onFalse(driveCommand.setNormalClutchMode());
+
+    m_driverController.leftBumper()
+      .onTrue(driveCommand.setDoubleClutchMode())
+      .onFalse(driveCommand.setNormalClutchMode());
+
+    m_driverController.x()
+      .onTrue(driveCommand.setLeftCoralStationHeadingMode())
+      .onFalse(driveCommand.setNormalHeadingMode());
+    
+      m_driverController.b()
+      .onTrue(driveCommand.setRightCoralStationHeadingMode())
+      .onFalse(driveCommand.setNormalHeadingMode());
+
+      m_driverController.y()
+        .onTrue(driveCommand.setStraightHeadingMode())
+        .onFalse(driveCommand.setNormalHeadingMode());
+
   }
 
   /**
