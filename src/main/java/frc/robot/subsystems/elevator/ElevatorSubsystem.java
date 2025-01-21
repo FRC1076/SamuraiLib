@@ -38,4 +38,9 @@ public class ElevatorSubsystem extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("Elevator",inputs);
     }
+
+    @Override
+    public void simulationPeriodic(){
+        io.simulationPeriodic();
+    }
 }

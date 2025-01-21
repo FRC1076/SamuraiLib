@@ -10,6 +10,7 @@ import java.util.Arrays;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -92,6 +93,34 @@ public final class Constants {
             public static final double kG = 0.6; //Gravity gain (voltage)
             public static final double kV = 12; // velocity game
             public static final double kA = 0; //Acceleration Gain
+        }
+
+        public static class ElevatorSimConstants {
+            //RANDOM ports
+            public static final int kSimMotorPort0 = 20;
+            public static final int kSimMotorPort1 = 21;
+            //Taken from example code, NOT from our robot
+            public static final double kElevatorGearing = 60.0/11.0;
+            public static final double kCarriageMass = 4.0; //kg
+            public static final double kElevatorDrumRadius = Units.inchesToMeters(2.0);
+            public static final double kMinElevatorHeightMeters = 0;
+            public static final double kMaxElevatorHeightMeters = 1.5;
+
+            public static final int kEncoderAChannel = 0;
+            public static final int kEncoderBChannel = 1;
+
+            public static class Control {
+                //PID Constants - STILL SET TO WAPUR ELEVATOR VALUES
+                public static final double kP = 8;
+                public static final double kI = 0.0;
+                public static final double kD = 0.0;
+    
+                //Feedforward Constants - STILL SET TO WAPUR ELEVATOR VALUES
+                public static final double kS = 0; //Static gain (voltage)
+                public static final double kG = 0.6; //Gravity gain (voltage)
+                public static final double kV = 12; // velocity game
+                public static final double kA = 0; //Acceleration Gain
+            }
         }
     }
     public static final class GrabberConstants {

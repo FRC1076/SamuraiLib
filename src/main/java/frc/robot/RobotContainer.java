@@ -14,6 +14,8 @@ import frc.robot.subsystems.drive.DriveIOHardware;
 import frc.robot.subsystems.drive.DriveIOSim;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.drive.TunerConstants;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
@@ -39,6 +41,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final DriveSubsystem m_drive;
+  private final ElevatorSubsystem m_elevator;
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -62,6 +65,7 @@ public class RobotContainer {
         m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()));
     } else if (Akit.currentMode == 1) {
         m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
+        m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
     }
 
     m_drive.setDefaultCommand(

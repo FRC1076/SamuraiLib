@@ -13,9 +13,11 @@ public interface ElevatorIO {
         public double velocityMetersPerSecond = 0;
     }
 
-    public default void updateInputs(ElevatorIOInputs inputs) {}
+    public abstract void updateInputs(ElevatorIOInputs inputs) ;
 
-    public default void setPosition(double positionMeters) {}
+    public abstract void setPosition(double positionMeters) ;
 
-    public default void setVoltage(double volts) {}
+    public abstract void setVoltage(double volts) ;
+
+    public default void simulationPeriodic() {}
 }
