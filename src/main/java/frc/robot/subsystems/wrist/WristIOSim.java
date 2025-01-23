@@ -145,4 +145,11 @@ public class WristIOSim implements WristIO {
     public void setVoltage(double volts) {
         m_leadMotorSim.setAppliedOutput(volts/m_leadMotorSim.getBusVoltage());
     }
+
+    @Override
+    public void updateInputs(WristIOInputs inputs) {
+        inputs.appliedVolts = m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage();
+        inputs.leadCurrentAmps = m_leadMotorSim.getMotorCurrent();
+        inputs.followCurrentAmps = m_followMotorSim.getMotorCurrent();
+    }
 }
