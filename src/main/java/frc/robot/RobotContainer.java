@@ -6,9 +6,10 @@ package frc.robot;
 
 import frc.robot.Constants.Akit;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.Coordinates.ReefAlignment;
 import frc.robot.commands.Autos;
 import frc.robot.commands.drive.DriveClosedLoopTeleop;
-import frc.robot.commands.drive.DirectDriveToNearestBranch;
+import frc.robot.commands.drive.DriveToReef;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.drive.DriveIOHardware;
 import frc.robot.subsystems.drive.DriveIOSim;
@@ -95,8 +96,11 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    m_driverController.leftTrigger(OIConstants.kControllerTriggerThreshold).whileTrue(new DirectDriveToNearestBranch(m_drive, true));
-    m_driverController.rightTrigger(OIConstants.kControllerTriggerThreshold).whileTrue(new DirectDriveToNearestBranch(m_drive, false));
+    m_driverController.leftTrigger(OIConstants.kControllerTriggerThreshold).whileTrue(new DriveToReef(m_drive, ReefAlignment.LEFT_BRANCH));
+    m_driverController.rightTrigger(OIConstants.kControllerTriggerThreshold).whileTrue(new DriveToReef(m_drive, ReefAlignment.RIGHT_BRANCH));
+    m_driverController.leftTrigger(OIConstants.kControllerTriggerThreshold)
+    .and(m_driverController.rightTrigger(OIConstants.kControllerTriggerThreshold))
+    .whileTrue(new DriveToReef(m_drive, ReefAlignment.CENTER));
 
     m_driverController.a()
       .onTrue(driveCommand.setPointToReefHeadingMode())

@@ -7,6 +7,7 @@ package frc.robot.commands.drive;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.Constants.Coordinates;
 import frc.robot.Constants.DriveConstants.PathPlannerConstants;
+import frc.robot.Constants.Coordinates.ReefAlignment;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WrapperCommand;
@@ -24,44 +25,53 @@ import com.pathplanner.lib.path.GoalEndState;
 
 
 /** An example command that uses an example subsystem. */
-public class DirectDriveToNearestBranch extends WrapperCommand {
+public class DriveToReef extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final DriveSubsystem m_subsystem;
-  private final Boolean isLeftBranch;
+  private final ReefAlignment reefAlignment;
   private Pose2d nearestBranch;
-  private Command pathfindCommand;
+  private Command pathfindCommand = Commands.none();
   private final Transform2d robotOffset = new Transform2d(0.4572, 0, Rotation2d.fromDegrees(0));
+  private Pose2d startWaypointPose;
+  private Pose2d endWaypointPose;
 
   /**
    * Creates a new ExampleCommand.
    *
    * @param subsystem The subsystem used by this command.
    */
-  public DirectDriveToNearestBranch(DriveSubsystem subsystem, Boolean isLeftBranch) {
-    super(Commands.none());
+  public DriveToReef(DriveSubsystem subsystem, ReefAlignment reefAlignment) {
     m_subsystem = subsystem;
-    this.isLeftBranch = isLeftBranch;
-    // Use addRequirements() here to declare subsystem dependencies.
-    //addRequirements(subsystem);
+    this.reefAlignment = reefAlignment;
+    addRequirements(subsystem);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    if(isLeftBranch){
-      nearestBranch = m_subsystem.getPose().nearest(Coordinates.leftBranchCoordinates).plus(robotOffset);
+    switch(reefAlignment){
+      case LEFT_BRANCH:
+        nearestBranch = m_subsystem.getPose().nearest(Coordinates.leftBranchCoordinates).plus(robotOffset);
+        break;
+      case RIGHT_BRANCH:
+        nearestBranch = m_subsystem.getPose().nearest(Coordinates.rightBranchCoordinates).plus(robotOffset);
+        break;
+      case CENTER:
+        nearestBranch = m_subsystem.getPose().nearest(Coordinates.reefCenterCoordinates).plus(robotOffset);
+        break;
     }
-    else{
-      nearestBranch = m_subsystem.getPose().nearest(Coordinates.rightBranchCoordinates).plus(robotOffset);
-    }
+    startWaypointPose = new Pose2d(m_subsystem.getPose().getTranslation(), nearestBranch.getTranslation().minus(m_subsystem.getPose().getTranslation()).getAngle());
+    endWaypointPose = new Pose2d(nearestBranch.getTranslation(), nearestBranch.getRotation().rotateBy(Rotation2d.fromDegrees(180)));
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
-        new Pose2d(m_subsystem.getPose().getTranslation(), nearestBranch.getTranslation().minus(m_subsystem.getPose().getTranslation()).getAngle()),
-        new Pose2d(nearestBranch.getTranslation(), nearestBranch.getRotation().rotateBy(Rotation2d.fromDegrees(180)))
+        startWaypointPose,
+        endWaypointPose
     );
-    PathPlannerPath path = new PathPlannerPath(waypoints, PathPlannerConstants.pathConstraints, null, new GoalEndState(0, nearestBranch.getRotation().rotateBy(Rotation2d.fromDegrees(180))));
-    path.preventFlipping = true;
-    pathfindCommand = m_subsystem.getFollowPathCommand(path);
-    pathfindCommand.schedule();
+    if(endWaypointPose.getTranslation().getDistance(startWaypointPose.getTranslation()) > 0.015){
+      PathPlannerPath path = new PathPlannerPath(waypoints, PathPlannerConstants.pathConstraints, null, new GoalEndState(0, nearestBranch.getRotation().rotateBy(Rotation2d.fromDegrees(180))));
+      path.preventFlipping = true;
+      pathfindCommand = m_subsystem.getFollowPathCommand(path);
+      pathfindCommand.schedule();
+    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.

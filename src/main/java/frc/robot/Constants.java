@@ -65,7 +65,7 @@ public final class Constants {
     }
 
     public static class Coordinates{
-        public static final List<Pose2d> reefAprilCoordinates = Arrays.asList(
+        public static final List<Pose2d> reefCenterCoordinates = Arrays.asList(
             new Pose2d(4.073906, 3.306318, Rotation2d.fromDegrees(240)), // 17
             new Pose2d(3.6576, 4.0259, Rotation2d.fromDegrees(180)), //18
             new Pose2d(4.073906, 4.745482, Rotation2d.fromDegrees(120)), //19
@@ -115,5 +115,11 @@ public final class Constants {
 
         public static final Rotation2d leftCoralStationAngle = Rotation2d.fromDegrees(-55);
         public static final Rotation2d rightCoralStationAngle = Rotation2d.fromDegrees(55);
+
+        public enum ReefAlignment{
+            LEFT_BRANCH,
+            RIGHT_BRANCH,
+            CENTER,
+        }
     }
 }
