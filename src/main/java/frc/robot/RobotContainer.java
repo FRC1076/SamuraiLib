@@ -16,6 +16,8 @@ import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.drive.TunerConstants;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.wrist.WristIOSim;
+import frc.robot.subsystems.wrist.WristSubsystem;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
@@ -44,6 +46,7 @@ public class RobotContainer {
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final DriveSubsystem m_drive;
   private final ElevatorSubsystem m_elevator;
+  private final WristSubsystem m_wrist;
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -68,6 +71,7 @@ public class RobotContainer {
     } else if (Akit.currentMode == 1) {
         m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
         m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
+        m_wrist = new WristSubsystem(new WristIOSim());
     }
 
     m_drive.setDefaultCommand(
@@ -98,8 +102,10 @@ public class RobotContainer {
 
     m_driverController.leftTrigger(0.7).whileTrue(new DirectDriveToNearestBranch(m_drive, true));
     m_driverController.rightTrigger(0.7).whileTrue(new DirectDriveToNearestBranch(m_drive, false));
-    m_driverController.a().whileTrue(new RunCommand(() -> {m_elevator.setPosition(0.7);System.out.println("Running elevator command");},m_elevator));
-    
+    m_driverController.a().onTrue(new RunCommand(() -> m_elevator.setPosition(1.5), m_elevator));
+    m_driverController.b().onTrue(new RunCommand(() -> m_elevator.setPosition(0), m_elevator));
+    m_driverController.x().onTrue(new RunCommand(() -> m_wrist.setVoltage(12), m_wrist));
+    m_driverController.x().onFalse(new RunCommand(() -> m_wrist.setVoltage(-5), m_wrist));
   }
 
   /**

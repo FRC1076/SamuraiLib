@@ -15,4 +15,6 @@ public interface WristIO {
     public default void setVoltage(double volts) {}
 
     public default void setPosition(double position) {}
+
+    public default void simulationPeriodic() {}
 }

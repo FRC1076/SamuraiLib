@@ -152,17 +152,17 @@ public class ElevatorIOSim implements ElevatorIO{
         // With the setpoint value we run PID control like normal
         double pidOutput = m_PIDController.calculate(m_encoderSim.getPosition());
         double feedforwardOutput = FFController.calculate(m_PIDController.getSetpoint().velocity);
-        m_leadMotor.setVoltage(pidOutput + feedforwardOutput);
+        m_leadMotorSim.setAppliedOutput((pidOutput + feedforwardOutput)/m_leadMotorSim.getBusVoltage());
     }
 
     @Override
     public void setVoltage(double voltage) {
-        m_leadMotor.setVoltage(voltage);
+        m_leadMotorSim.setAppliedOutput(voltage/m_leadMotorSim.getBusVoltage());
     }
 
     @Override 
     public void updateInputs(ElevatorIOInputs inputs) {
-        inputs.appliedVolts = m_leadMotorSim.getAppliedOutput() * m_leadMotor.getBusVoltage();
+        inputs.appliedVolts = m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage();
         inputs.leadCurrentAmps = m_leadMotorSim.getMotorCurrent();
         inputs.followCurrentAmps = m_followMotorSim.getMotorCurrent();
         inputs.elevatorHeightMeters = m_encoderSim.getPosition();

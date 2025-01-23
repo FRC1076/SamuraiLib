@@ -25,4 +25,9 @@ public class WristSubsystem extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("Wrist", inputs);
     }
+
+    @Override
+    public void simulationPeriodic() {
+        io.simulationPeriodic();
+    }
 }
