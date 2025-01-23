@@ -104,8 +104,7 @@ public class RobotContainer {
     m_driverController.rightTrigger(0.7).whileTrue(new DirectDriveToNearestBranch(m_drive, false));
     m_driverController.a().onTrue(new RunCommand(() -> m_elevator.setPosition(1.5), m_elevator));
     m_driverController.b().onTrue(new RunCommand(() -> m_elevator.setPosition(0), m_elevator));
-    m_driverController.x().onTrue(new RunCommand(() -> m_wrist.setVoltage(12), m_wrist));
-    m_driverController.x().onFalse(new RunCommand(() -> m_wrist.setVoltage(-5), m_wrist));
+    m_driverController.x().whileTrue(new RunCommand(() -> m_wrist.setVoltage(12), m_wrist));
   }
 
   /**
