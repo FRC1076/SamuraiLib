@@ -181,8 +181,8 @@ public class TeleopDriveCommand extends Command {
     public Command applyProcessorCoralHeadingLock() {
         return applyHeadingLock(
             DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue
-                ? PoseOfInterest.BLU_CORAL_STATION_PROCESSOR.pose.getRotation().rotateBy(Rotation2d.k180deg)
-                : PoseOfInterest.RED_CORAL_STATION_PROCESSOR.pose.getRotation().rotateBy(Rotation2d.k180deg)
+                ? PoseOfInterest.BLU_CORAL_STATION_PROCESSOR.pose.getRotation()
+                : PoseOfInterest.RED_CORAL_STATION_PROCESSOR.pose.getRotation()
         );
     }
 
@@ -190,8 +190,8 @@ public class TeleopDriveCommand extends Command {
     public Command applyOppositeCoralHeadingLock() {
         return applyHeadingLock(
             DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue
-                ? PoseOfInterest.BLU_CORAL_STATION_OPPOSITE.pose.getRotation().rotateBy(Rotation2d.k180deg)
-                : PoseOfInterest.RED_CORAL_STATION_OPPOSITE.pose.getRotation().rotateBy(Rotation2d.k180deg)
+                ? PoseOfInterest.BLU_CORAL_STATION_OPPOSITE.pose.getRotation()
+                : PoseOfInterest.RED_CORAL_STATION_OPPOSITE.pose.getRotation()
         );
     }
 
