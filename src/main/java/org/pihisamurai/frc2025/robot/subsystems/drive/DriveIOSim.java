@@ -1,4 +1,4 @@
-package frc.robot.subsystems.drive;
+package org.pihisamurai.frc2025.robot.subsystems.drive;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,7 +24,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 
-public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> implements DriveIO {
+import org.littletonrobotics.junction.Logger;
+
+public class DriveIOSim extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> implements DriveIO {
 
     private static class moduleSignalStruct {
         public StatusSignal<Voltage> turnAppliedVolts;
@@ -39,7 +41,7 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
     private int oldDaqs; //Number of successul daqs from previous main loop cycle
     protected AtomicInteger Daqs = new AtomicInteger(0);
     
-    public DriveIOHardware(SwerveDrivetrainConstants drivetrainConstants, double odometryUpdateFrequency, SwerveModuleConstants<?,?,?>... moduleConstants){
+    public DriveIOSim(SwerveDrivetrainConstants drivetrainConstants, double odometryUpdateFrequency, SwerveModuleConstants<?,?,?>... moduleConstants){
         super(
             TalonFX::new,
             TalonFX::new,
@@ -54,6 +56,12 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
                 Daqs.incrementAndGet();
             }
         );
+        if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
+            super.setOperatorPerspectiveForward(Rotation2d.fromDegrees(180));
+        }
+        else{
+            super.setOperatorPerspectiveForward(Rotation2d.fromDegrees(0));
+        }
         for (int i = 0; i < 4; i++){
             moduleSignalStruct sigStruct = new moduleSignalStruct();
             SwerveModule<TalonFX,TalonFX,CANcoder> module = getModule(i);
@@ -65,7 +73,7 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
         }
     }
 
-    public DriveIOHardware(CommandSwerveDrivetrain constants){
+    public DriveIOSim(CommandSwerveDrivetrain constants){
         this(
             constants.DrivetrainConstants(), 
             250.0,
@@ -142,7 +150,6 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
 
     @Override
     public void periodic(){
-        
+        updateSimState(0.02, 12);
     }
-
 }

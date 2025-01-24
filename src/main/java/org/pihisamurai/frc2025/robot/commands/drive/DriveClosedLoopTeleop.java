@@ -1,7 +1,13 @@
-package frc.robot.commands.drive;
+package org.pihisamurai.frc2025.robot.commands.drive;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+
+import org.pihisamurai.frc2025.robot.Constants.Coordinates;
+import org.pihisamurai.frc2025.robot.Constants.DriveConstants.ClutchMode;
+import org.pihisamurai.frc2025.robot.Constants.DriveConstants.DriverControlConstants;
+import org.pihisamurai.frc2025.robot.Constants.DriveConstants.HeadingMode;
+import org.pihisamurai.frc2025.robot.subsystems.drive.DriveSubsystem;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -11,11 +17,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.subsystems.drive.DriveSubsystem;
-import frc.robot.Constants.DriveConstants.DriverControlConstants;
-import frc.robot.Constants.DriveConstants.HeadingMode;
-import frc.robot.Constants.DriveConstants.ClutchMode;
-import frc.robot.Constants.Coordinates;
 /**
  * Drives Teleop in closed loop mode from controller inputs
  */
@@ -63,14 +64,14 @@ public class DriveClosedLoopTeleop extends Command {
                 break;
             case POINT_TO_REEF:
                 Translation2d reefLocation;
-                if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
+                if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
                     reefLocation = Coordinates.redReefCenter;
                 }
-                else{
+                else {
                     reefLocation = Coordinates.blueReefCenter;
                 }
                 Rotation2d angleToReef = reefLocation.minus(m_subsystem.getPose().getTranslation()).getAngle();
-                if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
+                if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
                     angleToReef = angleToReef.rotateBy(Rotation2d.fromDegrees(180));
                 }
                 m_subsystem.driveFOHeadingLocked(

@@ -1,9 +1,19 @@
-package frc.robot.subsystems.drive;
+package org.pihisamurai.frc2025.robot.subsystems.drive;
 
 import com.ctre.phoenix6.swerve.SwerveRequest.ApplyRobotSpeeds;
 
-import org.littletonrobotics.junction.Logger;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.DoubleSupplier;
 
+import org.littletonrobotics.junction.Logger;
+import org.pihisamurai.frc2025.robot.Constants.DriveConstants.PathPlannerConstants;
+import org.pihisamurai.frc2025.robot.Constants.FieldConstants.ReefFace;
+import org.pihisamurai.frc2025.robot.commands.drive.DirectDriveToPoseCommand;
+import org.pihisamurai.frc2025.robot.commands.drive.TeleopDriveCommand;
+import org.pihisamurai.frc2025.robot.utils.Localization;
+
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ApplyFieldSpeeds;
 import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentricFacingAngle;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
@@ -12,7 +22,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.drive.DriveIOInputsAutoLogged;
+import frc.robot.subsystems.drive.ModuleIOInputsAutoLogged;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -23,8 +37,6 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
 
-import frc.robot.Constants.DriveConstants.PathPlannerConstants;
-
 public class DriveSubsystem extends SubsystemBase {
     private final DriveIO io;
     private final DriveIOInputsAutoLogged driveInputs = new DriveIOInputsAutoLogged();
@@ -33,28 +45,30 @@ public class DriveSubsystem extends SubsystemBase {
     private final ModuleIOInputsAutoLogged rearLeftInputs = new ModuleIOInputsAutoLogged();
     private final ModuleIOInputsAutoLogged rearRightInputs = new ModuleIOInputsAutoLogged();
     private Boolean hasSetAlliance = false;
+    public final DriveCommandFactory CommandBuilder;
 
     public DriveSubsystem(DriveIO io) {
         this.io = io;
-        try{
+        try {
             AutoBuilder.configure(
-            () -> driveInputs.Pose,
-            (Pose2d pose) -> resetPose(pose),
-            () -> driveInputs.Speeds,
-            (speeds) -> driveCO(speeds),
-            new PPHolonomicDriveController(
+                this::getPose,
+                this::resetPose,
+                () -> driveInputs.Speeds,
+                (speeds) -> driveCO(speeds),
+                new PPHolonomicDriveController(
                     // PID constants for translation
                     new PIDConstants(5, 0, 0),
                     // PID constants for rotation
                     new PIDConstants(5, 0, 0)
-            ),
-            RobotConfig.fromGUISettings(),
-            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
-            this
-        );
+                ),
+                RobotConfig.fromGUISettings(),
+                () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+                this
+            );
         } catch (Exception ex) {
             DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
         }
+        CommandBuilder = new DriveCommandFactory(this);
         
     }
 
@@ -99,9 +113,11 @@ public class DriveSubsystem extends SubsystemBase {
         .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective);
         request.HeadingController.setPID(3.5, 0, 0);
         request.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
-        io.acceptRequest(
-            request
-        );
+        io.acceptRequest(request);
+    }
+
+    public void acceptRequest(SwerveRequest request) {
+        io.acceptRequest(request);
     }
 
     public void resetPose(Pose2d pose){
@@ -112,16 +128,52 @@ public class DriveSubsystem extends SubsystemBase {
         return io.getPose();
     }
 
-    public Command getPathfindToPoseCommand(Pose2d targetPose) {
-        return AutoBuilder.pathfindToPose(
-            targetPose,
-            PathPlannerConstants.pathConstraints,
-            0.0
-        );
-    }
+    public class DriveCommandFactory {
+        private final DriveSubsystem drive;
+        private final Map<ReefFace,Command> leftBranchAlignmentCommands = new HashMap<>();
+        private final Map<ReefFace,Command> reefCenterAlignmentCommands = new HashMap<>();
+        private final Map<ReefFace,Command> rightBranchAlignmentCommands = new HashMap<>();
+        private DriveCommandFactory(DriveSubsystem drive) {
+            this.drive = drive;
+            for (ReefFace face : ReefFace.values()) {
+                leftBranchAlignmentCommands.put(face,directDriveToPose(face.leftBranch.rotateBy(Rotation2d.k180deg)));
+                reefCenterAlignmentCommands.put(face,directDriveToPose(face.AprilTag.rotateBy(Rotation2d.k180deg)));
+                rightBranchAlignmentCommands.put(face,directDriveToPose(face.rightBranch.rotateBy(Rotation2d.k180deg)));
+            }
+        }
 
-    public Command getFollowPathCommand(PathPlannerPath path){
-        return AutoBuilder.followPath(path);
+        public Command pathfindToPose(Pose2d targetPose) {
+            return AutoBuilder.pathfindToPose(
+                targetPose,
+                PathPlannerConstants.pathConstraints,
+                0.0
+            );
+        }
+    
+        public Command followPath(PathPlannerPath path){
+            return AutoBuilder.followPath(path);
+        }
+
+        public TeleopDriveCommand teleopDrive(DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier omegaSupplier) {
+            return new TeleopDriveCommand(drive,xSupplier,ySupplier,omegaSupplier);
+        }
+
+        public Command directDriveToPose(Pose2d targetPose) {
+            return new DirectDriveToPoseCommand(drive, targetPose);
+        }
+
+        public Command directDriveToNearestLeftBranch() {
+            return new SelectCommand<>(leftBranchAlignmentCommands,() -> Localization.getClosestReefFace(drive.getPose()));
+        }
+
+        public Command directDriveToNearestReefFace() {
+            return new SelectCommand<>(reefCenterAlignmentCommands,() -> Localization.getClosestReefFace(drive.getPose()));
+        }
+
+        public Command directDriveToNearestRightBranch() {
+            return new SelectCommand<>(rightBranchAlignmentCommands,() -> Localization.getClosestReefFace(drive.getPose()));
+        }
+
     }
 
 }
