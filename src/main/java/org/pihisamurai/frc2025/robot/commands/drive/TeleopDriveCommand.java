@@ -40,7 +40,7 @@ public class TeleopDriveCommand extends Command {
     private DoubleSupplier ySupplier;
     private DoubleSupplier omegaSupplier;
     private TriFunction<Double,Double,Double,SwerveRequest> requestGenerator;
-    private Optional<TriFunction<Double,Double,Double,SwerveRequest>> requestGeneratorOverride;
+    private Optional<TriFunction<Double,Double,Double,SwerveRequest>> requestGeneratorOverride = Optional.empty();
     private Optional<Supplier<Rotation2d>> headingSupplier = Optional.empty();
     public TeleopDriveCommand(DriveSubsystem drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier omegaSupplier) {
         m_drive = drive;
@@ -68,7 +68,7 @@ public class TeleopDriveCommand extends Command {
                     .withVelocityY(vy)
                     .withTargetDirection(headingSupplier.get().get())
                     .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective);
-                request.HeadingController.setPID(3.5, 0, 0);
+                request.HeadingController.setPID(5, 0, 0);
                 request.HeadingController.enableContinuousInput(-Math.PI, Math.PI);
                 return request;
             };
@@ -164,34 +164,34 @@ public class TeleopDriveCommand extends Command {
 
     public Command applyReefHeadingLock() {
         return applyHeadingLock(
-            DriverStation.getAlliance().get() == Alliance.Blue 
+            DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue 
                 ? () -> {
                     Translation2d teamReef = PointOfInterest.BLU_REEF.position;
                     Rotation2d angleToReef = teamReef.minus(m_drive.getPose().getTranslation()).getAngle();
-                    return angleToReef.rotateBy(Rotation2d.fromDegrees(180));
+                    return angleToReef;
                 }
                 : () -> {
                     Translation2d teamReef = PointOfInterest.RED_REEF.position;
                     Rotation2d angleToReef = teamReef.minus(m_drive.getPose().getTranslation()).getAngle();
-                    return angleToReef.rotateBy(Rotation2d.fromDegrees(180));
+                    return angleToReef;
                 }
         );
     }
 
     public Command applyProcessorCoralHeadingLock() {
         return applyHeadingLock(
-            DriverStation.getAlliance().get() == Alliance.Blue
-                ? PoseOfInterest.BLU_CORAL_STATION_PROCESSOR.pose.getRotation()
-                : PoseOfInterest.RED_CORAL_STATION_PROCESSOR.pose.getRotation()
+            DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue
+                ? PoseOfInterest.BLU_CORAL_STATION_PROCESSOR.pose.getRotation().rotateBy(Rotation2d.k180deg)
+                : PoseOfInterest.RED_CORAL_STATION_PROCESSOR.pose.getRotation().rotateBy(Rotation2d.k180deg)
         );
     }
 
     //** Returns a command that applies a heading lock oriented to the opposite-side coral station to the TeleopDriveCommand */
     public Command applyOppositeCoralHeadingLock() {
         return applyHeadingLock(
-            DriverStation.getAlliance().get() == Alliance.Blue
-                ? PoseOfInterest.BLU_CORAL_STATION_OPPOSITE.pose.getRotation()
-                : PoseOfInterest.RED_CORAL_STATION_OPPOSITE.pose.getRotation()
+            DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue
+                ? PoseOfInterest.BLU_CORAL_STATION_OPPOSITE.pose.getRotation().rotateBy(Rotation2d.k180deg)
+                : PoseOfInterest.RED_CORAL_STATION_OPPOSITE.pose.getRotation().rotateBy(Rotation2d.k180deg)
         );
     }
 

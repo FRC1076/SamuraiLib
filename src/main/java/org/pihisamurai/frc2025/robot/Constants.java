@@ -13,6 +13,7 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
 
 import com.pathplanner.lib.path.PathConstraints;
@@ -38,6 +39,7 @@ public final class Constants {
     }
     
     public static class DriveConstants {
+
         public static class DriverControlConstants {
             public static final double singleClutchTranslationFactor = 0.5;
             public static final double singleClutchRotationFactor = 0.5;
@@ -49,6 +51,7 @@ public final class Constants {
 
         public static class PathPlannerConstants {
             public static final PathConstraints pathConstraints = new PathConstraints(4.69, 25, Units.degreesToRadians(1080), Units.degreesToRadians(1080));
+            public static final Transform2d robotOffset = new Transform2d(0.4572, 0, Rotation2d.kZero);
         }
 
         public enum HeadingMode {

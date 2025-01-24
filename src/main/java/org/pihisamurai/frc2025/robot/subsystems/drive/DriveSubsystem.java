@@ -12,6 +12,7 @@ import org.pihisamurai.frc2025.robot.Constants.FieldConstants.ReefFace;
 import org.pihisamurai.frc2025.robot.commands.drive.DirectDriveToPoseCommand;
 import org.pihisamurai.frc2025.robot.commands.drive.TeleopDriveCommand;
 import org.pihisamurai.frc2025.robot.utils.Localization;
+import org.pihisamurai.lib.utils.GeometryUtils;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ApplyFieldSpeeds;
@@ -22,21 +23,18 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.drive.DriveIOInputsAutoLogged;
-import frc.robot.subsystems.drive.ModuleIOInputsAutoLogged;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
 
+import static org.pihisamurai.frc2025.robot.Constants.DriveConstants.PathPlannerConstants.robotOffset;
 public class DriveSubsystem extends SubsystemBase {
     private final DriveIO io;
     private final DriveIOInputsAutoLogged driveInputs = new DriveIOInputsAutoLogged();
@@ -86,26 +84,25 @@ public class DriveSubsystem extends SubsystemBase {
         Logger.processInputs("Drive/RearLeft",rearLeftInputs);
         Logger.processInputs("Drive/RearRight",rearRightInputs);
 
-        if(DriverStation.getAlliance().isPresent()){
+        if (DriverStation.getAlliance().isPresent()) {
             hasSetAlliance = true;
-            if(DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red){
+            if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
                 io.setAllianceRotation(Rotation2d.fromDegrees(180));
-            }
-            else{
+            } else {
                 io.setAllianceRotation(Rotation2d.fromDegrees(0));
             }
         }
     }
 
-    public void driveCO(ChassisSpeeds speeds){
+    public void driveCO(ChassisSpeeds speeds) {
         io.acceptRequest(new ApplyRobotSpeeds().withSpeeds(speeds));
     }
 
-    public void driveFO(ChassisSpeeds speeds){
+    public void driveFO(ChassisSpeeds speeds) {
         io.acceptRequest(new ApplyFieldSpeeds().withSpeeds(speeds).withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective));
     }
 
-    public void driveFOHeadingLocked(double xMetersPerSecond, double yMetersPerSecond, Rotation2d targetDirection){
+    public void driveFOHeadingLocked(double xMetersPerSecond, double yMetersPerSecond, Rotation2d targetDirection) {
         FieldCentricFacingAngle request = new FieldCentricFacingAngle()
         .withVelocityX(xMetersPerSecond)
         .withVelocityY(yMetersPerSecond)
@@ -120,11 +117,11 @@ public class DriveSubsystem extends SubsystemBase {
         io.acceptRequest(request);
     }
 
-    public void resetPose(Pose2d pose){
+    public void resetPose(Pose2d pose) {
         io.resetPose(pose);
     }
 
-    public Pose2d getPose(){
+    public Pose2d getPose() {
         return io.getPose();
     }
 
@@ -136,9 +133,9 @@ public class DriveSubsystem extends SubsystemBase {
         private DriveCommandFactory(DriveSubsystem drive) {
             this.drive = drive;
             for (ReefFace face : ReefFace.values()) {
-                leftBranchAlignmentCommands.put(face,directDriveToPose(face.leftBranch.rotateBy(Rotation2d.k180deg)));
-                reefCenterAlignmentCommands.put(face,directDriveToPose(face.AprilTag.rotateBy(Rotation2d.k180deg)));
-                rightBranchAlignmentCommands.put(face,directDriveToPose(face.rightBranch.rotateBy(Rotation2d.k180deg)));
+                leftBranchAlignmentCommands.put(face,directDriveToPose(GeometryUtils.rotatePose(face.leftBranch.transformBy(robotOffset),Rotation2d.k180deg)));
+                reefCenterAlignmentCommands.put(face,directDriveToPose(GeometryUtils.rotatePose(face.AprilTag.transformBy(robotOffset),Rotation2d.k180deg)));
+                rightBranchAlignmentCommands.put(face,directDriveToPose(GeometryUtils.rotatePose(face.rightBranch.transformBy(robotOffset),Rotation2d.k180deg)));
             }
         }
 
