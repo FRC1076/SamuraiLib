@@ -84,7 +84,7 @@ public class DriveSubsystem extends SubsystemBase {
         Logger.processInputs("Drive/RearLeft",rearLeftInputs);
         Logger.processInputs("Drive/RearRight",rearRightInputs);
 
-        if (DriverStation.getAlliance().isPresent()) {
+        if (DriverStation.getAlliance().isPresent() & !hasSetAlliance) {
             hasSetAlliance = true;
             if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
                 io.setAllianceRotation(Rotation2d.fromDegrees(180));
