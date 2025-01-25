@@ -8,6 +8,8 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkMaxAlternateEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -65,8 +67,8 @@ public class WristIOHardware implements WristIO {
             .idleMode(IdleMode.kBrake);
 
         // configure motors
-        m_leadMotor.configure(m_leadMotorConfig, null, null);
-        m_followMotor.configure(m_followMotorConfig, null, null);
+        m_leadMotor.configure(m_leadMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        m_followMotor.configure(m_followMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
         m_closedLoopController = m_leadMotor.getClosedLoopController();
 
