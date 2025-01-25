@@ -251,9 +251,4 @@ public class TeleopDriveCommand extends Command {
         return applyHeadingLock(Rotation2d.fromDegrees(0));
     }
 
-    /** Returns a command that applies an X brake */
-    public Command applyXBrake() {
-        return applyRequestGeneratorOverride((vx,vy,vomega) -> new SwerveRequest.SwerveDriveBrake());
-    }
-
 }

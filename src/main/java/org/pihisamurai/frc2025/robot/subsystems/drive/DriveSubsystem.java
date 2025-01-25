@@ -5,6 +5,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ApplyRobotSpeeds;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 import org.pihisamurai.frc2025.robot.Constants.DriveConstants.PathPlannerConstants;
@@ -121,6 +122,10 @@ public class DriveSubsystem extends SubsystemBase {
         io.resetPose(pose);
     }
 
+    public void resetHeading(Rotation2d heading) {
+        io.resetHeading(heading);
+    }
+
     public Pose2d getPose() {
         return io.getPose();
     }
@@ -169,6 +174,10 @@ public class DriveSubsystem extends SubsystemBase {
 
         public Command directDriveToNearestRightBranch() {
             return new SelectCommand<>(rightBranchAlignmentCommands,() -> Localization.getClosestReefFace(drive.getPose()));
+        }
+        
+        public Command applySwerveRequest(Supplier<SwerveRequest> requestSupplier) {
+            return run(() -> acceptRequest(requestSupplier.get()));
         }
 
     }

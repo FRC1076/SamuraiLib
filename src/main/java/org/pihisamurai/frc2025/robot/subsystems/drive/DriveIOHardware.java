@@ -131,6 +131,11 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
     }
 
     @Override
+    public void resetHeading(Rotation2d heading) {
+        super.resetRotation(heading);
+    }
+
+    @Override
     public Pose2d getPose(){
         return super.getState().Pose;
     }
