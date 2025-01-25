@@ -56,4 +56,14 @@ public final class Constants {
             new Pose2d(12.643358, 3.306318, Rotation2d.fromDegrees(240)) //11
         );
     }
+
+    public static class IndexConstants {
+        public static final int kLeadMotorPort = -10;
+        public static final int kFollowMotorPort = -10;
+
+        public static final double kCurrentLimit = 40;
+
+        public static final boolean kLeadMotorInverted = false;
+        public static final boolean kFollowMotorInverted = false;
+    }
 }
