@@ -26,17 +26,17 @@ import static frc.robot.Constants.ElevatorConstants.Electrical.*;
 import frc.robot.Constants.ElevatorConstants;
 
 public class ElevatorIOHardware implements ElevatorIO {
-    private SparkMax m_leadMotor; //Leader
-    private SparkMax m_followMotor; //Follower
+    private final SparkMax m_leadMotor; //Leader
+    private final SparkMax m_followMotor; //Follower
 
-    private SparkMaxConfig m_leadMotorConfig;
-    private SparkMaxConfig m_followMotorConfig;
+    private final SparkMaxConfig m_leadMotorConfig;
+    private final SparkMaxConfig m_followMotorConfig;
     
-    private RelativeEncoder m_encoder;
+    private final RelativeEncoder m_encoder;
 
-    private SparkClosedLoopController m_closedLoopController;
+    private final SparkClosedLoopController m_closedLoopController;
 
-    private ElevatorFeedforward FFController = new ElevatorFeedforward(
+    private final ElevatorFeedforward FFController = new ElevatorFeedforward(
         kS, 
         kG,
         kV, 
