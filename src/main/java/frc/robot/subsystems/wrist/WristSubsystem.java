@@ -16,6 +16,10 @@ public class WristSubsystem extends SubsystemBase {
         io.setVoltage(volts);
     }
 
+    public void setPosition(double positionRadians) {
+        io.setPosition(positionRadians);
+    }
+
     public void stop() {
         setVoltage(0);
     }

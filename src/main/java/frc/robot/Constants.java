@@ -157,11 +157,15 @@ public final class Constants {
         public static class WristSimConstants {
             // values are NOT CORRECT
             public static final double kWristGearingReductions = 1;
-            public static final double kWristLength = 1;
+            public static final double kWristLength = Units.feetToMeters(1); // excludes a 5 inch fixed piece
             public static final double kWristMass = 2;
             public static final double kMinAngleRads = -0.75 * Math.PI;
             public static final double kMaxAngleRads = 0.75 * Math.PI;
-            public static final double kWristEncoderDistPerPulse = 2.0 * Math.PI / 8192;
+            public static final double kWristEncoderDistPerPulse = 2.0 * Math.PI / 42;//8192;
+
+            public static class Control {
+                public static final double kP = 0.1;
+            }
         }
     }
 }

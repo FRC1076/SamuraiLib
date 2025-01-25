@@ -10,6 +10,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.Unit;
@@ -56,6 +57,8 @@ public class WristIOSim implements WristIO {
     private final MechanismLigament2d m_wrist;
 
     private final SingleJointedArmSim m_wristSim;
+
+    private final PIDController m_PIDController;
 
     public WristIOSim() {
         m_wristGearbox = DCMotor.getNEO(2);
@@ -105,9 +108,9 @@ public class WristIOSim implements WristIO {
             WristSimConstants.kWristLength,
             WristSimConstants.kMinAngleRads,
             WristSimConstants.kMaxAngleRads,
-            true,
+        false,
             0,
-            WristSimConstants.kWristEncoderDistPerPulse,
+            //WristSimConstants.kWristEncoderDistPerPulse,
             0.0
         );
 
@@ -115,18 +118,20 @@ public class WristIOSim implements WristIO {
         m_followMotorSim = new SparkMaxSim(m_followMotor, m_wristGearbox);
         m_encoderSim = m_leadMotorSim.getAlternateEncoderSim();
     
-        m_mech2d = new Mechanism2d(60, 60);
-        m_wristPivot = m_mech2d.getRoot("WristPivot", 30, 30);
-        m_wristTower = m_wristPivot.append(new MechanismLigament2d("WristTower", 30, -90));
+        m_mech2d = new Mechanism2d(5, 5);
+        m_wristPivot = m_mech2d.getRoot("WristPivot", 0, 0);
+        m_wristTower = m_wristPivot.append(new MechanismLigament2d("WristTower", 1, 90));
         m_wrist = m_wristPivot.append(
             new MechanismLigament2d(
                 "Wrist",
-                30,
+                WristSimConstants.kWristLength,
                 Units.radiansToDegrees(m_wristSim.getAngleRads()))
         );
 
         SmartDashboard.putData("Wrist Sim", m_mech2d);
         m_wristTower.setColor(new Color8Bit(Color.kTeal)); // set color to teal because I feel like it
+
+        m_PIDController = new PIDController(WristSimConstants.Control.kP, 0, 0);
     }
 
     @Override
@@ -143,7 +148,21 @@ public class WristIOSim implements WristIO {
 
     @Override
     public void setVoltage(double volts) {
-        m_leadMotorSim.setAppliedOutput(volts/m_leadMotorSim.getBusVoltage());
+        m_leadMotorSim.setAppliedOutput(
+            (volts + FFController.calculate(
+                m_encoderSim.getPosition(), m_encoderSim.getVelocity()
+                )
+            )/m_leadMotorSim.getBusVoltage()
+        );
+    }
+
+    @Override
+    public void setPosition(double positionRadians) {
+        m_leadMotorSim.setAppliedOutput(
+            (m_PIDController.calculate(m_encoderSim.getPosition(), positionRadians))
+            /
+             m_leadMotorSim.getBusVoltage()
+        );
     }
 
     @Override

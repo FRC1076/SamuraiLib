@@ -82,6 +82,11 @@ public class RobotContainer {
         m_drive)
     );
 
+    m_wrist.setDefaultCommand(new RunCommand(
+      () -> m_wrist.stop(),
+      m_wrist)
+    );
+
     // Configure the trigger bindings
     configureBindings();
 
@@ -102,9 +107,14 @@ public class RobotContainer {
 
     m_driverController.leftTrigger(0.7).whileTrue(new DirectDriveToNearestBranch(m_drive, true));
     m_driverController.rightTrigger(0.7).whileTrue(new DirectDriveToNearestBranch(m_drive, false));
+    
     m_driverController.a().onTrue(new RunCommand(() -> m_elevator.setPosition(1.5), m_elevator));
     m_driverController.b().onTrue(new RunCommand(() -> m_elevator.setPosition(0), m_elevator));
-    m_driverController.x().whileTrue(new RunCommand(() -> m_wrist.setVoltage(12), m_wrist));
+    
+    m_driverController.x().whileTrue(new RunCommand(() -> m_wrist.setPosition(-0.5 * Math.PI), m_wrist));
+    m_driverController.y().whileTrue(new RunCommand(() -> m_wrist.setPosition(0.5 * Math.PI), m_wrist));
+
+    
   }
 
   /**
