@@ -12,8 +12,8 @@ public class GrabberIOHardware implements GrabberIO{
     private final SparkMax m_leftMotor;
     private final SparkMax m_rightMotor;
 
-    private SparkMaxConfig m_leftMotorConfig;
-    private SparkMaxConfig m_rightMotorConfig;
+    private final SparkMaxConfig m_leftMotorConfig;
+    private final SparkMaxConfig m_rightMotorConfig;
 
     public GrabberIOHardware() {
         // motor port constant is currently unknown. Change when known.
