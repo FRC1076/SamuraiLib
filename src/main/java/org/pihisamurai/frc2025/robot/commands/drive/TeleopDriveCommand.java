@@ -30,18 +30,39 @@ import static org.pihisamurai.frc2025.robot.Constants.DriveConstants.DriverContr
 import static org.pihisamurai.frc2025.robot.Constants.DriveConstants.DriverControlConstants.singleClutchTranslationFactor;
 
 public class TeleopDriveCommand extends Command {
+    //The raw speed suppliers, unaffected by the clutches. A reference to these is maintained in order to make applying and unapplying clutches easier
     private final DoubleSupplier rawXSupplier;
     private final DoubleSupplier rawYSupplier;
     private final DoubleSupplier rawOmegaSupplier;
+
+    //The required drive subsystem
     private final DriveSubsystem m_drive;
+
+    //The clutch factors being used
     private double transClutch = 1.0;
     private double rotClutch = 1.0;
+
+    //The actual speed suppliers, these are affected by the clutch factor
     private DoubleSupplier xSupplier;
     private DoubleSupplier ySupplier;
     private DoubleSupplier omegaSupplier;
+
+    //Request Generator declarations
+
+    //The request generator is a function that takes three doubles as parameters and returns a SwerveRequest.
+    //During every loop, the requestGenerator is invoked with the values of the three doublesuppliers as parameters,
+    //And the resulting SwerveRequest is applied to the Drivetrain
     private TriFunction<Double,Double,Double,SwerveRequest> requestGenerator;
+
+    //A swerve request override. If this optional is not empty, it signals to the TeleopDriveCommand that the request generator has been overridden, and will not
+    //generate a default requestGenerator during reloadCommand()
+    //The presence of a requestGeneratorOverride supersedes the presence of a headingSupplier
     private Optional<TriFunction<Double,Double,Double,SwerveRequest>> requestGeneratorOverride = Optional.empty();
+
+    //A heading override. If this optional is not empty, it signals to the TeleopDriveCommand that the heading has been locked,
+    //And will generate a requestGenerator that returns a FieldCentricFacingAngle request
     private Optional<Supplier<Rotation2d>> headingSupplier = Optional.empty();
+
     public TeleopDriveCommand(DriveSubsystem drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier omegaSupplier) {
         m_drive = drive;
         rawXSupplier = () -> xSupplier.getAsDouble() * maxTranslationSpeedMPS;
@@ -49,12 +70,40 @@ public class TeleopDriveCommand extends Command {
         rawOmegaSupplier = () -> omegaSupplier.getAsDouble() * maxRotationSpeedRadPerSec;
         addRequirements(drive);
     }
+
+    /* ######################################################################## */
+    /* # Standard methods inherited from Command                              # */
+    /* ######################################################################## */
     @Override
     public void initialize() {
         reloadCommand();
     }
 
-    /*Reloads the command*/
+    @Override
+    public void execute(){
+        m_drive.acceptRequest(
+            requestGenerator.apply(
+                xSupplier.getAsDouble(),
+                ySupplier.getAsDouble(),
+                omegaSupplier.getAsDouble()
+            )
+        );
+    }
+
+    @Override
+    public boolean isFinished() {
+        return !DriverStation.isTeleopEnabled();
+    }
+
+    
+    /* ######################################################################## */
+    /* # Internal Utility Methods                                             # */
+    /* ######################################################################## */
+
+    /**
+     * Reloads the command after a state change. Every time the command's state changes, this function MUST
+     * be called for the changes to come into effect
+     */
     private void reloadCommand() {
         xSupplier = () -> rawXSupplier.getAsDouble() * transClutch;
         ySupplier = () -> rawYSupplier.getAsDouble() * transClutch;
@@ -81,52 +130,49 @@ public class TeleopDriveCommand extends Command {
         }
     }
 
+    /** Overrides the requestGenerator */
     private void overrideRequestGenerator(TriFunction<Double,Double,Double,SwerveRequest> newRequestGenerator){
         this.requestGeneratorOverride = Optional.of(newRequestGenerator);
         reloadCommand();
     }
 
+    /** Clears any requestGenerator overrides */
     private void clearRequestGeneratorOverride() {
         this.requestGeneratorOverride = Optional.empty();
         reloadCommand();
     }
 
+    /** Sets an arbitrary clutch factor */
     private void setClutchFactor(double transClutch, double rotClutch) {
         this.transClutch = transClutch;
         this.rotClutch = rotClutch;
         reloadCommand();
     }
 
+    /** Sets an arbitrary heading lock, based on a headingSupplier */
     private void setHeadingLock(Supplier<Rotation2d> headingSupplier) {
         this.headingSupplier = Optional.of(headingSupplier);
         reloadCommand();
     }
 
+    /** Removes any heading lock */
     private void clearHeadingLock() {
         this.headingSupplier = Optional.empty();
         reloadCommand();
     }
 
+    /** Returns whether or not the request generator has been overridden */
     public boolean requestGeneratorOverridden() {
         return requestGeneratorOverride.isPresent();
     }
 
-    @Override
-    public void execute(){
-        m_drive.acceptRequest(
-            requestGenerator.apply(
-                xSupplier.getAsDouble(),
-                ySupplier.getAsDouble(),
-                omegaSupplier.getAsDouble()
-            )
-        );
-    }
+    
+    /* ######################################################################## */
+    /* # Public Command Factories                                             # */
+    /* ######################################################################## */
 
-    @Override
-    public boolean isFinished() {
-        return !DriverStation.isTeleopEnabled();
-    }
 
+    /** Returns a command that applies an arbitrary clutch factor */
     public Command applyClutchFactor(double transClutch, double rotClutch) {
         return Commands.startEnd(
             () -> setClutchFactor(transClutch, rotClutch),
@@ -134,13 +180,7 @@ public class TeleopDriveCommand extends Command {
         );
     }
 
-    public Command applyHeadingLock(Supplier<Rotation2d> headingSupplier) {
-        return Commands.startEnd(
-            () -> setHeadingLock(headingSupplier),
-            () -> clearHeadingLock()
-        );
-    }
-
+    /** Returns a command that applies an arbitrary request generator override */
     public Command applyRequestGeneratorOverride(TriFunction<Double,Double,Double,SwerveRequest> override) {
         return Commands.startEnd(
             () -> overrideRequestGenerator(override), 
@@ -148,6 +188,15 @@ public class TeleopDriveCommand extends Command {
         );
     }
 
+    /** Returns a command that applies an arbitrary heading lock, based on a headingSupplier */
+    public Command applyHeadingLock(Supplier<Rotation2d> headingSupplier) {
+        return Commands.startEnd(
+            () -> setHeadingLock(headingSupplier),
+            () -> clearHeadingLock()
+        );
+    }
+
+    /** Returns a command that applies an arbitrary heading lock, based on a static heading */
     public Command applyHeadingLock(Rotation2d heading) {
         return applyHeadingLock(() -> heading);
     }
@@ -157,11 +206,12 @@ public class TeleopDriveCommand extends Command {
         return applyClutchFactor(singleClutchTranslationFactor, singleClutchRotationFactor);
     }
 
-    //** Returns a command that applies a double clutch to the TeleopDriveCommand */
+    /** Returns a command that applies a double clutch to the TeleopDriveCommand */
     public Command applyDoubleClutch(){
         return applyClutchFactor(doubleClutchTranslationFactor, doubleClutchRotationFactor);
     }
 
+    /** Returns a command that applies a reef-oriented heading lock */
     public Command applyReefHeadingLock() {
         return applyHeadingLock(
             DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue 
@@ -178,6 +228,7 @@ public class TeleopDriveCommand extends Command {
         );
     }
 
+    /** Returns a command that applies a Processor side coral station-oriented heading lock*/
     public Command applyProcessorCoralHeadingLock() {
         return applyHeadingLock(
             DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue
@@ -186,7 +237,7 @@ public class TeleopDriveCommand extends Command {
         );
     }
 
-    //** Returns a command that applies a heading lock oriented to the opposite-side coral station to the TeleopDriveCommand */
+    /** Returns a command that applies an Opposite side coral station-oriented heading lock */
     public Command applyOppositeCoralHeadingLock() {
         return applyHeadingLock(
             DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue
@@ -195,9 +246,14 @@ public class TeleopDriveCommand extends Command {
         );
     }
 
-    //** Returns a command that applies a heading lock oriented directly forward to the TeleopDriveCommand */
+    /** Returns a command that applies a forward-oriented heading lock */
     public Command applyForwardHeadingLock() {
         return applyHeadingLock(Rotation2d.fromDegrees(0));
+    }
+
+    /** Returns a command that applies an X brake */
+    public Command applyXBrake() {
+        return applyRequestGeneratorOverride((vx,vy,vomega) -> new SwerveRequest.SwerveDriveBrake());
     }
 
 }
