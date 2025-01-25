@@ -125,4 +125,14 @@ public final class Constants {
             public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
         }
     }
+
+    public static class IndexConstants {
+        public static final int kLeadMotorPort = -10;
+        public static final int kFollowMotorPort = -10;
+
+        public static final double kCurrentLimit = 40;
+
+        public static final boolean kLeadMotorInverted = false;
+        public static final boolean kFollowMotorInverted = false;
+    }
 }
