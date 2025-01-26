@@ -1,6 +1,8 @@
 package frc.robot.subsystems.grabber;
 
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -10,8 +12,8 @@ public class GrabberIOHardware implements GrabberIO{
     private final SparkMax m_leftMotor;
     private final SparkMax m_rightMotor;
 
-    private SparkMaxConfig m_leftMotorConfig;
-    private SparkMaxConfig m_rightMotorConfig;
+    private final SparkMaxConfig m_leftMotorConfig;
+    private final SparkMaxConfig m_rightMotorConfig;
 
     public GrabberIOHardware() {
         // motor port constant is currently unknown. Change when known.
@@ -26,8 +28,8 @@ public class GrabberIOHardware implements GrabberIO{
         m_rightMotorConfig
             .smartCurrentLimit((int) GrabberConstants.kCurrentLimit);
 
-        m_leftMotor.configure(m_leftMotorConfig, null, null);
-        m_rightMotor.configure(m_rightMotorConfig, null, null);
+        m_leftMotor.configure(m_leftMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        m_rightMotor.configure(m_rightMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
     @Override
