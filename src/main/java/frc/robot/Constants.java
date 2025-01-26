@@ -166,7 +166,7 @@ public final class Constants {
         public static final double kMaxAngleRads = 0.75 * Math.PI;
 
         public static class Control {
-            public static final double kP = 8;
+            public static final double kP = 18;
             public static final double kI = 0;
             public static final double kD = 0;
 

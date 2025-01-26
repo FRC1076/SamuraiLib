@@ -171,6 +171,6 @@ public class ElevatorIOSim implements ElevatorIO{
         m_encoderSim.setPosition(m_elevatorSim.getPositionMeters());
 
         // Update elevator visualization with position
-        elevatorLigament.setLength(m_encoderSim.getPosition());
+        elevatorLigament.setLength(m_encoderSim.getPosition() + 0.01); //can't set to min value or else advantage scope visualization disappears
     }
 }
