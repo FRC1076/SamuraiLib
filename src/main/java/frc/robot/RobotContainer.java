@@ -32,9 +32,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -115,14 +117,23 @@ public class RobotContainer {
    */
   private void configureBindings() {
 
-    m_driverController.leftTrigger(0.7).whileTrue(new DirectDriveToNearestBranch(m_drive, true));
-    m_driverController.rightTrigger(0.7).whileTrue(new DirectDriveToNearestBranch(m_drive, false));
+    //m_driverController.leftTrigger(0.7).whileTrue(new DirectDriveToNearestBranch(m_drive, true));
+    //m_driverController.rightTrigger(0.7).whileTrue(new DirectDriveToNearestBranch(m_drive, false));
     
-    m_driverController.b().whileTrue(new RunCommand(() -> m_elevator.setPosition(1.5), m_elevator));
-    m_driverController.a().whileTrue(new RunCommand(() -> m_elevator.setPosition(0), m_elevator));
-    
-    m_driverController.x().whileTrue(new RunCommand(() -> m_wrist.setPosition(Rotation2d.fromDegrees(90).getRadians()), m_wrist));
-    m_driverController.y().whileTrue(new RunCommand(() -> m_wrist.setPosition(Rotation2d.fromDegrees(0).getRadians()), m_wrist));
+    m_driverController.leftTrigger().whileTrue(new ParallelCommandGroup(
+      new RunCommand(() -> m_wrist.setPosition(Rotation2d.fromDegrees(-23.5).getRadians()), m_wrist),
+      new RunCommand(() -> m_elevator.setPosition(0.08128), m_elevator)
+    ));
+
+    m_driverController.rightTrigger().whileFalse(new ParallelCommandGroup(
+      new RunCommand(() -> m_wrist.setPosition(Rotation2d.fromDegrees(90).getRadians()), m_wrist),
+      new RunCommand(() -> m_elevator.setPosition(0), m_elevator)
+    ));
+
+    m_driverController.y().whileTrue(new ParallelCommandGroup(
+      new RunCommand(() -> m_wrist.setPosition(Rotation2d.fromDegrees(-45).getRadians()), m_wrist),
+      new RunCommand(() -> m_elevator.setPosition(1.8161), m_elevator)
+    ));
 
     
   }

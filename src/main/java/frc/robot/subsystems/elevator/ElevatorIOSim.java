@@ -34,12 +34,8 @@ public class ElevatorIOSim implements ElevatorIO{
 
     private SparkMaxConfig m_leadMotorConfig;
     private SparkMaxConfig m_followMotorConfig;
-
-    private Encoder m_encoder;
     
     private final SparkRelativeEncoderSim m_encoderSim;
-
-    private SparkClosedLoopController m_closedLoopController;
 
     private final PIDController m_PIDController;
 
@@ -101,8 +97,6 @@ public class ElevatorIOSim implements ElevatorIO{
         
         m_leadMotor.configure(m_leadMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
         m_followMotor.configure(m_followMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
-
-        m_closedLoopController = m_leadMotor.getClosedLoopController();
 
         m_leadMotor.setCANTimeout(0);
         m_followMotor.setCANTimeout(0);
