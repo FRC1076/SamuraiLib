@@ -8,11 +8,13 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
+import org.pihisamurai.frc2025.robot.Constants.DriveConstants;
 import org.pihisamurai.frc2025.robot.Constants.DriveConstants.PathPlannerConstants;
 import org.pihisamurai.frc2025.robot.Constants.FieldConstants.ReefFace;
 import org.pihisamurai.frc2025.robot.commands.drive.DirectDriveToPoseCommand;
 import org.pihisamurai.frc2025.robot.commands.drive.TeleopDriveCommand;
 import org.pihisamurai.frc2025.robot.utils.Localization;
+import org.pihisamurai.lib.control.PathfollowingLQRHolonomicDriveController;
 import org.pihisamurai.lib.utils.GeometryUtils;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -54,12 +56,7 @@ public class DriveSubsystem extends SubsystemBase {
                 this::resetPose,
                 () -> driveInputs.Speeds,
                 (speeds) -> driveCO(speeds),
-                new PPHolonomicDriveController(
-                    // PID constants for translation
-                    new PIDConstants(5, 0, 0),
-                    // PID constants for rotation
-                    new PIDConstants(5, 0, 0)
-                ),
+                new PathfollowingLQRHolonomicDriveController(DriveConstants.SystemControlConstants.driveControlWeights, 0.02),
                 RobotConfig.fromGUISettings(),
                 () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
                 this

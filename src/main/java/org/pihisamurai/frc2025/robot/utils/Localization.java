@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.pihisamurai.frc2025.robot.Constants.FieldConstants.PoseOfInterest;
 import org.pihisamurai.frc2025.robot.Constants.FieldConstants.ReefFace;
+import org.pihisamurai.lib.control.LQRHolonomicDriveController;
 
 import edu.wpi.first.math.geometry.Pose2d;
 
@@ -26,7 +27,6 @@ public final class Localization {
     public static ReefFace getClosestReefFace(Pose2d robotPose){
         double closestDistance = Double.MAX_VALUE; // Distance away from april tag
         ReefFace closestFace = null;
-
         for (ReefFace face: ReefFace.values()){
             double distance = robotPose.getTranslation().getDistance(face.AprilTag.getTranslation());
             if (distance < closestDistance) {

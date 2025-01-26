@@ -4,19 +4,9 @@
 
 package org.pihisamurai.frc2025.robot;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.pihisamurai.frc2025.robot.Constants.Akit;
 import org.pihisamurai.frc2025.robot.Constants.OIConstants;
-import org.pihisamurai.frc2025.robot.Constants.Coordinates.ReefAlignment;
-import org.pihisamurai.frc2025.robot.Constants.FieldConstants.ReefFace;
-import org.pihisamurai.frc2025.robot.commands.Autos;
-import org.pihisamurai.frc2025.robot.commands.drive.DirectDriveToPoseCommand;
-import org.pihisamurai.frc2025.robot.commands.drive.DriveClosedLoopTeleop;
-import org.pihisamurai.frc2025.robot.commands.drive.DriveToReef;
 import org.pihisamurai.frc2025.robot.commands.drive.TeleopDriveCommand;
-import org.pihisamurai.frc2025.robot.subsystems.ExampleSubsystem;
 import org.pihisamurai.frc2025.robot.subsystems.drive.DriveIOHardware;
 import org.pihisamurai.frc2025.robot.subsystems.drive.DriveIOSim;
 import org.pihisamurai.frc2025.robot.subsystems.drive.DriveSubsystem;
@@ -25,16 +15,11 @@ import org.pihisamurai.frc2025.robot.subsystems.drive.TunerConstants;
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
