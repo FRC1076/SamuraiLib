@@ -4,11 +4,14 @@
 
 package frc.robot;
 
-import frc.robot.Constants.Akit;
-import frc.robot.Constants.OIConstants;
+import java.util.HashMap;
+import java.util.Map;
+
 import frc.robot.commands.Autos;
+import frc.robot.commands.drive.DirectDriveToPoseCommand;
 import frc.robot.commands.drive.DriveClosedLoopTeleop;
-import frc.robot.commands.drive.DirectDriveToNearestBranch;
+import frc.robot.commands.drive.DriveToReef;
+import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.drive.DriveIOHardware;
 import frc.robot.subsystems.drive.DriveIOSim;
@@ -38,6 +41,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 
+import frc.robot.Constants.Akit;
+import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.Coordinates.ReefAlignment;
+import frc.robot.Constants.FieldConstants.ReefFace;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -54,21 +61,22 @@ public class RobotContainer {
   private final ElevatorSubsystem m_elevator;
   private final WristSubsystem m_wrist;
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OIConstants.kDriverControllerPort);
+    // Replace with CommandPS4Controller or CommandJoystick if needed
+    private final CommandXboxController m_driverController =
+        new CommandXboxController(OIConstants.kDriverControllerPort);
     
-  private final SendableChooser<Command> m_autoChooser;
+    private final SendableChooser<Command> m_autoChooser;
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
+    private final TeleopDriveCommand teleopDriveCommand;
+
+    /** The container for the robot. Contains subsystems, OI devices, and commands. */
+    public RobotContainer() {
 
     /* 
     DO NOT REFACTOR INTO A SWITCH STATEMENT!!! 
     Because the expressions being evaluated are known at compile time, the compiler will 
     discard the unused branches, functioning as a shitty bootleg version of
     if constexpr
-
     Also, ignore the "comparing identical expressions" and "dead code" warnings
     */
 
@@ -81,12 +89,14 @@ public class RobotContainer {
         m_wrist = new WristSubsystem(new WristIOSim(superstructureVisualizer.getWristLigament()));
     }
 
-    m_drive.setDefaultCommand(
-      new DriveClosedLoopTeleop(
+    teleopDriveCommand = m_drive.CommandBuilder.teleopDrive(
         () -> MathUtil.applyDeadband(-m_driverController.getLeftY(), OIConstants.kControllerDeadband), 
         () -> MathUtil.applyDeadband(-m_driverController.getLeftX(), OIConstants.kControllerDeadband),
-        () -> MathUtil.applyDeadband(-m_driverController.getRightX(), OIConstants.kControllerDeadband), 
-        m_drive)
+        () -> MathUtil.applyDeadband(-m_driverController.getRightX(), OIConstants.kControllerDeadband)
+    );
+
+    m_drive.setDefaultCommand(
+        teleopDriveCommand
     );
 
     m_elevator.setDefaultCommand(new RunCommand(
@@ -115,11 +125,14 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private void configureBindings() {
-
-    //m_driverController.leftTrigger(0.7).whileTrue(new DirectDriveToNearestBranch(m_drive, true));
-    //m_driverController.rightTrigger(0.7).whileTrue(new DirectDriveToNearestBranch(m_drive, false));
+    private void configureBindings() {
+        m_driverController.leftTrigger(OIConstants.kControllerTriggerThreshold)
+            .whileTrue(m_drive.CommandBuilder.directDriveToNearestLeftBranch());
+            
+        m_driverController.rightTrigger(OIConstants.kControllerTriggerThreshold)
+            .whileTrue(m_drive.CommandBuilder.directDriveToNearestRightBranch());
     
+    /* OPERATOR CONTROLS
     m_driverController.leftTrigger().whileTrue(new ParallelCommandGroup(
       new RunCommand(() -> m_wrist.setPosition(Rotation2d.fromDegrees(-23.5).getRadians()), m_wrist),
       new RunCommand(() -> m_elevator.setPosition(0.08128), m_elevator)
@@ -133,9 +146,24 @@ public class RobotContainer {
     m_driverController.y().whileTrue(new ParallelCommandGroup(
       new RunCommand(() -> m_wrist.setPosition(Rotation2d.fromDegrees(-45).getRadians()), m_wrist),
       new RunCommand(() -> m_elevator.setPosition(1.8161), m_elevator)
-    ));
+    ));*/
 
-    
+    m_driverController.leftTrigger(OIConstants.kControllerTriggerThreshold)
+        .and(m_driverController.rightTrigger(OIConstants.kControllerTriggerThreshold))
+        .whileTrue(m_drive.CommandBuilder.directDriveToNearestReefFace());
+
+    m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
+
+    m_driverController.rightBumper().whileTrue(teleopDriveCommand.applySingleClutch());
+
+    m_driverController.leftBumper().whileTrue(teleopDriveCommand.applyDoubleClutch());
+
+    m_driverController.x().whileTrue(teleopDriveCommand.applyOppositeCoralHeadingLock());
+
+    m_driverController.b().whileTrue(teleopDriveCommand.applyProcessorCoralHeadingLock());
+
+    m_driverController.y().whileTrue(teleopDriveCommand.applyForwardHeadingLock());
+
   }
 
   /**
