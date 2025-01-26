@@ -40,10 +40,6 @@ public class WristIOSim implements WristIO {
 
     private final SparkRelativeEncoderSim m_encoderSim;
 
-    private SparkClosedLoopController m_closedLoopController;
-
-    private RelativeEncoder m_alternateEncoder;
-
     private ArmFeedforward m_FFController = new ArmFeedforward(
         WristSimConstants.Control.kS,
         WristSimConstants.Control.kG,
@@ -91,8 +87,6 @@ public class WristIOSim implements WristIO {
         // configure motors
         m_leadMotor.configure(m_leadMotorConfig, null, null);
         m_followMotor.configure(m_followMotorConfig, null, null);
-
-        m_closedLoopController = m_leadMotor.getClosedLoopController();
 
         m_wristSim = new SingleJointedArmSim(
             m_wristGearbox,
