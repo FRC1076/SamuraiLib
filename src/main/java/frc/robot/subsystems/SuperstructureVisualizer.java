@@ -12,15 +12,19 @@ public class SuperstructureVisualizer {
     private final Mechanism2d superstructure;
     private final MechanismRoot2d elevatorRoot;
     private final MechanismLigament2d elevator;
+    private final MechanismLigament2d fixed;
     private final MechanismLigament2d wrist;
 
     public SuperstructureVisualizer(){
-        superstructure = new Mechanism2d(0.762, 2);
-        elevatorRoot = superstructure.getRoot("Elevator Root", 0.381, 0);
+        superstructure = new Mechanism2d(0.762, 3);
+        elevatorRoot = superstructure.getRoot("Elevator Root", 0.381 + 0.127, 0.23114);
         elevator = elevatorRoot.append(
             new MechanismLigament2d("Elevator", 0, 90)
         );
-        wrist = elevator.append(
+        fixed = elevator.append(
+            new MechanismLigament2d("Fixed", 0.127, -90)
+        );
+        wrist = fixed.append(
             new MechanismLigament2d("Wrist", 0.3048, 0)
         );
         SmartDashboard.putData("Superstructure Visualization", superstructure);

@@ -74,7 +74,7 @@ public class RobotContainer {
         m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()));
     } else if (Akit.currentMode == 1) {
         m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
-        final SuperstructureVisualizer superstructureVisualizer = new SuperstructureVisualizer();
+        SuperstructureVisualizer superstructureVisualizer = new SuperstructureVisualizer();
         m_elevator = new ElevatorSubsystem(new ElevatorIOSim(superstructureVisualizer.getElevatorLigament()));
         m_wrist = new WristSubsystem(new WristIOSim(superstructureVisualizer.getWristLigament()));
     }

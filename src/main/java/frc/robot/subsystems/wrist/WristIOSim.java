@@ -142,9 +142,9 @@ public class WristIOSim implements WristIO {
     @Override
     public void setPosition(double positionRadians) {
         m_leadMotorSim.setAppliedOutput(
-            (m_PIDController.calculate(m_encoderSim.getPosition(), positionRadians))
-            /
-             m_leadMotorSim.getBusVoltage()
+            (m_PIDController.calculate(m_encoderSim.getPosition(), positionRadians)
+            + m_FFController.calculate(positionRadians, 0))
+            / m_leadMotorSim.getBusVoltage()
         );
     }
 
