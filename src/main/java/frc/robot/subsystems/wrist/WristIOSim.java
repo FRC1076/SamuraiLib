@@ -95,7 +95,7 @@ public class WristIOSim implements WristIO {
             WristSimConstants.kWristLength,
             WristSimConstants.kMinAngleRads,
             WristSimConstants.kMaxAngleRads,
-            false,
+            true,
             0,
             //WristSimConstants.kWristEncoderDistPerPulse,
             0.0,

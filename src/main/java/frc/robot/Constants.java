@@ -171,7 +171,7 @@ public final class Constants {
             public static final double kD = 0;
 
             public static final double kS = 0.0; // static gain in volts
-            public static final double kG = 0.0; // gravity gain in volts
+            public static final double kG = 0.0553; // gravity gain in volts
             public static final double kV = 0.0; // velocity gain in volts per radian per second
             public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
         }
