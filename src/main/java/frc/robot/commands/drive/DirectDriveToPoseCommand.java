@@ -1,5 +1,7 @@
 package frc.robot.commands.drive;
 
+import static edu.wpi.first.units.Units.Rotation;
+
 import java.util.List;
 
 import frc.robot.subsystems.drive.DriveSubsystem;
@@ -10,8 +12,10 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants.PathPlannerConstants;
+import frc.robot.utils.GeometryUtils;
 
 /** This automatically drives to a pose without using A* to generate a trajectory, useful for when we know there are no obstructions on the field between the robot and the desired pose */
 public class DirectDriveToPoseCommand extends Command {
@@ -29,9 +33,10 @@ public class DirectDriveToPoseCommand extends Command {
     @Override
     public void initialize() {
         Pose2d currentPose = m_drive.getPose();
+        Pose2d startingWaypoint = new Pose2d(currentPose.getTranslation(), GeometryUtils.angleToPose(currentPose, targetPose));
         //Pose2d intermediatePose = currentPose.transformBy(targetPose.minus(currentPose).times(0.5));
         List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(
-            currentPose,
+            startingWaypoint,
             targetPose
         );
         try {

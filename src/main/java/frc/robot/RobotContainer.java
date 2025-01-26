@@ -126,13 +126,13 @@ public class RobotContainer {
    * joysticks}.
    */
     private void configureBindings() {
-        m_driverController.leftTrigger(OIConstants.kControllerTriggerThreshold)
+        /*m_driverController.leftTrigger(OIConstants.kControllerTriggerThreshold)
             .whileTrue(m_drive.CommandBuilder.directDriveToNearestLeftBranch());
             
         m_driverController.rightTrigger(OIConstants.kControllerTriggerThreshold)
-            .whileTrue(m_drive.CommandBuilder.directDriveToNearestRightBranch());
+            .whileTrue(m_drive.CommandBuilder.directDriveToNearestRightBranch());*/
     
-    /* OPERATOR CONTROLS
+    // OPERATOR CONTROLS
     m_driverController.leftTrigger().whileTrue(new ParallelCommandGroup(
       new RunCommand(() -> m_wrist.setPosition(Rotation2d.fromDegrees(-23.5).getRadians()), m_wrist),
       new RunCommand(() -> m_elevator.setPosition(0.08128), m_elevator)
@@ -146,11 +146,11 @@ public class RobotContainer {
     m_driverController.y().whileTrue(new ParallelCommandGroup(
       new RunCommand(() -> m_wrist.setPosition(Rotation2d.fromDegrees(-45).getRadians()), m_wrist),
       new RunCommand(() -> m_elevator.setPosition(1.8161), m_elevator)
-    ));*/
+    ));
 
-    m_driverController.leftTrigger(OIConstants.kControllerTriggerThreshold)
+    /*m_driverController.leftTrigger(OIConstants.kControllerTriggerThreshold)
         .and(m_driverController.rightTrigger(OIConstants.kControllerTriggerThreshold))
-        .whileTrue(m_drive.CommandBuilder.directDriveToNearestReefFace());
+        .whileTrue(m_drive.CommandBuilder.directDriveToNearestReefFace());*/
 
     m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
 
@@ -162,7 +162,7 @@ public class RobotContainer {
 
     m_driverController.b().whileTrue(teleopDriveCommand.applyProcessorCoralHeadingLock());
 
-    m_driverController.y().whileTrue(teleopDriveCommand.applyForwardHeadingLock());
+    /*m_driverController.y().whileTrue(teleopDriveCommand.applyForwardHeadingLock());*/
 
   }
 

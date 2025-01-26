@@ -9,7 +9,7 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
-def ROBOT_MAIN_CLASS = "org.pihisamurai.frc2025.robot.Main"
+def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
 // This is added by GradleRIO's backing project DeployUtils.
@@ -115,7 +115,7 @@ tasks.withType(JavaCompile) {
 project.compileJava.dependsOn(createVersionFile)
 gversion {
   srcDir       = "src/main/java/"
-  classPackage = "org.pihisamurai.frc2025.robot"
+  classPackage = "frc.robot"
   className    = "BuildConstants"
   dateFormat   = "yyyy-MM-dd HH:mm:ss z"
   timeZone     = "America/New_York" // Use preferred time zone
