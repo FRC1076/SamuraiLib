@@ -1,4 +1,4 @@
-package org.pihisamurai.lib.utils;
+package frc.robot.utils;
 
 import org.apache.commons.lang3.NotImplementedException;
 

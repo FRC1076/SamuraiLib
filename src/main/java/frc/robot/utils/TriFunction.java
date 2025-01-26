@@ -1,4 +1,4 @@
-package org.pihisamurai.lib.utils;
+package frc.robot.utils;
 
 import java.util.Objects;
 import java.util.function.Function;

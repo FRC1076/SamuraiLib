@@ -1,13 +1,17 @@
-package org.pihisamurai.frc2025.robot.commands.drive;
+package frc.robot.commands.drive;
+
+import static frc.robot.Constants.DriveConstants.DriverControlConstants.doubleClutchRotationFactor;
+import static frc.robot.Constants.DriveConstants.DriverControlConstants.doubleClutchTranslationFactor;
+import static frc.robot.Constants.DriveConstants.DriverControlConstants.maxRotationSpeedRadPerSec;
+import static frc.robot.Constants.DriveConstants.DriverControlConstants.maxTranslationSpeedMPS;
+import static frc.robot.Constants.DriveConstants.DriverControlConstants.singleClutchRotationFactor;
+import static frc.robot.Constants.DriveConstants.DriverControlConstants.singleClutchTranslationFactor;
 
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-import org.pihisamurai.frc2025.robot.Constants.FieldConstants.PointOfInterest;
-import org.pihisamurai.frc2025.robot.Constants.FieldConstants.PoseOfInterest;
-import org.pihisamurai.frc2025.robot.subsystems.drive.DriveSubsystem;
-import org.pihisamurai.lib.utils.TriFunction;
+import frc.robot.subsystems.drive.DriveSubsystem;
 
 import com.ctre.phoenix6.swerve.SwerveRequest.ApplyFieldSpeeds;
 import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentricFacingAngle;
@@ -21,13 +25,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-
-import static org.pihisamurai.frc2025.robot.Constants.DriveConstants.DriverControlConstants.doubleClutchRotationFactor;
-import static org.pihisamurai.frc2025.robot.Constants.DriveConstants.DriverControlConstants.doubleClutchTranslationFactor;
-import static org.pihisamurai.frc2025.robot.Constants.DriveConstants.DriverControlConstants.maxRotationSpeedRadPerSec;
-import static org.pihisamurai.frc2025.robot.Constants.DriveConstants.DriverControlConstants.maxTranslationSpeedMPS;
-import static org.pihisamurai.frc2025.robot.Constants.DriveConstants.DriverControlConstants.singleClutchRotationFactor;
-import static org.pihisamurai.frc2025.robot.Constants.DriveConstants.DriverControlConstants.singleClutchTranslationFactor;
+import frc.robot.Constants.FieldConstants.PointOfInterest;
+import frc.robot.Constants.FieldConstants.PoseOfInterest;
+import frc.robot.utils.TriFunction;
 
 public class TeleopDriveCommand extends Command {
     //The raw speed suppliers, unaffected by the clutches. A reference to these is maintained in order to make applying and unapplying clutches easier
