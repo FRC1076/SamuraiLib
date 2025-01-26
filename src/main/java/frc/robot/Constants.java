@@ -5,6 +5,9 @@
 package frc.robot;
 
 import java.util.List;
+
+import org.apache.commons.lang3.NotImplementedException;
+
 import java.util.Arrays;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -66,6 +69,57 @@ public final class Constants {
             DOUBLE_CLUTCH,
         }
 
+    }
+
+    public static class SuperstructureConstants {
+
+        public enum SuperState {
+            //TODO: Fix superstate structure
+            
+            EMPTY_TRAVEL(90,0,false,false,0,0),
+            CORAL_SAFE_INTAKE(90,0.08128,true,false,0,0),
+            CORAL_DIRECT_INTAKE(-23.5,0.08128,true,true,5,5),
+            CORAL_TRAVEL(90,0,false,false,0,0),
+
+            //PRE_L1(-1,-1,false,-1,-1)
+            //SCORE_L1
+
+            PRE_L2(-35,0.71628,false,false,0,0),
+            SCORE_L2(-35,0.71628,false,false,12,12),
+
+            PRE_L3(-35,1.11252,false,false,0,0),
+            SCORE_L3(-35,1.11252,false,false,12,12),
+
+            PRE_L4(-45,1.8161,false,false,0,0),
+            SCORE_L4(-45,1.8161,false,false,12,12),
+
+            ///ALGAE_GROUND_INTAKE
+
+            ALGAE_LOW_INTAKE(-35,0.9144,false,false,-12,-12),
+            ALGAE_HIGH_INTAKE(-35,1.30556,false,false,-12,-12),
+            ALGAE_TRAVEL(65,0,false,false,0,0),
+
+            PRE_PROCESSOR(0,0.184277,false,false,0,0),
+            SCORE_PROCESSOR(0,0.184277,false,false,6,6),
+
+            PRE_NET(65,1.8288,false,false,0,0),
+            SCORE_NET(65,1.8288,false,false,12,12);
+
+            public final Rotation2d wristAngle;
+            public final double elevatorHeightMeters;
+            public final boolean isIntaking;
+            public final boolean isIndexing;
+            public final double leftMotorVoltage;
+            public final double rightMotorVoltage;
+            private SuperState(double wristAngleDegrees, double elevatorHeightMeters, boolean isIntaking, boolean isIndexing, double leftMotorVoltage, double rightMotorVoltage) {
+                this.wristAngle = Rotation2d.fromDegrees(wristAngleDegrees);
+                this.elevatorHeightMeters = elevatorHeightMeters;
+                this.isIntaking = isIntaking;
+                this.isIndexing = isIndexing;
+                this.leftMotorVoltage = leftMotorVoltage;
+                this.rightMotorVoltage = rightMotorVoltage;
+            }
+        }
     }
 
     /** Contains data about the field */
@@ -130,65 +184,6 @@ public final class Constants {
             private PoseOfInterest(double xMeters, double yMeters, double omegaDeg) {
                 this.pose = new Pose2d(xMeters,yMeters,Rotation2d.fromDegrees(omegaDeg));
             }
-        }
-    }
-
-    public static class Coordinates {
-        public static final List<Pose2d> reefCenterCoordinates = Arrays.asList(
-            new Pose2d(4.073906, 3.306318, Rotation2d.fromDegrees(240)), // 17
-            new Pose2d(3.6576, 4.0259, Rotation2d.fromDegrees(180)), //18
-            new Pose2d(4.073906, 4.745482, Rotation2d.fromDegrees(120)), //19
-            new Pose2d(4.90474, 4.74582, Rotation2d.fromDegrees(60)), //20
-            new Pose2d(5.321046, 4.0259, Rotation2d.fromDegrees(0)), //21
-            new Pose2d(4.90474, 3.306318, Rotation2d.fromDegrees(300)), // 22 - end of blue
-            new Pose2d(13.474446, 3.306318, Rotation2d.fromDegrees(300)), //6
-            new Pose2d(13.890498, 4.0259, Rotation2d.fromDegrees(0)), //7
-            new Pose2d(13.474446, 4.745482, Rotation2d.fromDegrees(60)), //8
-            new Pose2d(12.643358, 4.745482, Rotation2d.fromDegrees(120)), //9
-            new Pose2d(12.227306, 4.0259, Rotation2d.fromDegrees(180)), //10
-            new Pose2d(12.643358, 3.306318, Rotation2d.fromDegrees(240)) //11
-        );
-
-        public static final List<Pose2d> leftBranchCoordinates = Arrays.asList(
-            new Pose2d(3.93, 3.39, Rotation2d.fromDegrees(-120.00)),
-            new Pose2d(3.66, 4.19, Rotation2d.fromDegrees(180.00)),
-            new Pose2d(4.21, 4.83, Rotation2d.fromDegrees(120.00)),
-            new Pose2d(5.04, 4.67, Rotation2d.fromDegrees(60.00)),
-            new Pose2d(5.32, 3.86, Rotation2d.fromDegrees(0.00)),
-            new Pose2d(4.77, 3.23, Rotation2d.fromDegrees(-60.00)),
-            new Pose2d(13.33, 3.23, Rotation2d.fromDegrees(-60.00)),
-            new Pose2d(13.89, 3.86, Rotation2d.fromDegrees(0.00)),
-            new Pose2d(13.61, 4.66, Rotation2d.fromDegrees(60.00)),
-            new Pose2d(12.78, 4.83, Rotation2d.fromDegrees(120.00)),
-            new Pose2d(12.23, 4.19, Rotation2d.fromDegrees(180.00)),
-            new Pose2d(12.50, 3.39, Rotation2d.fromDegrees(-120.00))
-        );
-
-        public static final List<Pose2d> rightBranchCoordinates = Arrays.asList(
-            new Pose2d(4.21, 3.23, Rotation2d.fromDegrees(-120.00)),
-            new Pose2d(3.66, 3.86, Rotation2d.fromDegrees(180.00)),
-            new Pose2d(3.93, 4.66, Rotation2d.fromDegrees(120.00)),
-            new Pose2d(4.77, 4.83, Rotation2d.fromDegrees(60.00)),
-            new Pose2d(5.32, 4.19, Rotation2d.fromDegrees(0.00)),
-            new Pose2d(5.04, 3.39, Rotation2d.fromDegrees(-60.00)),
-            new Pose2d(13.61, 3.39, Rotation2d.fromDegrees(-60.00)),
-            new Pose2d(13.89, 4.19, Rotation2d.fromDegrees(0.00)),
-            new Pose2d(13.33, 4.83, Rotation2d.fromDegrees(60.00)),
-            new Pose2d(12.50, 4.66, Rotation2d.fromDegrees(120.00)),
-            new Pose2d(12.23, 3.86, Rotation2d.fromDegrees(180.00)),
-            new Pose2d(12.78, 3.23, Rotation2d.fromDegrees(-120.00))
-        );
-        
-        public static final Translation2d blueReefCenter = new Translation2d(4.487, 4.010);
-        public static final Translation2d redReefCenter = new Translation2d(13.062, 4.010);
-
-        public static final Rotation2d leftCoralStationAngle = Rotation2d.fromDegrees(-55);
-        public static final Rotation2d rightCoralStationAngle = Rotation2d.fromDegrees(55);
-
-        public enum ReefAlignment{
-            LEFT_BRANCH,
-            RIGHT_BRANCH,
-            CENTER,
         }
     }
 
@@ -321,5 +316,9 @@ public final class Constants {
 
         public static final boolean kLeadMotorInverted = false;
         public static final boolean kFollowMotorInverted = false;
+    }
+
+    private Constants() {
+        throw new NotImplementedException();
     }
 }
