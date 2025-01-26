@@ -18,6 +18,9 @@ import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristSubsystem;
+import frc.robot.subsystems.SuperstructureVisualizer;
+
+import static edu.wpi.first.units.Units.Rotation;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 
@@ -27,6 +30,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -70,8 +74,9 @@ public class RobotContainer {
         m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()));
     } else if (Akit.currentMode == 1) {
         m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
-        m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
-        m_wrist = new WristSubsystem(new WristIOSim());
+        final SuperstructureVisualizer superstructureVisualizer = new SuperstructureVisualizer();
+        m_elevator = new ElevatorSubsystem(new ElevatorIOSim(superstructureVisualizer.getElevatorLigament()));
+        m_wrist = new WristSubsystem(new WristIOSim(superstructureVisualizer.getWristLigament()));
     }
 
     m_drive.setDefaultCommand(
@@ -82,8 +87,13 @@ public class RobotContainer {
         m_drive)
     );
 
+    m_elevator.setDefaultCommand(new RunCommand(
+      () -> m_elevator.setVoltage(0),
+      m_elevator)
+    );
+
     m_wrist.setDefaultCommand(new RunCommand(
-      () -> m_wrist.stop(),
+      () -> m_wrist.setVoltage(0),
       m_wrist)
     );
 
@@ -108,11 +118,11 @@ public class RobotContainer {
     m_driverController.leftTrigger(0.7).whileTrue(new DirectDriveToNearestBranch(m_drive, true));
     m_driverController.rightTrigger(0.7).whileTrue(new DirectDriveToNearestBranch(m_drive, false));
     
-    m_driverController.a().onTrue(new RunCommand(() -> m_elevator.setPosition(1.5), m_elevator));
-    m_driverController.b().onTrue(new RunCommand(() -> m_elevator.setPosition(0), m_elevator));
+    m_driverController.b().whileTrue(new RunCommand(() -> m_elevator.setPosition(1.5), m_elevator));
+    m_driverController.a().whileTrue(new RunCommand(() -> m_elevator.setPosition(0), m_elevator));
     
-    m_driverController.x().whileTrue(new RunCommand(() -> m_wrist.setPosition(-0.5 * Math.PI), m_wrist));
-    m_driverController.y().whileTrue(new RunCommand(() -> m_wrist.setPosition(0.5 * Math.PI), m_wrist));
+    m_driverController.x().whileTrue(new RunCommand(() -> m_wrist.setPosition(Rotation2d.fromDegrees(90).getRadians()), m_wrist));
+    m_driverController.y().whileTrue(new RunCommand(() -> m_wrist.setPosition(Rotation2d.fromDegrees(0).getRadians()), m_wrist));
 
     
   }

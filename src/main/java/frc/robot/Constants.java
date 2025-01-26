@@ -94,41 +94,43 @@ public final class Constants {
             public static final double kV = 12; // velocity game
             public static final double kA = 0; //Acceleration Gain
         }
+    }
 
-        public static class ElevatorSimConstants {
-            //RANDOM ports
-            public static final int kSimMotorPort0 = 20;
-            public static final int kSimMotorPort1 = 21;
-            
-            public static final double kElevatorGearing = 60.0/11.0;
-            public static final double kCarriageMass = Units.lbsToKilograms(30); //kg
-            public static final double kElevatorDrumRadius = Units.inchesToMeters(2.0); //taken from example, do not know what this is
-            public static final double kMinElevatorHeightMeters = 0;
-            public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(72.0);
+    public static class ElevatorSimConstants {
+        //RANDOM ports
+        public static final int kSimMotorPort0 = 20;
+        public static final int kSimMotorPort1 = 21;
+        
+        public static final double kElevatorGearing = 60.0/11.0;
+        public static final double kCarriageMass = Units.lbsToKilograms(30); //kg
+        public static final double kElevatorDrumRadius = Units.inchesToMeters(2.0); //taken from example, do not know what this is
+        public static final double kMinElevatorHeightMeters = 0;
+        public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(72.0);
 
-            public static final int kEncoderAChannel = 0;
-            public static final int kEncoderBChannel = 1;
+        public static final int kEncoderAChannel = 0;
+        public static final int kEncoderBChannel = 1;
 
-            public static class Control {
-                //PID Constants - STILL SET TO WAPUR ELEVATOR VALUES
-                public static final double kP = 125;
-                public static final double kI = 0.0;
-                public static final double kD = 0.0;
-    
-                //Feedforward Constants - STILL SET TO WAPUR ELEVATOR VALUES
-                public static final double kS = 0; //Static gain (voltage)
-                public static final double kG = 0.6; //Gravity gain (voltage)
-                public static final double kV = 12; // velocity gain
-                public static final double kA = 0; //Acceleration Gain
-            }
+        public static class Control {
+            //PID Constants - STILL SET TO WAPUR ELEVATOR VALUES
+            public static final double kP = 6;
+            public static final double kI = 0.0;
+            public static final double kD = 0.0;
+
+            //Feedforward Constants - STILL SET TO WAPUR ELEVATOR VALUES
+            public static final double kS = 0; //Static gain (voltage)
+            public static final double kG = 2.8605; //Gravity gain (voltage)
+            public static final double kV = 0; // velocity gain
+            public static final double kA = 0; //Acceleration Gain
         }
     }
+
     public static final class GrabberConstants {
         public static final int kLeftMotorPort = -1;
         public static final int kRightMotorPort = -1;
         
         public static final double kCurrentLimit = 40; 
     }
+
     public static class WristConstants {
         public static final int kLeadMotorPort = -2;
         public static final int kFollowMotorPort = -3;
@@ -153,19 +155,25 @@ public final class Constants {
             public static final double kV = 0.0; // velocity gain in volts per radian per second
             public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
         }
+    }
 
-        public static class WristSimConstants {
-            // values are NOT CORRECT
-            public static final double kWristGearingReductions = 1;
-            public static final double kWristLength = Units.feetToMeters(1); // excludes a 5 inch fixed piece
-            public static final double kWristMass = 2;
-            public static final double kMinAngleRads = -0.75 * Math.PI;
-            public static final double kMaxAngleRads = 0.75 * Math.PI;
-            public static final double kWristEncoderDistPerPulse = 2.0 * Math.PI / 42;//8192;
+    public static class WristSimConstants {
+        // values are NOT CORRECT
+        public static final double kWristGearingReductions = 125;
+        public static final double kWristLength = Units.feetToMeters(1); // excludes a 5 inch fixed piece
+        public static final double kWristMass = 2;
+        public static final double kMinAngleRads = -0.75 * Math.PI;
+        public static final double kMaxAngleRads = 0.75 * Math.PI;
 
-            public static class Control {
-                public static final double kP = 0.1;
-            }
+        public static class Control {
+            public static final double kP = 8;
+            public static final double kI = 0;
+            public static final double kD = 0;
+
+            public static final double kS = 0.0; // static gain in volts
+            public static final double kG = 0.0; // gravity gain in volts
+            public static final double kV = 0.0; // velocity gain in volts per radian per second
+            public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
         }
     }
 }

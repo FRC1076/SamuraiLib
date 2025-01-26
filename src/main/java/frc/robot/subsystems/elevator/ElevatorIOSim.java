@@ -18,9 +18,8 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.sim.SparkRelativeEncoderSim;
 
 import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
@@ -32,7 +31,7 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.ElevatorConstants.ElevatorSimConstants;
+import frc.robot.Constants.ElevatorSimConstants;
 
 public class ElevatorIOSim implements ElevatorIO{
     // This gearbox represents a gearbox containing 4 Vex 775pro motors.
@@ -53,23 +52,20 @@ public class ElevatorIOSim implements ElevatorIO{
 
     private SparkClosedLoopController m_closedLoopController;
 
-    private final ProfiledPIDController m_PIDController;
+    private final PIDController m_PIDController;
 
     private final ElevatorSim m_elevatorSim;
 
-    private ElevatorFeedforward FFController = new ElevatorFeedforward(
+    private ElevatorFeedforward m_FFController = new ElevatorFeedforward(
         ElevatorSimConstants.Control.kS, 
         ElevatorSimConstants.Control.kG,
         ElevatorSimConstants.Control.kV, 
         ElevatorSimConstants.Control.kA
     );
 
-    // Create a Mechanism2d visualization of the elevator
-    private final Mechanism2d m_mech2d;
-    private final MechanismRoot2d m_mech2dRoot;
-    private final MechanismLigament2d m_elevatorMech2d;
+    private final MechanismLigament2d elevatorLigament;
 
-    public ElevatorIOSim() {
+    public ElevatorIOSim(MechanismLigament2d elevatorLigament) {
         m_elevatorSim = new ElevatorSim(
             m_elevatorGearbox,
             ElevatorSimConstants.kElevatorGearing,
@@ -79,16 +75,9 @@ public class ElevatorIOSim implements ElevatorIO{
             ElevatorSimConstants.kMaxElevatorHeightMeters,
             true,
             0,
-            0.01,
-            0.0
+            0,
+            0
         );
-
-        m_mech2d = new Mechanism2d(20, 50);
-        m_mech2dRoot  = m_mech2d.getRoot("Elevator Root", 10, 0);
-        m_elevatorMech2d =
-        m_mech2dRoot.append(
-            new MechanismLigament2d("Elevator", m_elevatorSim.getPositionMeters(), 90));
-
     
         m_leadMotor = new SparkMax(ElevatorSimConstants.kSimMotorPort0, SparkMax.MotorType.kBrushless);
         m_followMotor = new SparkMax(ElevatorSimConstants.kSimMotorPort1, SparkMax.MotorType.kBrushless);
@@ -126,10 +115,6 @@ public class ElevatorIOSim implements ElevatorIO{
 
         m_closedLoopController = m_leadMotor.getClosedLoopController();
 
-        // Publish Mechanism2d to SmartDashboard
-        // To view the Elevator visualization, select Network Tables -> SmartDashboard -> Elevator Sim
-        SmartDashboard.putData("Elevator Sim", m_mech2d);
-
         m_leadMotor.setCANTimeout(0);
         m_followMotor.setCANTimeout(0);
 
@@ -137,27 +122,31 @@ public class ElevatorIOSim implements ElevatorIO{
         m_followMotorSim = new SparkMaxSim(m_followMotor, m_elevatorGearbox);
         m_encoderSim = m_leadMotorSim.getRelativeEncoderSim();
 
-        m_PIDController = new ProfiledPIDController(
+        m_PIDController = new PIDController(
             ElevatorSimConstants.Control.kP,
             ElevatorSimConstants.Control.kI,
-            ElevatorSimConstants.Control.kD,
-            new TrapezoidProfile.Constraints(2.45, 2.45)
+            ElevatorSimConstants.Control.kD
         );
+
+        this.elevatorLigament = elevatorLigament;
     }
 
     @Override
     public void setPosition(double positionMeters) {
-        m_PIDController.setGoal(positionMeters);
-
         // With the setpoint value we run PID control like normal
-        double pidOutput = m_PIDController.calculate(m_encoderSim.getPosition());
-        double feedforwardOutput = FFController.calculate(m_PIDController.getSetpoint().velocity);
+        double pidOutput = m_PIDController.calculate(m_encoderSim.getPosition(), positionMeters);
+        double feedforwardOutput = m_FFController.calculate(m_PIDController.getSetpoint());
         m_leadMotorSim.setAppliedOutput((pidOutput + feedforwardOutput)/m_leadMotorSim.getBusVoltage());
     }
 
     @Override
     public void setVoltage(double voltage) {
-        m_leadMotorSim.setAppliedOutput(voltage/m_leadMotorSim.getBusVoltage());
+        m_leadMotorSim.setAppliedOutput(
+            (voltage + m_FFController.calculate(
+                m_encoderSim.getPosition(), m_encoderSim.getVelocity()
+                )
+            )/m_leadMotorSim.getBusVoltage()
+        );
     }
 
     @Override 
@@ -182,6 +171,6 @@ public class ElevatorIOSim implements ElevatorIO{
         m_encoderSim.setPosition(m_elevatorSim.getPositionMeters());
 
         // Update elevator visualization with position
-        m_elevatorMech2d.setLength(m_encoderSim.getPosition());
+        elevatorLigament.setLength(m_encoderSim.getPosition());
     }
 }

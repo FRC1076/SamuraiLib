@@ -1,7 +1,7 @@
 package frc.robot.subsystems.wrist;
 
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.sim.SparkMaxAlternateEncoderSim;
+import com.revrobotics.sim.SparkRelativeEncoderSim;
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -21,9 +21,10 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants.WristConstants;
-import frc.robot.Constants.ElevatorConstants.ElevatorSimConstants;
-import frc.robot.Constants.WristConstants.WristSimConstants;
+import frc.robot.Constants.ElevatorSimConstants;
+import frc.robot.Constants.WristSimConstants;
 
 public class WristIOSim implements WristIO {
     private final DCMotor m_wristGearbox;
@@ -37,30 +38,26 @@ public class WristIOSim implements WristIO {
     private SparkMaxConfig m_leadMotorConfig;
     private SparkMaxConfig m_followMotorConfig;
 
-    private final SparkMaxAlternateEncoderSim m_encoderSim;
+    private final SparkRelativeEncoderSim m_encoderSim;
 
     private SparkClosedLoopController m_closedLoopController;
 
     private RelativeEncoder m_alternateEncoder;
 
-    private ArmFeedforward FFController = new ArmFeedforward(
-        WristConstants.Control.kS,
-        WristConstants.Control.kG,
-        WristConstants.Control.kV,
-        WristConstants.Control.kA
+    private ArmFeedforward m_FFController = new ArmFeedforward(
+        WristSimConstants.Control.kS,
+        WristSimConstants.Control.kG,
+        WristSimConstants.Control.kV,
+        WristSimConstants.Control.kA
     );
 
-    // Create a Mechanism2d display of an Arm with a fixed ArmTower and moving Arm.
-    private final Mechanism2d m_mech2d;
-    private final MechanismRoot2d m_wristPivot;
-    private final MechanismLigament2d m_wristTower;
-    private final MechanismLigament2d m_wrist;
+    private MechanismLigament2d wristLigament;
 
     private final SingleJointedArmSim m_wristSim;
 
     private final PIDController m_PIDController;
 
-    public WristIOSim() {
+    public WristIOSim(MechanismLigament2d wristLigament) {
         m_wristGearbox = DCMotor.getNEO(2);
 
         m_leadMotor = new SparkMax(WristConstants.kLeadMotorPort, MotorType.kBrushless);
@@ -81,9 +78,7 @@ public class WristIOSim implements WristIO {
             WristConstants.Control.kD
         );
 
-        m_leadMotorConfig.alternateEncoder
-            .setSparkMaxDataPortConfig()
-            .countsPerRevolution(WristConstants.kCountsPerRevolution)
+        m_leadMotorConfig.encoder
             .positionConversionFactor(WristConstants.kPositionConversionFactor)
             .velocityConversionFactor(WristConstants.kVelocityConversionFactor);
             
@@ -99,8 +94,6 @@ public class WristIOSim implements WristIO {
 
         m_closedLoopController = m_leadMotor.getClosedLoopController();
 
-        m_alternateEncoder = m_leadMotor.getAlternateEncoder();
-
         m_wristSim = new SingleJointedArmSim(
             m_wristGearbox,
             WristSimConstants.kWristGearingReductions,
@@ -108,49 +101,39 @@ public class WristIOSim implements WristIO {
             WristSimConstants.kWristLength,
             WristSimConstants.kMinAngleRads,
             WristSimConstants.kMaxAngleRads,
-        false,
+            false,
             0,
             //WristSimConstants.kWristEncoderDistPerPulse,
+            0.0,
             0.0
         );
 
         m_leadMotorSim = new SparkMaxSim(m_leadMotor, m_wristGearbox);
         m_followMotorSim = new SparkMaxSim(m_followMotor, m_wristGearbox);
-        m_encoderSim = m_leadMotorSim.getAlternateEncoderSim();
-    
-        m_mech2d = new Mechanism2d(5, 5);
-        m_wristPivot = m_mech2d.getRoot("WristPivot", 0, 0);
-        m_wristTower = m_wristPivot.append(new MechanismLigament2d("WristTower", 1, 90));
-        m_wrist = m_wristPivot.append(
-            new MechanismLigament2d(
-                "Wrist",
-                WristSimConstants.kWristLength,
-                Units.radiansToDegrees(m_wristSim.getAngleRads()))
-        );
+        m_encoderSim = m_leadMotorSim.getRelativeEncoderSim();
 
-        SmartDashboard.putData("Wrist Sim", m_mech2d);
-        m_wristTower.setColor(new Color8Bit(Color.kTeal)); // set color to teal because I feel like it
+        m_PIDController = new PIDController(WristSimConstants.Control.kP, WristSimConstants.Control.kI, WristSimConstants.Control.kD);
 
-        m_PIDController = new PIDController(WristSimConstants.Control.kP, 0, 0);
+        this.wristLigament = wristLigament;
     }
 
     @Override
     public void simulationPeriodic() {
         m_wristSim.setInput(m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage());
-        System.out.println("Wrist Output: " + m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage());
+        //System.out.println("Wrist Output: " + m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage());
 
         m_wristSim.update(0.020);
 
         m_encoderSim.setPosition(m_wristSim.getAngleRads());
 
-        m_wrist.setAngle(Units.radiansToDegrees(m_wristSim.getAngleRads()));
+        wristLigament.setAngle(Units.radiansToDegrees(m_wristSim.getAngleRads()));
     }
 
     @Override
-    public void setVoltage(double volts) {
+    public void setVoltage(double voltage) {
         m_leadMotorSim.setAppliedOutput(
-            (volts + FFController.calculate(
-                m_encoderSim.getPosition(), m_encoderSim.getVelocity()
+            (voltage + m_FFController.calculate(
+                m_encoderSim.getPosition(), 0
                 )
             )/m_leadMotorSim.getBusVoltage()
         );
