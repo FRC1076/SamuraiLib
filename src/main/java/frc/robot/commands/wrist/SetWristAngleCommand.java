@@ -16,9 +16,10 @@ public class SetWristAngleCommand extends Command {
   private final WristSubsystem m_wrist;
 
   /**
-   * Creates a new ExampleCommand.
+   * Creates a new SetWristAngleCommand.
    *
-   * @param subsystem The subsystem used by this command.
+   * @param targetAngle The target angle in radians.
+   * @param wrist The wrist subsystem used by this command
    */
   public SetWristAngleCommand(double targetAngle, WristSubsystem wrist) {
     m_wrist = wrist;

@@ -11,16 +11,16 @@ import frc.robot.Constants.ElevatorConstants;
 
 import edu.wpi.first.wpilibj2.command.Command;
 
-/** An example command that uses an example subsystem. */
 public class ElevatorManualControlCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final DoubleSupplier m_controlSupplier;
   private final ElevatorSubsystem m_elevator;
 
   /**
-   * Creates a new ExampleCommand.
+   * Creates a new ElevatorManualControlCommand.
    *
-   * @param subsystem The subsystem used by this command.
+   * @param controlSupplier The DoubleSupplier used to control the elevator
+   * @param elevator The elevator subsystem used by this command
    */
   public ElevatorManualControlCommand(DoubleSupplier controlSupplier, ElevatorSubsystem elevator) {
     m_elevator = elevator;

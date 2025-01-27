@@ -17,9 +17,10 @@ public class WristManualControlCommand extends Command {
   private final WristSubsystem m_wrist;
 
   /**
-   * Creates a new ExampleCommand.
+   * Creates a new WristManualControlCommand.
    *
-   * @param subsystem The subsystem used by this command.
+   * @param controlSupplier The DoubleSupplier used to control the wrist
+   * @param wrist The wrist subsystem used by this command
    */
   public WristManualControlCommand(DoubleSupplier controlSupplier, WristSubsystem wrist) {
     m_wrist = wrist;

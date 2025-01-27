@@ -16,9 +16,10 @@ public class SetElevatorPositionCommand extends Command {
   private final ElevatorSubsystem m_elevator;
 
   /**
-   * Creates a new ExampleCommand.
+   * Creates a new SetElevatorPositionCommand.
    *
-   * @param subsystem The subsystem used by this command.
+   * @param targetPosition The targetPosition of the elevator (in meters).
+   * @param elevator The elevator subsystem used by this command
    */
   public SetElevatorPositionCommand(double targetPosition, ElevatorSubsystem elevator) {
     m_elevator = elevator;
