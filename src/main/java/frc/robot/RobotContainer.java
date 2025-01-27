@@ -9,8 +9,6 @@ import java.util.Map;
 
 import frc.robot.commands.Autos;
 import frc.robot.commands.drive.DirectDriveToPoseCommand;
-import frc.robot.commands.drive.DriveClosedLoopTeleop;
-import frc.robot.commands.drive.DriveToReef;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.drive.DriveIOHardware;
@@ -43,7 +41,6 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 
 import frc.robot.Constants.Akit;
 import frc.robot.Constants.OIConstants;
-import frc.robot.Constants.Coordinates.ReefAlignment;
 import frc.robot.Constants.FieldConstants.ReefFace;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
