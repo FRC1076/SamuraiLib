@@ -73,37 +73,63 @@ public final class Constants {
 
     public static class SuperstructureConstants {
 
+        //Possession State
+        public enum PState {
+            EMPTY,
+            POSSESS_CORAL_INDEXER,
+            POSSESS_CORAL_GRABBER,
+            POSSESS_ALGAE,
+            POSSESS_CORAL_AND_ALGAE, //Coral is implicitly stored in indexer
+            NO_CHANGE; //Not a state per se, but indicates that no change in possession takes place during the state
+        }
+
+
         public enum SuperState {
             //TODO: Fix superstate structure
             
-            EMPTY_TRAVEL(90,0,false,false,0,0),
-            CORAL_SAFE_INTAKE(90,0.08128,true,false,0,0),
-            CORAL_DIRECT_INTAKE(-23.5,0.08128,true,true,5,5),
-            CORAL_TRAVEL(90,0,false,false,0,0),
+            EMPTY_TRAVEL(90,0,false,false,0,0, PState.EMPTY,PState.NO_CHANGE),
+            CORAL_SAFE_INTAKE(90,0.08128,true,false,0,0,PState.EMPTY,PState.POSSESS_CORAL_INDEXER),
+            CORAL_SAFE_INTAKE_GRABBER(90,0.08128,true,false,0,0,PState.POSSESS_CORAL_INDEXER,PState.POSSESS_CORAL_GRABBER), //represents the coral entering the grabber after a safe index
+            
+            CORAL_SAFE_INTAKE_ALGAE(90,0.08128,true,true,0,0,PState.POSSESS_ALGAE,PState.POSSESS_CORAL_AND_ALGAE),
+
+            CORAL_DIRECT_INTAKE(-23.5,0.08128,true,true,5,5,PState.EMPTY,PState.POSSESS_CORAL_GRABBER),
+            CORAL_TRAVEL(90,0,false,false,0,0,PState.POSSESS_CORAL_INDEXER,PState.NO_CHANGE),
+            CORAL_TRAVEL_ALGAE(90,0,false,false,0,0,PState.POSSESS_CORAL_AND_ALGAE,PState.NO_CHANGE),
 
             //PRE_L1(-1,-1,false,-1,-1)
             //SCORE_L1
 
-            PRE_L2(-35,0.71628,false,false,0,0),
-            SCORE_L2(-35,0.71628,false,false,12,12),
+            PRE_L2(-35,0.71628,false,false,0,0,PState.POSSESS_CORAL_GRABBER,PState.NO_CHANGE),
+            SCORE_L2(-35,0.71628,false,false,12,12,PState.POSSESS_CORAL_GRABBER,PState.EMPTY),
 
-            PRE_L3(-35,1.11252,false,false,0,0),
-            SCORE_L3(-35,1.11252,false,false,12,12),
+            PRE_L3(-35,1.11252,false,false,0,0,PState.POSSESS_CORAL_GRABBER,PState.NO_CHANGE),
+            SCORE_L3(-35,1.11252,false,false,12,12,PState.POSSESS_CORAL_GRABBER,PState.EMPTY),
 
-            PRE_L4(-45,1.8161,false,false,0,0),
-            SCORE_L4(-45,1.8161,false,false,12,12),
+            PRE_L4(-45,1.8161,false,false,0,0,PState.POSSESS_CORAL_GRABBER,PState.NO_CHANGE),
+            SCORE_L4(-45,1.8161,false,false,12,12,PState.POSSESS_CORAL_GRABBER,PState.EMPTY),
 
             ///ALGAE_GROUND_INTAKE
 
-            ALGAE_LOW_INTAKE(-35,0.9144,false,false,-12,-12),
-            ALGAE_HIGH_INTAKE(-35,1.30556,false,false,-12,-12),
-            ALGAE_TRAVEL(65,0,false,false,0,0),
+            ALGAE_LOW_INTAKE(-35,0.9144,false,false,-12,-12,PState.EMPTY,PState.POSSESS_ALGAE),
+            ALGAE_HIGH_INTAKE(-35,1.30556,false,false,-12,-12,PState.EMPTY,PState.POSSESS_ALGAE),
+            ALGAE_TRAVEL(65,0,false,false,0,0,PState.POSSESS_ALGAE,PState.NO_CHANGE),
 
-            PRE_PROCESSOR(0,0.184277,false,false,0,0),
-            SCORE_PROCESSOR(0,0.184277,false,false,6,6),
+            PRE_PROCESSOR(0,0.184277,false,false,0,0,PState.POSSESS_ALGAE,PState.NO_CHANGE),
+            SCORE_PROCESSOR(0,0.184277,false,false,6,6,PState.POSSESS_ALGAE,PState.EMPTY),
 
-            PRE_NET(65,1.8288,false,false,0,0),
-            SCORE_NET(65,1.8288,false,false,12,12);
+            PRE_NET(65,1.8288,false,false,0,0,PState.POSSESS_ALGAE,PState.NO_CHANGE),
+            SCORE_NET(65,1.8288,false,false,12,12,PState.POSSESS_ALGAE,PState.EMPTY),
+
+            ALGAE_LOW_INTAKE_CORAL(-35,0.9144,false,false,-12,-12,PState.POSSESS_CORAL_INDEXER,PState.POSSESS_CORAL_AND_ALGAE),
+            ALGAE_HIGH_INTAKE_CORAL(-35,1.30556,false,false,-12,-12,PState.POSSESS_CORAL_INDEXER,PState.POSSESS_CORAL_AND_ALGAE),
+            ALGAE_TRAVEL_CORAL(65,0,false,false,0,0,PState.POSSESS_CORAL_AND_ALGAE,PState.NO_CHANGE),
+
+            PRE_PROCESSOR_CORAL(0,0.184277,false,false,0,0,PState.POSSESS_CORAL_AND_ALGAE,PState.NO_CHANGE),
+            SCORE_PROCESSOR_CORAL(0,0.184277,false,false,6,6,PState.POSSESS_CORAL_AND_ALGAE,PState.POSSESS_CORAL_INDEXER),
+
+            PRE_NET_CORAL(65,1.8288,false,false,0,0,PState.POSSESS_CORAL_AND_ALGAE,PState.NO_CHANGE),
+            SCORE_NET_CORAL(65,1.8288,false,false,12,12,PState.POSSESS_CORAL_AND_ALGAE,PState.POSSESS_CORAL_INDEXER);
 
             public final Rotation2d wristAngle;
             public final double elevatorHeightMeters;
@@ -111,13 +137,17 @@ public final class Constants {
             public final boolean isIndexing;
             public final double leftMotorVoltage;
             public final double rightMotorVoltage;
-            private SuperState(double wristAngleDegrees, double elevatorHeightMeters, boolean isIntaking, boolean isIndexing, double leftMotorVoltage, double rightMotorVoltage) {
+            public final PState startPossession;
+            public final PState endPossession;
+            private SuperState(double wristAngleDegrees, double elevatorHeightMeters,boolean isIntaking, boolean isIndexing, double leftMotorVoltage, double rightMotorVoltage, PState startPossession, PState endPossession) {
                 this.wristAngle = Rotation2d.fromDegrees(wristAngleDegrees);
                 this.elevatorHeightMeters = elevatorHeightMeters;
                 this.isIntaking = isIntaking;
                 this.isIndexing = isIndexing;
                 this.leftMotorVoltage = leftMotorVoltage;
                 this.rightMotorVoltage = rightMotorVoltage;
+                this.startPossession = startPossession;
+                this.endPossession = endPossession;
             }
         }
     }
