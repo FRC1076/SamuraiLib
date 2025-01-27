@@ -53,6 +53,7 @@ public final class Constants {
         public static class PathPlannerConstants {
             public static final PathConstraints pathConstraints = new PathConstraints(4.69, 25, Units.degreesToRadians(1080), Units.degreesToRadians(1080));
             public static final Transform2d robotOffset = new Transform2d(0.4572, 0, Rotation2d.kZero);
+            public static final double pathGenerationToleranceMeters = 0.011; // technically it's anything larger than 0.01, but I'm adding .001 just to be safe
         }
 
         public enum HeadingMode {
