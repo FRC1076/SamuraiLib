@@ -220,6 +220,9 @@ public final class Constants {
     public static class ElevatorConstants {
         public static final int kMotorPort0 = -1;
         public static final int kMotorPort1 = -1;
+        
+        public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(0.5);
+        public static final double maxOperatorControlVolts = 6;
 
         public static final boolean leadMotorInverted = false;
         public static final boolean followMotorInverted = false;
@@ -295,6 +298,9 @@ public final class Constants {
     public static class WristConstants {
         public static final int kLeadMotorPort = -2;
         public static final int kFollowMotorPort = -3;
+
+        public static final double wristAngleToleranceRadians = Units.degreesToRadians(1);
+        public static final double maxOperatorControlVolts = 6;
 
         public static final boolean kLeadMotorInverted = false;
         public static final boolean kFollowMotorInverted = false;
