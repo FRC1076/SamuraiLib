@@ -137,5 +137,6 @@ public class WristIOSim implements WristIO {
         inputs.appliedVolts = m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage();
         inputs.leadCurrentAmps = m_leadMotorSim.getMotorCurrent();
         inputs.followCurrentAmps = m_followMotorSim.getMotorCurrent();
+        inputs.angleRadians = m_encoderSim.getPosition();
     }
 }

@@ -95,5 +95,6 @@ public class WristIOHardware implements WristIO {
         inputs.appliedVolts = m_leadMotor.getAppliedOutput() * m_leadMotor.getBusVoltage();
         inputs.leadCurrentAmps = m_leadMotor.getOutputCurrent();
         inputs.followCurrentAmps = m_followMotor.getOutputCurrent();
+        inputs.angleRadians = m_alternateEncoder.getPosition();
     }
 }
