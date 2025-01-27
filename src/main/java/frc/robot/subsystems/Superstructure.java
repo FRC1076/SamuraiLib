@@ -34,13 +34,27 @@ public class Superstructure {
 
     //Use this function to construct a generic command that transitions from one state to another (just elevator and wrist angle ATM)
     private Command transitionToState(SuperState desiredState){
+        Command elevatorPremoveCommand;
+        switch (desiredState.startPossession){
+            case CORAL_ALGAE:
+            case ALGAE:
+                elevatorPremoveCommand = new SetWristAngleCommand(Units.degreesToRadians(65), m_wrist);
+                break;
+            default:
+                elevatorPremoveCommand = new SetWristAngleCommand(Units.degreesToRadians(90), m_wrist);
+                break;
+        }
         return Commands.sequence(
             //First, fold the grabber up 90 degrees before moving the elevator
-            new SetWristAngleCommand(Units.degreesToRadians(90), m_wrist),
+            elevatorPremoveCommand,
             //Next, set the elevator to the desired position
             new SetElevatorPositionCommand(desiredState.elevatorHeightMeters, m_elevator),
             //Finally, lower the grabber to the desired angle
             new SetWristAngleCommand(desiredState.wristAngle.getRadians(), m_wrist)
+            
         );
     }
+
+
+
 }

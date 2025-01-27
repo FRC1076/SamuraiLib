@@ -281,10 +281,10 @@ public final class Constants {
             public static final double kD = 0.0;
 
             //Feedforward Constants - STILL SET TO WAPUR ELEVATOR VALUES
-            public static final double kS = 0; //Static gain (voltage)
-            public static final double kG = 2.8605; //Gravity gain (voltage)
+            public static final double kS = 0; // Static gain (voltage)
+            public static final double kG = 2.8605; // Gravity gain (voltage)
             public static final double kV = 0; // velocity gain
-            public static final double kA = 0; //Acceleration Gain
+            public static final double kA = 0; // Acceleration Gain
         }
     }
 

@@ -20,8 +20,8 @@ public class WristSubsystem extends SubsystemBase {
         io.setPosition(positionRadians);
     }
 
-    public double getAngleRadians(){
-        return inputs.angleRadians;
+    public Rotation2d getAngle(){
+        return inputs.angle;
     }
 
     public void stop() {

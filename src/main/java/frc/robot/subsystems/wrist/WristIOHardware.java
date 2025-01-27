@@ -15,6 +15,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 public class WristIOHardware implements WristIO {
     private final SparkMax m_leadMotor;
@@ -95,6 +96,6 @@ public class WristIOHardware implements WristIO {
         inputs.appliedVolts = m_leadMotor.getAppliedOutput() * m_leadMotor.getBusVoltage();
         inputs.leadCurrentAmps = m_leadMotor.getOutputCurrent();
         inputs.followCurrentAmps = m_followMotor.getOutputCurrent();
-        inputs.angleRadians = m_alternateEncoder.getPosition();
+        inputs.angle = Rotation2d.fromRadians(m_alternateEncoder.getPosition());
     }
 }
