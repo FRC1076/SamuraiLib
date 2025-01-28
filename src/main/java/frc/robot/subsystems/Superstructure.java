@@ -324,13 +324,17 @@ public class Superstructure {
                     Commands.waitUntil(() -> !m_indexBeamBreak.getAsBoolean()),
                     superstructure.applyIndexState(IndexState.EMPTY_IDLE)
                 )
-            );
+            ).onlyIf(() -> superstructure.getSuperState().getGrabberPossession() == GrabberPossession.EMPTY);
         }
 
-        public Command safeIntake(BooleanSupplier safeSignal){
+        public Command intakeCoral(BooleanSupplier safeSignal){
             return Commands.sequence(
-                superstructure.applyGrabberPosition(GrabberPosition.)
-            )
+                superstructure.applyGrabberPosition(GrabberPosition.TRAVEL),
+                indexCoral(),
+                Commands.waitUntil(safeSignal),
+                superstructure.applyGrabberPosition(GrabberPosition.CORAL_TRANSFER),
+                transferCoral()
+            );
         }
 
         /*
