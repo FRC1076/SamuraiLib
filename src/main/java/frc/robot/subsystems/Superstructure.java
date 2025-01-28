@@ -2,9 +2,6 @@ package frc.robot.subsystems;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import frc.robot.Constants.ElevatorSimConstants;
-import frc.robot.Constants.SuperstructureConstants.CoralScore;
 import frc.robot.Constants.SuperstructureConstants.GrabberPosition;
 import frc.robot.Constants.SuperstructureConstants.GrabberPossession;
 import frc.robot.Constants.SuperstructureConstants.GrabberState;
@@ -19,17 +16,11 @@ import frc.robot.commands.wrist.SetWristAngleCommand;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
-import java.util.Set;
+
 import java.util.function.BooleanSupplier;
 
-import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
-
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.util.Units;
 
 import static frc.robot.Constants.IndexConstants.kIndexVoltage;
 
@@ -350,5 +341,4 @@ public class Superstructure {
             );
         }
     }
-
 }
