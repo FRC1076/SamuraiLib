@@ -210,7 +210,7 @@ public class Superstructure {
         }
 
         public Command stopAndRetract(){
-            return Commands.sequence(
+            return Commands.parallel(
                 stopGrabber(),
                 retractMechanisms()
             );
@@ -254,12 +254,21 @@ public class Superstructure {
 
         public Command groundAlgaeIntake(){
             return 
-            Commands.sequence(
+            Commands.parallel(
                 superstructure.applyGrabberPosition(
                     GrabberPosition.GROUND_INTAKE
                 ),
-                superstructure.applyGrabberState(
-                    GrabberState.ALGAE_INTAKE
+                // Check if there is already an algae intaked
+                new ConditionalCommand(
+                    Commands.none(),
+                    superstructure.applyGrabberState(
+                        GrabberState.ALGAE_INTAKE
+                    ),
+                    () -> {
+                        return superstructure.getSuperState().getGrabberPossession() == GrabberPossession.ALGAE
+                        ? true
+                        : false;
+                    }
                 )
             );
             
@@ -267,24 +276,42 @@ public class Superstructure {
 
         public Command lowAlgaeIntake(){
             return 
-            Commands.sequence(
+            Commands.parallel(
                 superstructure.applyGrabberPosition(
                     GrabberPosition.LOW_INTAKE
                 ),
-                superstructure.applyGrabberState(
-                    GrabberState.ALGAE_INTAKE
+                // Check if there is already an algae intaked
+                new ConditionalCommand(
+                    Commands.none(),
+                    superstructure.applyGrabberState(
+                        GrabberState.ALGAE_INTAKE
+                    ),
+                    () -> {
+                        return superstructure.getSuperState().getGrabberPossession() == GrabberPossession.ALGAE
+                        ? true
+                        : false;
+                    }
                 )
             );   
         }
 
         public Command highAlgaeIntake(){
             return 
-            Commands.sequence(
+            Commands.parallel(
                 superstructure.applyGrabberPosition(
                     GrabberPosition.HIGH_INTAKE
                 ),
-                superstructure.applyGrabberState(
-                    GrabberState.ALGAE_INTAKE
+                // Check if there is already an algae intaked
+                new ConditionalCommand(
+                    Commands.none(),
+                    superstructure.applyGrabberState(
+                        GrabberState.ALGAE_INTAKE
+                    ),
+                    () -> {
+                        return superstructure.getSuperState().getGrabberPossession() == GrabberPossession.ALGAE
+                        ? true
+                        : false;
+                    }
                 )
             );
             
