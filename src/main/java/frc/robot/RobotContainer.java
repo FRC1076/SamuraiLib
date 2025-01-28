@@ -160,11 +160,19 @@ public class RobotContainer {
 
     m_driverController.leftBumper().whileTrue(teleopDriveCommand.applyDoubleClutch());
 
-    m_driverController.x().whileTrue(teleopDriveCommand.applyOppositeCoralHeadingLock());
+    //m_driverController.x().whileTrue(teleopDriveCommand.applyOppositeCoralHeadingLock());
 
     m_driverController.b().whileTrue(teleopDriveCommand.applyProcessorCoralHeadingLock());
 
     m_driverController.y().whileTrue(teleopDriveCommand.applyForwardHeadingLock());
+
+    m_driverController.leftBumper().and(
+      m_driverController.rightBumper().and(
+        m_driverController.x()
+      )
+    ).onTrue(new InstantCommand(
+      () -> m_drive.resetHeading()
+    ));
   }
 
   private void configureOperatorBindings() {
