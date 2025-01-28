@@ -127,7 +127,7 @@ public class Superstructure {
     }
 
     public Command applyGrabberPosition(GrabberPosition position) {
-        Command wristPreMoveCommand = new ConditionalCommand(
+        Command wristPreMoveCommand = Commands.either(
             new SetWristAngleCommand(Rotation2d.kCW_90deg, m_wrist),
             new SetWristAngleCommand(Rotation2d.fromDegrees(65), m_wrist),
             () -> {
@@ -181,6 +181,9 @@ public class Superstructure {
             m_grabberBeamBreak = grabberBeamBreak;
         }
 
+        /*
+         * Score game piece differently depending on robot state
+         */
         public Command scoreGamePiece() {
             switch (superstructure.getSuperState().getGrabberPosition()) {
                 //May not work due to the sequential command group being generated being interrupted by the external trigger
@@ -199,16 +202,25 @@ public class Superstructure {
             }
         }
 
+        /*
+         * Stop grabber wheels from spinning
+         */
         public Command stopGrabber(){
             return superstructure.applyGrabberState(GrabberState.IDLE);
         }
 
+        /*
+         * Retract mechanisms to travel state
+         */
         public Command retractMechanisms(){
             return superstructure.applyGrabberPosition(
                 GrabberPosition.TRAVEL
             );
         }
 
+        /*
+         * Call this on button releases, stops grabber movement and retracts mechanisms to travel state
+         */
         public Command stopAndRetract(){
             return Commands.parallel(
                 stopGrabber(),
@@ -216,42 +228,63 @@ public class Superstructure {
             );
         }
 
+        /*
+         * Set elevator and wrist to L1 preset
+         */
         public Command preL1(){
             return superstructure.applyGrabberPosition(
                 GrabberPosition.L1
             );
         }
 
+        /*
+         * Set elevator and wrist to L2 preset
+         */
         public Command preL2(){
             return superstructure.applyGrabberPosition(
                 GrabberPosition.L2
             );
         }
 
+        /*
+         * Set elevator and wrist to L3 preset
+         */
         public Command preL3(){
             return superstructure.applyGrabberPosition(
                 GrabberPosition.L3
             );
         }
 
+        /*
+         * Set elevator and wrist to L4 preset
+         */
         public Command preL4(){
             return superstructure.applyGrabberPosition(
                 GrabberPosition.L4
             );
         }
 
+        /*
+         * Set elevator and wrist to net preset
+         */
         public Command preNet(){
             return superstructure.applyGrabberPosition(
                 GrabberPosition.NET
             );
         }
 
+        /*
+         * Set elevator and wrist to processor preset
+         */
         public Command preProcessor(){
             return superstructure.applyGrabberPosition(
                 GrabberPosition.PROCESSOR
             );
         }
 
+        /*
+         * Set elevator and wrist to ground algae preset while running grabber intake if open
+         */
         public Command groundAlgaeIntake(){
             return 
             Commands.parallel(
@@ -259,7 +292,7 @@ public class Superstructure {
                     GrabberPosition.GROUND_INTAKE
                 ),
                 // Check if there is already an algae intaked
-                new ConditionalCommand(
+                Commands.either(
                     Commands.none(),
                     superstructure.applyGrabberState(
                         GrabberState.ALGAE_INTAKE
@@ -274,6 +307,9 @@ public class Superstructure {
             
         }
 
+        /*
+         * Set elevator and wrist to low algae preset while running grabber intake if open
+         */
         public Command lowAlgaeIntake(){
             return 
             Commands.parallel(
@@ -281,7 +317,7 @@ public class Superstructure {
                     GrabberPosition.LOW_INTAKE
                 ),
                 // Check if there is already an algae intaked
-                new ConditionalCommand(
+                Commands.either(
                     Commands.none(),
                     superstructure.applyGrabberState(
                         GrabberState.ALGAE_INTAKE
@@ -295,6 +331,9 @@ public class Superstructure {
             );   
         }
 
+        /*
+         * Set elevator and wrist to high algae preset while running grabber intake if open
+         */
         public Command highAlgaeIntake(){
             return 
             Commands.parallel(
@@ -302,7 +341,7 @@ public class Superstructure {
                     GrabberPosition.HIGH_INTAKE
                 ),
                 // Check if there is already an algae intaked
-                new ConditionalCommand(
+                Commands.either(
                     Commands.none(),
                     superstructure.applyGrabberState(
                         GrabberState.ALGAE_INTAKE
@@ -317,6 +356,9 @@ public class Superstructure {
             
         }
 
+        /*
+         * Used to calculate what the robot is possessing based on breambreaks
+         */
         public Command calculatePossession(){
             return Commands.runOnce(
                 () -> this.superstructure.superState.calculatePossession(
