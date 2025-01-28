@@ -23,10 +23,8 @@ public class GrabberIOHardware implements GrabberIO{
         m_leftMotorConfig = new SparkMaxConfig();
         m_rightMotorConfig = new SparkMaxConfig();
 
-        m_leftMotorConfig
-            .smartCurrentLimit((int) GrabberConstants.kCurrentLimit);
-        m_rightMotorConfig
-            .smartCurrentLimit((int) GrabberConstants.kCurrentLimit);
+        m_leftMotorConfig.smartCurrentLimit((int) GrabberConstants.kCurrentLimit);
+        m_rightMotorConfig.smartCurrentLimit((int) GrabberConstants.kCurrentLimit);
 
         m_leftMotor.configure(m_leftMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
         m_rightMotor.configure(m_rightMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);

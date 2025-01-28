@@ -16,8 +16,11 @@ import frc.robot.subsystems.drive.DriveIOHardware;
 import frc.robot.subsystems.drive.DriveIOSim;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.drive.TunerConstants;
+import frc.robot.subsystems.elevator.ElevatorIOHardware;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.grabber.GrabberSubsystem;
+import frc.robot.subsystems.wrist.WristIOHardware;
 import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.subsystems.SuperstructureVisualizer;
@@ -62,9 +65,11 @@ public class RobotContainer {
   private final DriveSubsystem m_drive;
   private final ElevatorSubsystem m_elevator;
   private final WristSubsystem m_wrist;
+  private final GrabberSubsystem m_grabber;
   private final Trigger m_indexBeamBreak;
   private final Trigger m_transferBeamBreak;
   private final Trigger m_grabberBeamBreak;
+  private final Superstructure m_superstructure;
 
     // Replace with CommandPS4Controller or CommandJoystick if needed
     private final CommandXboxController m_driverController =
@@ -84,9 +89,17 @@ public class RobotContainer {
     if constexpr
     Also, ignore the "comparing identical expressions" and "dead code" warnings
     */
+    
 
     if (Akit.currentMode == 0) {
         m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()));
+        SuperstructureVisualizer superstructureVisualizer = new SuperstructureVisualizer();
+        m_elevator = new ElevatorSubsystem(new ElevatorIOHardware());
+        m_wrist = new WristSubsystem(new WristIOHardware());
+
+        m_indexBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.indexBeamBreakPort)::get);
+        m_transferBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.transferBeamBreakPort)::get);
+        m_grabberBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.grabberBeamBreakPort)::get);
     } else if (Akit.currentMode == 1) {
         m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
         SuperstructureVisualizer superstructureVisualizer = new SuperstructureVisualizer();
@@ -96,6 +109,10 @@ public class RobotContainer {
         m_transferBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.transferBeamBreakPort)::get);
         m_grabberBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.grabberBeamBreakPort)::get);
     }
+
+    m_superstructure = new Superstructure(
+        m_elevator,
+        m_grabber, null, m_wrist, m_indexBeamBreak, m_transferBeamBreak, m_grabberBeamBreak)
 
     teleopDriveCommand = m_drive.CommandBuilder.teleopDrive(
         () -> MathUtil.applyDeadband(-m_driverController.getLeftY(), OIConstants.kControllerDeadband), 
@@ -172,24 +189,29 @@ public class RobotContainer {
   }
 
   private void configureDriverBindings() {
+
     m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
 
     m_driverController.rightBumper().whileTrue(teleopDriveCommand.applySingleClutch());
 
     m_driverController.leftBumper().whileTrue(teleopDriveCommand.applyDoubleClutch());
 
-    //m_driverController.x().whileTrue(teleopDriveCommand.applyOppositeCoralHeadingLock());
+    m_driverController.x().and(
+        m_driverController.leftBumper().and(
+            m_driverController.rightBumper()
+        ).negate()
+    ).whileTrue(teleopDriveCommand.applyOppositeCoralHeadingLock());
 
     m_driverController.b().whileTrue(teleopDriveCommand.applyProcessorCoralHeadingLock());
 
     m_driverController.y().whileTrue(teleopDriveCommand.applyForwardHeadingLock());
 
     m_driverController.leftBumper().and(
-      m_driverController.rightBumper().and(
-        m_driverController.x()
-      )
+        m_driverController.rightBumper().and(
+            m_driverController.x()
+        )
     ).onTrue(new InstantCommand(
-      () -> m_drive.resetHeading()
+        () -> m_drive.resetHeading()
     ));
   }
 
@@ -203,8 +225,7 @@ public class RobotContainer {
         m_grabberBeamBreak
       )
     ).onChange(
-      Commands.none()
-      //superstructure.ca
+      Superstructure.
     );
   }
 

@@ -17,6 +17,5 @@ public interface GrabberIO {
 
     public default void runVolts(double volts) {}
 
-
     public default void runVoltsDifferential(double leftMotorVolts, double rightMotorVolts) {}
 }
