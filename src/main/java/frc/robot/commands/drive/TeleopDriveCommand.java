@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.FieldConstants.PointOfInterest;
 import frc.robot.Constants.FieldConstants.PoseOfInterest;
-import frc.robot.utils.TriFunction;
+import lib.functional.TriFunction;
 
 public class TeleopDriveCommand extends Command {
     //The raw speed suppliers, unaffected by the clutches. A reference to these is maintained in order to make applying and unapplying clutches easier
