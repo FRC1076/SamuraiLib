@@ -165,18 +165,6 @@ public class Superstructure {
         );
     }
 
-    /*
-     * This method returns a command that has the grabber eject and stop
-     */
-    private Command shootAndStop(){
-        //Add a check for if algae or coral
-        return Commands.runEnd(
-            () -> {m_grabber.runVolts(0);}, //placeholder
-            () -> {m_grabber.runVolts(0);},
-            m_grabber
-        );
-    }
-
     public class SuperstructureCommandFactory { 
         private final Superstructure superstructure;
         private final BooleanSupplier m_indexBeamBreak;
@@ -223,6 +211,42 @@ public class Superstructure {
                         superstructure.applyEffectorState(EffectorState.EMPTY_IDLE),
                         superstructure.applyEffectorPosition(EffectorPosition.TRAVEL)
                     );
+                default:
+                    return Commands.none();
+            }
+        }
+        public Command scoreCoralAndRetract(CoralScore scoreLevel){
+            switch (scoreLevel) {
+                case L1:
+                    return Commands.sequence(
+                        superstructure.applyEffectorPosition(EffectorPosition.L1),
+                        superstructure.applyEffectorState(EffectorState.CORAL_OUTTAKE).onlyWhile(m_effectorBeamBreak),
+                        superstructure.applyEffectorState(EffectorState.EMPTY_IDLE),
+                        superstructure.applyEffectorPosition(EffectorPosition.TRAVEL)
+                    );
+                case L2:
+                    return Commands.sequence(
+                        superstructure.applyEffectorPosition(EffectorPosition.L2),
+                        superstructure.applyEffectorState(EffectorState.CORAL_OUTTAKE).onlyWhile(m_effectorBeamBreak),
+                        superstructure.applyEffectorState(EffectorState.EMPTY_IDLE),
+                        superstructure.applyEffectorPosition(EffectorPosition.TRAVEL)
+                    );
+                case L3:
+                    return Commands.sequence(
+                        superstructure.applyEffectorPosition(EffectorPosition.L3),
+                        superstructure.applyEffectorState(EffectorState.CORAL_OUTTAKE).onlyWhile(m_effectorBeamBreak),
+                        superstructure.applyEffectorState(EffectorState.EMPTY_IDLE),
+                        superstructure.applyEffectorPosition(EffectorPosition.TRAVEL)
+                    );
+                case L4:
+                    return Commands.sequence(
+                        superstructure.applyEffectorPosition(EffectorPosition.L4),
+                        superstructure.applyEffectorState(EffectorState.CORAL_OUTTAKE).onlyWhile(m_effectorBeamBreak),
+                        superstructure.applyEffectorState(EffectorState.EMPTY_IDLE),
+                        superstructure.applyEffectorPosition(EffectorPosition.TRAVEL)
+                    );
+                default:
+                    return Commands.none();
             }
         }
     }

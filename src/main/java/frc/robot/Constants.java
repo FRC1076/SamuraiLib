@@ -160,6 +160,7 @@ public final class Constants {
             }
         }
 
+        /*
         public enum SuperState {
 
             public final EffectorState effectorState;
@@ -187,7 +188,7 @@ public final class Constants {
                     }
                 }
             }
-        }
+        }*/
 
         public enum CoralScore {
             L1,
