@@ -43,6 +43,7 @@ public class Superstructure {
         private GrabberPossession grabberPossession;
         private IndexPossession indexPossession;
 
+
         public SuperState(GrabberState grabberState, GrabberPosition grabberPosition, IndexState indexState){
             this.grabberState = grabberState;
             this.grabberPosition = grabberPosition;
@@ -163,6 +164,7 @@ public class Superstructure {
         private final BooleanSupplier m_indexBeamBreak;
         private final BooleanSupplier m_transferBeamBreak;
         private final BooleanSupplier m_grabberBeamBreak;
+        private final Map<GrabberPosition, Command> scoringCommands = new HashMap<>();
         private SuperstructureCommandFactory (
             Superstructure superstructure,
             BooleanSupplier indexBeamBreak,
@@ -173,13 +175,6 @@ public class Superstructure {
             m_indexBeamBreak = indexBeamBreak;
             m_transferBeamBreak = transferBeamBreak;
             m_grabberBeamBreak = grabberBeamBreak;
-        }
-
-        /*
-         * Score game piece differently depending on robot state
-         */
-        public Command scoreGamePiece() {
-            Map<GrabberPosition, Command> scoringCommands= new HashMap<>();
             scoringCommands.put(GrabberPosition.L1, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
             scoringCommands.put(GrabberPosition.L2, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
             scoringCommands.put(GrabberPosition.L3, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
@@ -187,6 +182,13 @@ public class Superstructure {
             scoringCommands.put(GrabberPosition.NET, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
             scoringCommands.put(GrabberPosition.PROCESSOR, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
             scoringCommands.put(null, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE)); //default if above isn't found
+
+        }
+
+        /*
+         * Score game piece differently depending on robot state
+         */
+        public Command scoreGamePiece() {
             return Commands.select(
                 scoringCommands,
                 () -> {
@@ -282,7 +284,6 @@ public class Superstructure {
                 superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
                     .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE) // Check if there is already an algae intaked
             );
-            
         }
 
         /*
@@ -294,7 +295,6 @@ public class Superstructure {
                 superstructure.applyGrabberPosition(GrabberPosition.LOW_INTAKE),
                 superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
                     .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE) // Check if there is already an algae intaked
-
             );   
         }
 
