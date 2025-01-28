@@ -83,16 +83,63 @@ public final class Constants {
             CORAL_ALGAE, //Coral is implicitly stored in indexer
         }
 
-        //Represent the elevator height and wrist angle for different positions
+        //Effector Possession State
+        public enum EffectorPossession {
+            EMPTY,
+            CORAL,
+            ALGAE
+        }
+
+        //Effector State
+        public enum EffectorState {
+
+            EMPTY_IDLE(0,0,EffectorPossession.EMPTY),
+            ALGAE_IDLE(0,0,EffectorPossession.ALGAE),
+            CORAL_IDLE(0,0,EffectorPossession.CORAL),
+            
+            ALGAE_INTAKE(-12,-12,EffectorPossession.EMPTY),
+            CORAL_INTAKE(5,5,EffectorPossession.EMPTY),
+
+            ALGAE_OUTTAKE(6,6,EffectorPossession.ALGAE),
+            CORAL_OUTTAKE(12,12,EffectorPossession.CORAL);
+
+
+            public final double leftVoltage;
+            public final double rightVoltage;
+            public final EffectorPossession possession;
+
+            private EffectorState(double leftVoltage, double rightVoltage, EffectorPossession possession) {
+                this.leftVoltage = leftVoltage;
+                this.rightVoltage = rightVoltage;
+                this.possession = possession;
+            }
+        }
+
+        public enum IndexerState {
+
+            EMPTY_IDLE(false,false),
+            CORAL_INTAKE(true,false),
+            CORAL_TRANSFER(true,true),
+            CORAL_IDLE(false,true);
+
+            public final boolean running; //Whether or not the indexer motors are running
+            public final boolean possession; //Whether or not the indexer possesses a CORAL
+            private IndexerState(boolean running, boolean possession) {
+                this.running = running;
+                this.possession = possession;
+            }
+        }
+
+        //Represent the elevator height and wrist angle for different positions, the full position of the effector
         //Should we have an eject state with an optoinal elevator height? just to immediately eject if a game piece is stuck
-        public enum SuperState {
+        public enum EffectorPosition {
             
             TRAVEL(0.08128,90),
             ALGAE_TRAVEL(0.08128, 65),
 
             CORAL_TRANSFER(0.08128,-23.5), //same as CORAL_DIRECT_INTAKE
 
-            //L1(-1,-1,false,-1,-1)
+            L1(-1,-1), //Placeholder
             L2(0.71628,-35),
             L3(1.11252,-35),
             L4(1.8161,-45),
@@ -107,10 +154,46 @@ public final class Constants {
             public final double elevatorHeightMeters;
             public final Rotation2d wristAngle;
             
-            private SuperState(double elevatorHeightMeters, double wristAngleDegrees) {
+            private EffectorPosition(double elevatorHeightMeters, double wristAngleDegrees) {
                 this.elevatorHeightMeters = elevatorHeightMeters;
                 this.wristAngle = Rotation2d.fromDegrees(wristAngleDegrees);
             }
+        }
+
+        public enum SuperState {
+
+            public final EffectorState effectorState;
+            public final EffectorPosition effectorPosition;
+            public final IndexerState indexerState;
+            public final GamePieceState possession;
+
+            private SuperState(EffectorState effectorState, EffectorPosition effectorPosition, IndexerState indexerState){
+                this.effectorState = effectorState;
+                this.effectorPosition = effectorPosition;
+                this.indexerState = indexerState;
+                switch (effectorState.possession) {
+                    case EMPTY -> {
+                        this.possession = indexerState.possession 
+                        ? GamePieceState.CORAL_INDEXER 
+                        : GamePieceState.EMPTY;
+                    }
+                    case CORAL -> {
+                        this.possession = GamePieceState.CORAL_GRABBER;
+                    }
+                    case ALGAE -> {
+                        this.possession = indexerState.possession 
+                        ? GamePieceState.CORAL_ALGAE 
+                        : GamePieceState.ALGAE;
+                    }
+                }
+            }
+        }
+
+        public enum CoralScore {
+            L1,
+            L2,
+            L3,
+            L4
         }
     }
 
@@ -393,6 +476,7 @@ public final class Constants {
         public static final int kFollowMotorPort = -10;
 
         public static final double kCurrentLimit = 40;
+        public static final double kIndexVoltage;
 
         public static final boolean kLeadMotorInverted = false;
         public static final boolean kFollowMotorInverted = false;

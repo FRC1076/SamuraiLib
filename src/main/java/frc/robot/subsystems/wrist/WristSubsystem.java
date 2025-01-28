@@ -17,8 +17,8 @@ public class WristSubsystem extends SubsystemBase {
         io.setVoltage(volts);
     }
 
-    public void setPosition(double positionRadians) {
-        io.setPosition(positionRadians);
+    public void setPosition(Rotation2d position) {
+        io.setPosition(position.getRadians());
     }
 
     public Rotation2d getAngle(){

@@ -6,22 +6,22 @@ package frc.robot.commands.wrist;
 
 import frc.robot.Constants.WristConstants;
 import frc.robot.subsystems.wrist.WristSubsystem;
-
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /** An example command that uses an example subsystem. */
 public class SetWristAngleCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-  private final double targetAngle;
+  private final Rotation2d targetAngle;
   private final WristSubsystem m_wrist;
 
   /**
    * Creates a new SetWristAngleCommand.
    *
-   * @param targetAngle The target angle in radians.
+   * @param targetAngle The target angle.
    * @param wrist The wrist subsystem used by this command
    */
-  public SetWristAngleCommand(double targetAngle, WristSubsystem wrist) {
+  public SetWristAngleCommand(Rotation2d targetAngle, WristSubsystem wrist) {
     m_wrist = wrist;
     this.targetAngle = targetAngle;
     // Use addRequirements() here to declare subsystem dependencies.
@@ -45,6 +45,6 @@ public class SetWristAngleCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return Math.abs(targetAngle - m_wrist.getAngleRadians()) > WristConstants.wristAngleToleranceRadians;
+    return Math.abs(targetAngle.minus(m_wrist.getAngle()).getRadians()) > WristConstants.wristAngleToleranceRadians;
   }
 }
