@@ -2,6 +2,7 @@ package frc.robot.subsystems.wrist;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class WristSubsystem extends SubsystemBase {
@@ -26,6 +27,10 @@ public class WristSubsystem extends SubsystemBase {
 
     public void stop() {
         setVoltage(0);
+    }
+
+    public double getAngleRadians() {
+        return getAngle().getRadians();
     }
 
     @Override
