@@ -1,5 +1,8 @@
 package frc.robot.subsystems;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import frc.robot.Constants.ElevatorSimConstants;
 import frc.robot.Constants.SuperstructureConstants.CoralScore;
 import frc.robot.Constants.SuperstructureConstants.GrabberPosition;
@@ -17,6 +20,7 @@ import frc.robot.commands.wrist.SetWristAngleCommand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
+
 
 import java.util.Set;
 import java.util.function.BooleanSupplier;
@@ -185,21 +189,23 @@ public class Superstructure {
          * Score game piece differently depending on robot state
          */
         public Command scoreGamePiece() {
-            switch (superstructure.getSuperState().getGrabberPosition()) {
-                //May not work due to the sequential command group being generated being interrupted by the external trigger
-                case L1:
-                case L2:
-                case L3:
-                case L4:
-                    return 
-                        superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE);
-                case NET:
-                case PROCESSOR:
-                    return
-                        superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE);
-                default:
-                    return Commands.none();
-            }
+            Map<GrabberPosition, Command> scoringCommands= new HashMap<>();
+            scoringCommands.put(GrabberPosition.L1, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
+            scoringCommands.put(GrabberPosition.L2, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
+            scoringCommands.put(GrabberPosition.L3, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
+            scoringCommands.put(GrabberPosition.L4, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
+            scoringCommands.put(GrabberPosition.NET, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
+            scoringCommands.put(GrabberPosition.PROCESSOR, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
+            scoringCommands.put(null, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE)); //default if above isn't found
+            return Commands.select(
+                scoringCommands,
+                () -> {
+                    final GrabberPosition grabberPosition = superstructure.getSuperState().grabberPosition;
+                    return scoringCommands.containsKey(grabberPosition)
+                    ? grabberPosition
+                    : null;
+                }
+            );
         }
 
         /*
