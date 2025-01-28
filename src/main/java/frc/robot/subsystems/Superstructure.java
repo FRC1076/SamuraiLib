@@ -11,12 +11,15 @@ import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.grabber.GrabberSubsystem;
 import frc.robot.subsystems.index.IndexSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
+import lib.extendedcommands.CommandUtils;
 import frc.robot.commands.elevator.SetElevatorPositionCommand;
 import frc.robot.commands.wrist.SetWristAngleCommand;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.Logger;
 
 import java.util.function.BooleanSupplier;
 
@@ -27,13 +30,14 @@ import static frc.robot.Constants.IndexConstants.kIndexVoltage;
 public class Superstructure {
 
     // A mutable class representing the Superstructure's state
+    @AutoLog
     public static class SuperState {
 
-        private GrabberState grabberState;
-        private GrabberPosition grabberPosition;
-        private IndexState indexState;
-        private GrabberPossession grabberPossession;
-        private IndexPossession indexPossession;
+        protected GrabberState grabberState;
+        protected GrabberPosition grabberPosition;
+        protected IndexState indexState;
+        protected GrabberPossession grabberPossession;
+        protected IndexPossession indexPossession;
 
         public SuperState(GrabberState grabberState, GrabberPosition grabberPosition, IndexState indexState){
             this.grabberState = grabberState;
@@ -99,9 +103,9 @@ public class Superstructure {
     public final SuperstructureCommandFactory CommandBuilder;
 
     //Super State
-    private final SuperState superState = new SuperState();
+    private final SuperStateAutoLogged superState = new SuperStateAutoLogged();
 
-    public Superstructure(
+    public Superstructure (
         ElevatorSubsystem elevator,
         GrabberSubsystem grabber,
         IndexSubsystem index,
@@ -114,7 +118,10 @@ public class Superstructure {
         m_grabber = grabber;
         m_index = index;
         m_wrist = wrist;
-
+        
+        CommandUtils.makePeriodic(() -> {
+            Logger.processInputs("Superstructure",superState);
+        });
         CommandBuilder = new SuperstructureCommandFactory(this, indexBeamBreak, transferBeamBreak, grabberBeamBreak);
     }
 
