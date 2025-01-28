@@ -83,56 +83,59 @@ public final class Constants {
             CORAL_ALGAE, //Coral is implicitly stored in indexer
         }
 
-        //Effector Possession State
-        public enum EffectorPossession {
+        //Grabber Possession State
+        public enum GrabberPossession {
             EMPTY,
             CORAL,
             ALGAE
         }
 
-        //Effector State
-        public enum EffectorState {
+        public enum IndexPossession {
+            EMPTY,
+            CORAL
+        }
 
-            EMPTY_IDLE(0,0,EffectorPossession.EMPTY),
-            ALGAE_IDLE(0,0,EffectorPossession.ALGAE),
-            CORAL_IDLE(0,0,EffectorPossession.CORAL),
+        //Grabber State
+        public enum GrabberState {
+
+            EMPTY_IDLE(0,0,GrabberPossession.EMPTY),
+            ALGAE_IDLE(0,0,GrabberPossession.ALGAE),
+            CORAL_IDLE(0,0,GrabberPossession.CORAL),
             
-            ALGAE_INTAKE(-12,-12,EffectorPossession.EMPTY),
-            CORAL_INTAKE(5,5,EffectorPossession.EMPTY),
+            ALGAE_INTAKE(-12,-12,GrabberPossession.EMPTY),
+            CORAL_INTAKE(5,5,GrabberPossession.EMPTY),
 
-            ALGAE_OUTTAKE(6,6,EffectorPossession.ALGAE),
-            CORAL_OUTTAKE(12,12,EffectorPossession.CORAL);
+            ALGAE_OUTTAKE(6,6,GrabberPossession.ALGAE),
+            CORAL_OUTTAKE(12,12,GrabberPossession.CORAL);
 
 
             public final double leftVoltage;
             public final double rightVoltage;
-            public final EffectorPossession possession;
+            public final GrabberPossession possession;
 
-            private EffectorState(double leftVoltage, double rightVoltage, EffectorPossession possession) {
+            private GrabberState(double leftVoltage, double rightVoltage, GrabberPossession possession) {
                 this.leftVoltage = leftVoltage;
                 this.rightVoltage = rightVoltage;
                 this.possession = possession;
             }
         }
 
-        public enum IndexerState {
+        public enum IndexState {
 
-            EMPTY_IDLE(false,false),
-            CORAL_INTAKE(true,false),
-            CORAL_TRANSFER(true,true),
-            CORAL_IDLE(false,true);
+            EMPTY_IDLE(false),
+            CORAL_INTAKE(true),
+            CORAL_TRANSFER(true),
+            CORAL_IDLE(false);
 
             public final boolean running; //Whether or not the indexer motors are running
-            public final boolean possession; //Whether or not the indexer possesses a CORAL
-            private IndexerState(boolean running, boolean possession) {
+            private IndexState(boolean running) {
                 this.running = running;
-                this.possession = possession;
             }
         }
 
-        //Represent the elevator height and wrist angle for different positions, the full position of the effector
+        //Represent the elevator height and wrist angle for different positions, the full position of the grabber
         //Should we have an eject state with an optoinal elevator height? just to immediately eject if a game piece is stuck
-        public enum EffectorPosition {
+        public enum GrabberPosition {
             
             TRAVEL(0.08128,90),
             ALGAE_TRAVEL(0.08128, 65),
@@ -154,7 +157,7 @@ public final class Constants {
             public final double elevatorHeightMeters;
             public final Rotation2d wristAngle;
             
-            private EffectorPosition(double elevatorHeightMeters, double wristAngleDegrees) {
+            private GrabberPosition(double elevatorHeightMeters, double wristAngleDegrees) {
                 this.elevatorHeightMeters = elevatorHeightMeters;
                 this.wristAngle = Rotation2d.fromDegrees(wristAngleDegrees);
             }
@@ -163,16 +166,16 @@ public final class Constants {
         /*
         public enum SuperState {
 
-            public final EffectorState effectorState;
-            public final EffectorPosition effectorPosition;
+            public final GrabberState grabberState;
+            public final GrabberPosition grabberPosition;
             public final IndexerState indexerState;
             public final GamePieceState possession;
 
-            private SuperState(EffectorState effectorState, EffectorPosition effectorPosition, IndexerState indexerState){
-                this.effectorState = effectorState;
-                this.effectorPosition = effectorPosition;
+            private SuperState(GrabberState grabberState, GrabberPosition grabberPosition, IndexerState indexerState){
+                this.grabberState = grabberState;
+                this.grabberPosition = grabberPosition;
                 this.indexerState = indexerState;
-                switch (effectorState.possession) {
+                switch (grabberState.possession) {
                     case EMPTY -> {
                         this.possession = indexerState.possession 
                         ? GamePieceState.CORAL_INDEXER 
@@ -481,6 +484,12 @@ public final class Constants {
 
         public static final boolean kLeadMotorInverted = false;
         public static final boolean kFollowMotorInverted = false;
+    }
+
+    public static class BeamBreakConstants{
+        public static final int indexBeamBreakPort = 0;
+        public static final int transferBeamBreakPort = 1;
+        public static final int grabberBeamBreakPort = 2;
     }
 
     private Constants() {

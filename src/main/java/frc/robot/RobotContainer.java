@@ -28,6 +28,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,10 +39,12 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 import frc.robot.Constants.Akit;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.FieldConstants.ReefFace;
+import frc.robot.Constants.BeamBreakConstants;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -57,6 +60,9 @@ public class RobotContainer {
   private final DriveSubsystem m_drive;
   private final ElevatorSubsystem m_elevator;
   private final WristSubsystem m_wrist;
+  private final Trigger m_indexBeamBreak;
+  private final Trigger m_transferBeamBreak;
+  private final Trigger m_grabberBeamBreak;
 
     // Replace with CommandPS4Controller or CommandJoystick if needed
     private final CommandXboxController m_driverController =
@@ -84,6 +90,9 @@ public class RobotContainer {
         SuperstructureVisualizer superstructureVisualizer = new SuperstructureVisualizer();
         m_elevator = new ElevatorSubsystem(new ElevatorIOSim(superstructureVisualizer.getElevatorLigament()));
         m_wrist = new WristSubsystem(new WristIOSim(superstructureVisualizer.getWristLigament()));
+        m_indexBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.indexBeamBreakPort)::get);
+        m_transferBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.transferBeamBreakPort)::get);
+        m_grabberBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.grabberBeamBreakPort)::get);
     }
 
     teleopDriveCommand = m_drive.CommandBuilder.teleopDrive(
@@ -109,6 +118,13 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureDriverBindings();
 
+    // Configure the operator bindings
+    configureOperatorBindings();
+    
+    //configure beam break triggers
+    configureBeamBreakTriggers();
+
+    //Build the auto chooser with PathPlanner
     m_autoChooser = AutoBuilder.buildAutoChooser();
     SmartDashboard.putData(m_autoChooser);
   }
@@ -177,6 +193,16 @@ public class RobotContainer {
 
   private void configureOperatorBindings() {
     
+  }
+
+  private void configureBeamBreakTriggers() {
+    m_indexBeamBreak.or(
+      m_transferBeamBreak.or(
+        m_grabberBeamBreak
+      )
+    ).onChange(
+
+    );
   }
 
   /**
