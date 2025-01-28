@@ -126,10 +126,8 @@ public class Superstructure {
     }
 
     public Command applyGrabberPosition(GrabberPosition position) {
-
         Command wristPreMoveCommand;
-
-        switch (superState.getGrabberState().possession) {
+        switch (superState.getGrabberPossession()) {
             case EMPTY:
             case CORAL:
                 wristPreMoveCommand = new SetWristAngleCommand(Rotation2d.kCW_90deg, m_wrist);
@@ -141,7 +139,6 @@ public class Superstructure {
                 wristPreMoveCommand = new SetWristAngleCommand(Rotation2d.kCW_90deg, m_wrist);
                 break;
         }
-
         return Commands.sequence (
             Commands.runOnce(() -> superState.setGrabberPosition(position)),
             wristPreMoveCommand,
@@ -153,14 +150,14 @@ public class Superstructure {
     public Command applyGrabberState(GrabberState state) {
         return Commands.sequence(
             Commands.runOnce(() -> superState.setGrabberState(state)),
-            m_grabber.run(() -> m_grabber.runVoltsDifferential(state.leftVoltage, state.rightVoltage))
+            m_grabber.runOnce(() -> m_grabber.runVoltsDifferential(state.leftVoltage, state.rightVoltage)) //Can do a runOnce because runVolts is sticky
         );
     }
 
     public Command applyIndexState(IndexState state) {
         return Commands.sequence(
             Commands.runOnce(() -> superState.setIndexerState(state)),
-            m_index.run(() -> m_index.runVolts(kIndexVoltage))
+            m_index.runOnce(() -> m_index.runVolts(kIndexVoltage)) //Can do a runOnce because runVolts is sticky
         );
     }
 
@@ -180,73 +177,114 @@ public class Superstructure {
             m_transferBeamBreak = transferBeamBreak;
             m_grabberBeamBreak = grabberBeamBreak;
         }
-        public Command scoreCoral(CoralScore scoreLevel) {
-            switch (scoreLevel) {
+
+        public Command scoreGamePiece() {
+            switch (superstructure.getSuperState().getGrabberPosition()) {
+                //May not work due to the sequential command group being generated being interrupted by the external trigger
                 case L1:
-                    return Commands.sequence(
-                        superstructure.applyGrabberPosition(GrabberPosition.L1),
-                        superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE).onlyWhile(m_grabberBeamBreak),
-                        superstructure.applyGrabberState(GrabberState.EMPTY_IDLE),
-                        superstructure.applyGrabberPosition(GrabberPosition.TRAVEL)
-                    );
                 case L2:
-                    return Commands.sequence(
-                        superstructure.applyGrabberPosition(GrabberPosition.L2),
-                        superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE).onlyWhile(m_grabberBeamBreak),
-                        superstructure.applyGrabberState(GrabberState.EMPTY_IDLE),
-                        superstructure.applyGrabberPosition(GrabberPosition.TRAVEL)
-                    );
                 case L3:
-                    return Commands.sequence(
-                        superstructure.applyGrabberPosition(GrabberPosition.L3),
-                        superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE).onlyWhile(m_grabberBeamBreak),
-                        superstructure.applyGrabberState(GrabberState.EMPTY_IDLE),
-                        superstructure.applyGrabberPosition(GrabberPosition.TRAVEL)
-                    );
                 case L4:
-                    return Commands.sequence(
-                        superstructure.applyGrabberPosition(GrabberPosition.L4),
-                        superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE).onlyWhile(m_grabberBeamBreak),
-                        superstructure.applyGrabberState(GrabberState.EMPTY_IDLE),
-                        superstructure.applyGrabberPosition(GrabberPosition.TRAVEL)
-                    );
+                    return 
+                        superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE).andThen();
+                case NET:
+                case PROCESSOR:
+                    return
+                        superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE).andThen();
                 default:
                     return Commands.none();
             }
         }
-        public Command scoreCoralAndRetract(CoralScore scoreLevel){
-            switch (scoreLevel) {
-                case L1:
-                    return Commands.sequence(
-                        superstructure.applyGrabberPosition(GrabberPosition.L1),
-                        superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE).onlyWhile(m_grabberBeamBreak),
-                        superstructure.applyGrabberState(GrabberState.EMPTY_IDLE),
-                        superstructure.applyGrabberPosition(GrabberPosition.TRAVEL)
-                    );
-                case L2:
-                    return Commands.sequence(
-                        superstructure.applyGrabberPosition(GrabberPosition.L2),
-                        superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE).onlyWhile(m_grabberBeamBreak),
-                        superstructure.applyGrabberState(GrabberState.EMPTY_IDLE),
-                        superstructure.applyGrabberPosition(GrabberPosition.TRAVEL)
-                    );
-                case L3:
-                    return Commands.sequence(
-                        superstructure.applyGrabberPosition(GrabberPosition.L3),
-                        superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE).onlyWhile(m_grabberBeamBreak),
-                        superstructure.applyGrabberState(GrabberState.EMPTY_IDLE),
-                        superstructure.applyGrabberPosition(GrabberPosition.TRAVEL)
-                    );
-                case L4:
-                    return Commands.sequence(
-                        superstructure.applyGrabberPosition(GrabberPosition.L4),
-                        superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE).onlyWhile(m_grabberBeamBreak),
-                        superstructure.applyGrabberState(GrabberState.EMPTY_IDLE),
-                        superstructure.applyGrabberPosition(GrabberPosition.TRAVEL)
-                    );
-                default:
-                    return Commands.none();
-            }
+
+        public Command stopGrabber(){
+            return superstructure.applyGrabberState(GrabberState.IDLE);
+        }
+
+        public Command retractMechanisms(){
+            return superstructure.applyGrabberPosition(
+                GrabberPosition.TRAVEL
+            );
+        }
+
+        public Command stopAndRetract(){
+            return Commands.sequence(
+                stopGrabber(),
+                retractMechanisms()
+            );
+        }
+
+        public Command preL1(){
+            return superstructure.applyGrabberPosition(
+                GrabberPosition.L1
+            );
+        }
+
+        public Command preL2(){
+            return superstructure.applyGrabberPosition(
+                GrabberPosition.L2
+            );
+        }
+
+        public Command preL3(){
+            return superstructure.applyGrabberPosition(
+                GrabberPosition.L3
+            );
+        }
+
+        public Command preL4(){
+            return superstructure.applyGrabberPosition(
+                GrabberPosition.L4
+            );
+        }
+
+        public Command preNet(){
+            return superstructure.applyGrabberPosition(
+                GrabberPosition.NET
+            );
+        }
+
+        public Command preProcessor(){
+            return superstructure.applyGrabberPosition(
+                GrabberPosition.PROCESSOR
+            );
+        }
+
+        public Command groundAlgaeIntake(){
+            return 
+            Commands.sequence(
+                superstructure.applyGrabberPosition(
+                    GrabberPosition.GROUND_INTAKE
+                ),
+                superstructure.applyGrabberState(
+                    GrabberState.ALGAE_INTAKE
+                )
+            );
+            
+        }
+
+        public Command lowAlgaeIntake(){
+            return 
+            Commands.sequence(
+                superstructure.applyGrabberPosition(
+                    GrabberPosition.LOW_INTAKE
+                ),
+                superstructure.applyGrabberState(
+                    GrabberState.ALGAE_INTAKE
+                )
+            );   
+        }
+
+        public Command highAlgaeIntake(){
+            return 
+            Commands.sequence(
+                superstructure.applyGrabberPosition(
+                    GrabberPosition.HIGH_INTAKE
+                ),
+                superstructure.applyGrabberState(
+                    GrabberState.ALGAE_INTAKE
+                )
+            );
+            
         }
 
         public Command calculatePossession(){

@@ -75,13 +75,14 @@ public final class Constants {
     public static class SuperstructureConstants {
 
         //Possession State
+        /*
         public enum GamePieceState {
             EMPTY,
             CORAL_INDEXER,
             CORAL_GRABBER,
             ALGAE,
             CORAL_ALGAE, //Coral is implicitly stored in indexer
-        }
+        }*/
 
         //Grabber Possession State
         public enum GrabberPossession {
@@ -98,35 +99,29 @@ public final class Constants {
         //Grabber State
         public enum GrabberState {
 
-            EMPTY_IDLE(0,0,GrabberPossession.EMPTY),
-            ALGAE_IDLE(0,0,GrabberPossession.ALGAE),
-            CORAL_IDLE(0,0,GrabberPossession.CORAL),
+            IDLE(0,0),
             
-            ALGAE_INTAKE(-12,-12,GrabberPossession.EMPTY),
-            CORAL_INTAKE(5,5,GrabberPossession.EMPTY),
+            ALGAE_INTAKE(-12,-12),
+            CORAL_INTAKE(5,5),
 
-            ALGAE_OUTTAKE(6,6,GrabberPossession.ALGAE),
-            CORAL_OUTTAKE(12,12,GrabberPossession.CORAL);
+            ALGAE_OUTTAKE(6,6),
+            CORAL_OUTTAKE(12,12);
 
 
             public final double leftVoltage;
             public final double rightVoltage;
-            public final GrabberPossession possession;
 
-            private GrabberState(double leftVoltage, double rightVoltage, GrabberPossession possession) {
+            private GrabberState(double leftVoltage, double rightVoltage) {
                 this.leftVoltage = leftVoltage;
                 this.rightVoltage = rightVoltage;
-                this.possession = possession;
             }
         }
 
         public enum IndexState {
-
             EMPTY_IDLE(false),
             CORAL_INTAKE(true),
             CORAL_TRANSFER(true),
             CORAL_IDLE(false);
-
             public final boolean running; //Whether or not the indexer motors are running
             private IndexState(boolean running) {
                 this.running = running;
@@ -147,7 +142,7 @@ public final class Constants {
             L3(1.11252,-35),
             L4(1.8161,-45),
 
-            ///ALGAE_GROUND_INTAKE
+            GROUND_INTAKE(-1, -1),
             LOW_INTAKE(0.9144,-35),
             HIGH_INTAKE(1.30556,-35),
 
@@ -480,7 +475,7 @@ public final class Constants {
         public static final int kFollowMotorPort = -10;
 
         public static final double kCurrentLimit = 40;
-        public static final double kIndexVoltage;
+        public static final double kIndexVoltage = 6;
 
         public static final boolean kLeadMotorInverted = false;
         public static final boolean kFollowMotorInverted = false;
