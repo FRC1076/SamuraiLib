@@ -3,6 +3,7 @@ package frc.robot.subsystems.wrist;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class WristSubsystem extends SubsystemBase {
@@ -23,6 +24,14 @@ public class WristSubsystem extends SubsystemBase {
 
     public Rotation2d getAngle(){
         return inputs.angle;
+    }
+
+    public Command applyVoltage(double volts) {
+        return runOnce(() -> setVoltage(volts));
+    }
+
+    public Command applyPosition(Rotation2d position) {
+        return runOnce(() -> setPosition(position));
     }
 
     public void stop() {

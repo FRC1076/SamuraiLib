@@ -2,6 +2,7 @@ package frc.robot.subsystems.elevator;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static edu.wpi.first.units.Units.*;
 
@@ -25,6 +26,14 @@ public class ElevatorSubsystem extends SubsystemBase {
     /** Returns position of the elevator, as a double */
     public double getPositionMeters(){
         return inputs.elevatorHeightMeters;
+    }
+
+    public Command applyPosition(double positionMeters) {
+        return runOnce(() -> setPosition(positionMeters));
+    }
+
+    public Command applyVoltage(double volts) {
+        return runOnce(() -> setVoltage(volts));
     }
 
 

@@ -43,7 +43,6 @@ public class Superstructure {
         private GrabberPossession grabberPossession;
         private IndexPossession indexPossession;
 
-
         public SuperState(GrabberState grabberState, GrabberPosition grabberPosition, IndexState indexState){
             this.grabberState = grabberState;
             this.grabberPosition = grabberPosition;
@@ -131,7 +130,7 @@ public class Superstructure {
         return this.superState;
     }
 
-    public Command applyGrabberPosition(GrabberPosition position) {
+    private Command applyGrabberPosition(GrabberPosition position) {
         Command wristPreMoveCommand = Commands.either(
             new SetWristAngleCommand(Rotation2d.fromDegrees(65), m_wrist),
             new SetWristAngleCommand(Rotation2d.kCW_90deg, m_wrist),
@@ -145,17 +144,17 @@ public class Superstructure {
         );
     }
 
-    public Command applyGrabberState(GrabberState state) {
+    private Command applyGrabberState(GrabberState state) {
         return Commands.sequence(
             Commands.runOnce(() -> superState.setGrabberState(state)),
-            m_grabber.runOnce(() -> m_grabber.runVoltsDifferential(state.leftVoltage, state.rightVoltage)) //Can do a runOnce because runVolts is sticky
+            m_grabber.applyDifferentialVolts(state.leftVoltage, state.rightVoltage) //Can do a runOnce because runVolts is sticky
         );
     }
 
-    public Command applyIndexState(IndexState state) {
+    private Command applyIndexState(IndexState state) {
         return Commands.sequence(
             Commands.runOnce(() -> superState.setIndexerState(state)),
-            m_index.runOnce(() -> m_index.runVolts(kIndexVoltage)) //Can do a runOnce because runVolts is sticky
+            m_index.applyVolts(kIndexVoltage).onlyIf(() -> state.running) //Can do a runOnce because runVolts is sticky
         );
     }
 
@@ -194,8 +193,8 @@ public class Superstructure {
                 () -> {
                     final GrabberPosition grabberPosition = superstructure.getSuperState().grabberPosition;
                     return scoringCommands.containsKey(grabberPosition)
-                    ? grabberPosition
-                    : null;
+                        ? grabberPosition
+                        : null;
                 }
             );
         }
@@ -228,36 +227,28 @@ public class Superstructure {
          * Set elevator and wrist to L1 preset
          */
         public Command preL1(){
-            return superstructure.applyGrabberPosition(
-                GrabberPosition.L1
-            );
+            return superstructure.applyGrabberPosition(GrabberPosition.L1);
         }
 
         /*
          * Set elevator and wrist to L2 preset
          */
         public Command preL2(){
-            return superstructure.applyGrabberPosition(
-                GrabberPosition.L2
-            );
+            return superstructure.applyGrabberPosition(GrabberPosition.L2);
         }
 
         /*
          * Set elevator and wrist to L3 preset
          */
         public Command preL3(){
-            return superstructure.applyGrabberPosition(
-                GrabberPosition.L3
-            );
+            return superstructure.applyGrabberPosition(GrabberPosition.L3);
         }
 
         /*
          * Set elevator and wrist to L4 preset
          */
         public Command preL4(){
-            return superstructure.applyGrabberPosition(
-                GrabberPosition.L4
-            );
+            return superstructure.applyGrabberPosition(GrabberPosition.L4);
         }
 
         /*
