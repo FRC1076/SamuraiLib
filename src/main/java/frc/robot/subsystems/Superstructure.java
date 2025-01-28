@@ -20,7 +20,8 @@ import frc.robot.commands.wrist.SetWristAngleCommand;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 
 import java.util.Set;
 import java.util.function.BooleanSupplier;
@@ -299,6 +300,37 @@ public class Superstructure {
                     .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE) // Check if there is already an algae intaked
             );
             
+        }
+
+        /** Transfers a coral from the funnel to the indexer */
+        private Command indexCoral() {
+            return Commands.sequence(
+                superstructure.applyIndexState(IndexState.CORAL_INTAKE),
+                Commands.waitUntil(m_indexBeamBreak),
+                superstructure.applyIndexState(IndexState.CORAL_IDLE)
+            );
+        }
+
+        /** Transfers a coral from the indexer to the grabber, without checking for position */
+        private Command transferCoral() {
+            return Commands.parallel(
+                Commands.sequence(
+                    superstructure.applyGrabberState(GrabberState.CORAL_INTAKE),
+                    Commands.waitUntil(m_grabberBeamBreak),
+                    superstructure.applyGrabberState(GrabberState.IDLE)
+                ),
+                Commands.sequence(
+                    superstructure.applyIndexState(IndexState.CORAL_TRANSFER),
+                    Commands.waitUntil(() -> !m_indexBeamBreak.getAsBoolean()),
+                    superstructure.applyIndexState(IndexState.EMPTY_IDLE)
+                )
+            );
+        }
+
+        public Command safeIntake(BooleanSupplier safeSignal){
+            return Commands.sequence(
+                superstructure.applyGrabberPosition(GrabberPosition.)
+            )
         }
 
         /*
