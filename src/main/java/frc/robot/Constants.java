@@ -83,6 +83,49 @@ public final class Constants {
             CORAL_ALGAE, //Coral is implicitly stored in indexer
         }
 
+        //Represent the elevator height and wrist angle for different positions
+        //Should we have an eject state with an optoinal elevator height? just to immediately eject if a game piece is stuck
+        public enum SuperState {
+            
+            TRAVEL(0.08128,90),
+            ALGAE_TRAVEL(0.08128, 65),
+
+            CORAL_TRANSFER(0.08128,-23.5), //same as CORAL_DIRECT_INTAKE
+
+            //L1(-1,-1,false,-1,-1)
+            L2(0.71628,-35),
+            L3(1.11252,-35),
+            L4(1.8161,-45),
+
+            ///ALGAE_GROUND_INTAKE
+            LOW_INTAKE(0.9144,-35),
+            HIGH_INTAKE(1.30556,-35),
+
+            PROCESSOR(0.184277,0),
+            NET(1.8288,65);
+
+            public final double elevatorHeightMeters;
+            public final Rotation2d wristAngle;
+            
+            private SuperState(double elevatorHeightMeters, double wristAngleDegrees) {
+                this.elevatorHeightMeters = elevatorHeightMeters;
+                this.wristAngle = Rotation2d.fromDegrees(wristAngleDegrees);
+            }
+        }
+    }
+
+    /*
+    public static class SuperstructureConstants {
+
+        //Possession State
+        public enum GamePieceState {
+            EMPTY,
+            CORAL_INDEXER,
+            CORAL_GRABBER,
+            ALGAE,
+            CORAL_ALGAE, //Coral is implicitly stored in indexer
+        }
+
 
         public enum SuperState {
             //TODO: Fix superstate structure
@@ -151,6 +194,7 @@ public final class Constants {
             }
         }
     }
+    */
 
     /** Contains data about the field */
     public static class FieldConstants {

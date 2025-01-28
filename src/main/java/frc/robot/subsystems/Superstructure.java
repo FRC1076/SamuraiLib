@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import frc.robot.Constants.ElevatorSimConstants;
 import frc.robot.Constants.SuperstructureConstants.SuperState;
+import frc.robot.Constants.SuperstructureConstants.GamePieceState;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.grabber.GrabberSubsystem;
 import frc.robot.subsystems.index.IndexSubsystem;
@@ -18,7 +19,11 @@ public class Superstructure {
     private final GrabberSubsystem m_grabber;
     private final IndexSubsystem m_index;
     private final WristSubsystem m_wrist;
-    private SuperState currentState;
+    private Boolean m_indexBreamBreak = false;
+    private Boolean m_transferBeamBreak = false;
+    private Boolean m_grabberEndBreamBreak = false;
+    private SuperState superState;
+    private GamePieceState gamePieceState;
 
     public Superstructure(
         ElevatorSubsystem elevator,
@@ -35,6 +40,8 @@ public class Superstructure {
     //Use this function to construct a generic command that transitions from one state to another (just elevator and wrist angle ATM)
     private Command transitionToState(SuperState desiredState){
         Command elevatorPremoveCommand;
+        //This won't work if we don't have start possesion
+        /*
         switch (desiredState.startPossession){
             case CORAL_ALGAE:
             case ALGAE:
@@ -43,7 +50,7 @@ public class Superstructure {
             default:
                 elevatorPremoveCommand = new SetWristAngleCommand(Units.degreesToRadians(90), m_wrist);
                 break;
-        }
+        }*/
         return Commands.sequence(
             //First, fold the grabber up 90 degrees before moving the elevator
             elevatorPremoveCommand,
@@ -55,6 +62,16 @@ public class Superstructure {
         );
     }
 
-
+    /*
+     * This method returns a command that has the grabber eject and stop
+     */
+    private Command shootAndStop(){
+        //Add a check for if algae or coral
+        return Commands.runEnd(
+            () -> {m_grabber.runVolts(0);}, //placeholder
+            () -> {m_grabber.runVolts(0);},
+            m_grabber
+        );
+    }
 
 }
