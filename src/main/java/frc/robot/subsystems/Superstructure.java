@@ -128,19 +128,9 @@ public class Superstructure {
 
     public Command applyGrabberPosition(GrabberPosition position) {
         Command wristPreMoveCommand = Commands.either(
-            new SetWristAngleCommand(Rotation2d.kCW_90deg, m_wrist),
             new SetWristAngleCommand(Rotation2d.fromDegrees(65), m_wrist),
-            () -> {
-                switch(superState.getGrabberPossession()){
-                    case EMPTY:
-                    case CORAL:
-                        return true;
-                    case ALGAE:
-                        return false;
-                    default:
-                        return true;
-                }
-            }
+            new SetWristAngleCommand(Rotation2d.kCW_90deg, m_wrist),
+            () -> superState.getGrabberPossession() == GrabberPossession.ALGAE
         );
         return Commands.sequence (
             Commands.runOnce(() -> superState.setGrabberPosition(position)),
@@ -213,9 +203,7 @@ public class Superstructure {
          * Retract mechanisms to travel state
          */
         public Command retractMechanisms(){
-            return superstructure.applyGrabberPosition(
-                GrabberPosition.TRAVEL
-            );
+            return superstructure.applyGrabberPosition(GrabberPosition.TRAVEL);
         }
 
         /*
@@ -268,18 +256,14 @@ public class Superstructure {
          * Set elevator and wrist to net preset
          */
         public Command preNet(){
-            return superstructure.applyGrabberPosition(
-                GrabberPosition.NET
-            );
+            return superstructure.applyGrabberPosition(GrabberPosition.NET);
         }
 
         /*
          * Set elevator and wrist to processor preset
          */
         public Command preProcessor(){
-            return superstructure.applyGrabberPosition(
-                GrabberPosition.PROCESSOR
-            );
+            return superstructure.applyGrabberPosition(GrabberPosition.PROCESSOR);
         }
 
         /*
@@ -288,21 +272,9 @@ public class Superstructure {
         public Command groundAlgaeIntake(){
             return 
             Commands.parallel(
-                superstructure.applyGrabberPosition(
-                    GrabberPosition.GROUND_INTAKE
-                ),
-                // Check if there is already an algae intaked
-                Commands.either(
-                    Commands.none(),
-                    superstructure.applyGrabberState(
-                        GrabberState.ALGAE_INTAKE
-                    ),
-                    () -> {
-                        return superstructure.getSuperState().getGrabberPossession() == GrabberPossession.ALGAE
-                        ? true
-                        : false;
-                    }
-                )
+                superstructure.applyGrabberPosition(GrabberPosition.GROUND_INTAKE),
+                superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
+                    .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE) // Check if there is already an algae intaked
             );
             
         }
@@ -313,21 +285,10 @@ public class Superstructure {
         public Command lowAlgaeIntake(){
             return 
             Commands.parallel(
-                superstructure.applyGrabberPosition(
-                    GrabberPosition.LOW_INTAKE
-                ),
-                // Check if there is already an algae intaked
-                Commands.either(
-                    Commands.none(),
-                    superstructure.applyGrabberState(
-                        GrabberState.ALGAE_INTAKE
-                    ),
-                    () -> {
-                        return superstructure.getSuperState().getGrabberPossession() == GrabberPossession.ALGAE
-                        ? true
-                        : false;
-                    }
-                )
+                superstructure.applyGrabberPosition(GrabberPosition.LOW_INTAKE),
+                superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
+                    .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE) // Check if there is already an algae intaked
+
             );   
         }
 
@@ -335,23 +296,10 @@ public class Superstructure {
          * Set elevator and wrist to high algae preset while running grabber intake if open
          */
         public Command highAlgaeIntake(){
-            return 
-            Commands.parallel(
-                superstructure.applyGrabberPosition(
-                    GrabberPosition.HIGH_INTAKE
-                ),
-                // Check if there is already an algae intaked
-                Commands.either(
-                    Commands.none(),
-                    superstructure.applyGrabberState(
-                        GrabberState.ALGAE_INTAKE
-                    ),
-                    () -> {
-                        return superstructure.getSuperState().getGrabberPossession() == GrabberPossession.ALGAE
-                        ? true
-                        : false;
-                    }
-                )
+            return Commands.parallel(
+                superstructure.applyGrabberPosition(GrabberPosition.HIGH_INTAKE),
+                superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
+                    .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE) // Check if there is already an algae intaked
             );
             
         }
