@@ -186,11 +186,11 @@ public class Superstructure {
                 case L3:
                 case L4:
                     return 
-                        superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE).andThen();
+                        superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE);
                 case NET:
                 case PROCESSOR:
                     return
-                        superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE).andThen();
+                        superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE);
                 default:
                     return Commands.none();
             }
