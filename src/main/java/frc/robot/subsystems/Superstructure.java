@@ -16,6 +16,7 @@ import frc.robot.commands.wrist.SetWristAngleCommand;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 
 import java.util.Set;
 import java.util.function.BooleanSupplier;
@@ -126,19 +127,21 @@ public class Superstructure {
     }
 
     public Command applyGrabberPosition(GrabberPosition position) {
-        Command wristPreMoveCommand;
-        switch (superState.getGrabberPossession()) {
-            case EMPTY:
-            case CORAL:
-                wristPreMoveCommand = new SetWristAngleCommand(Rotation2d.kCW_90deg, m_wrist);
-                break;
-            case ALGAE:
-                wristPreMoveCommand = new SetWristAngleCommand(Rotation2d.fromDegrees(65), m_wrist);
-                break;
-            default:
-                wristPreMoveCommand = new SetWristAngleCommand(Rotation2d.kCW_90deg, m_wrist);
-                break;
-        }
+        Command wristPreMoveCommand = new ConditionalCommand(
+            new SetWristAngleCommand(Rotation2d.kCW_90deg, m_wrist),
+            new SetWristAngleCommand(Rotation2d.fromDegrees(65), m_wrist),
+            () -> {
+                switch(superState.getGrabberPossession()){
+                    case EMPTY:
+                    case CORAL:
+                        return true;
+                    case ALGAE:
+                        return false;
+                    default:
+                        return true;
+                }
+            }
+        );
         return Commands.sequence (
             Commands.runOnce(() -> superState.setGrabberPosition(position)),
             wristPreMoveCommand,
