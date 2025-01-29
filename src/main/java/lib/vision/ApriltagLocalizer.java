@@ -33,11 +33,17 @@ public class ApriltagLocalizer {
     }
 
     //A Consumer that accepts a Pose3d and a Matrix of Standard Deviations, usually should call addVisionMeasurements() on a SwerveDrivePoseEstimator3d
-    private final List<TriConsumer<Pose2d,Double,Matrix<N3,N1>>> measurementConsumers = new ArrayList<>();
+    private TriConsumer<Pose2d,Double,Matrix<N3,N1>> measurementConsumer;
     private final List<CamStruct> cameras = new ArrayList<>();
     
     public void registerMeasurementConsumer(TriConsumer<Pose2d,Double,Matrix<N3,N1>> consumer) {
-        measurementConsumers.add(consumer);
+        if (measurementConsumer == null) {
+            //Initialize measurementConsumer if none exists
+            measurementConsumer = consumer;
+        } else {
+            //If measurementConsumer already exists, then compose it with the new measurementConsumer
+            measurementConsumer = measurementConsumer.andThen(consumer);
+        }
     }
 
     /**
@@ -60,13 +66,11 @@ public class ApriltagLocalizer {
             if (camStruct.cameraActive) {
                 camStruct.camera.getPoseEstimate().ifPresent(
                     (estimate) -> {
-                        for (var consumer : measurementConsumers) {
-                            consumer.accept(
-                                estimate.pose(),
-                                estimate.timestampSeconds(),
-                                estimate.stdDevs()
-                            );
-                        }
+                        measurementConsumer.accept(
+                            estimate.pose(),
+                            estimate.timestampSeconds(),
+                            estimate.stdDevs()
+                        );
                     }
                 );
             }
