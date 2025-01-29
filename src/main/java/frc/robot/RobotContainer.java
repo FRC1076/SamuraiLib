@@ -31,30 +31,20 @@ import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.subsystems.SuperstructureVisualizer;
 import frc.robot.subsystems.Superstructure.SuperstructureCommandFactory;
 
-import static edu.wpi.first.units.Units.Rotation;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj.DigitalInput;
 
 import frc.robot.Constants.Akit;
 import frc.robot.Constants.OIConstants;
-import frc.robot.Constants.FieldConstants.ReefFace;
 import frc.robot.Constants.BeamBreakConstants;
 import frc.robot.subsystems.Superstructure;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -144,14 +134,12 @@ public class RobotContainer {
             teleopDriveCommand
         );
 
-        m_elevator.setDefaultCommand(new RunCommand(
-            () -> m_elevator.setVoltage(0),
-            m_elevator
+        m_wrist.setDefaultCommand(m_wrist.applyManualControl(
+            () -> MathUtil.applyDeadband(-m_operatorController.getRightY(), OIConstants.kControllerDeadband)
         ));
 
-        m_wrist.setDefaultCommand(new RunCommand(
-            () -> m_wrist.setVoltage(0),
-            m_wrist
+        m_elevator.setDefaultCommand(m_elevator.applyManualControl(
+            () -> MathUtil.applyDeadband(-m_operatorController.getLeftY(), OIConstants.kControllerDeadband)
         ));
 
         // Configure the trigger bindings
@@ -213,8 +201,8 @@ public class RobotContainer {
 
     private void configureOperatorBindings() {
         
-        final SuperstructureCommandFactory superstructureCommands = m_superstructure.getCommands();
-
+        final SuperstructureCommandFactory superstructureCommands = m_superstructure.getCommandBuilder();
+        
         //L1
         m_operatorController.x().whileTrue(
             superstructureCommands.preL1()
@@ -234,7 +222,10 @@ public class RobotContainer {
         m_operatorController.y().whileTrue(
             superstructureCommands.preL4()
         );
+        
+        if (Akit.currentMode == 0) {
 
+        }
     }
 
     private void configureBeamBreakTriggers() {

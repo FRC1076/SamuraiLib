@@ -145,7 +145,7 @@ public class Superstructure {
         return m_index;
     }
 
-    public SuperstructureCommandFactory getCommands(){
+    public SuperstructureCommandFactory getCommandBuilder(){
         return CommandBuilder;
     }
 

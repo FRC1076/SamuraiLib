@@ -110,12 +110,7 @@ public class WristIOSim implements WristIO {
 
     @Override
     public void setVoltage(double voltage) {
-        m_leadMotorSim.setAppliedOutput(
-            (voltage + m_FFController.calculate(
-                m_encoderSim.getPosition(), 0
-                )
-            )/m_leadMotorSim.getBusVoltage()
-        );
+        m_leadMotorSim.setAppliedOutput(voltage/m_leadMotorSim.getBusVoltage());
     }
 
     @Override
