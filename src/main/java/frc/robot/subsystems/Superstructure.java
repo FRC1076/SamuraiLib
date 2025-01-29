@@ -157,7 +157,7 @@ public class Superstructure {
     private Command applyGrabberPosition(GrabberPosition position) {
         Command wristPreMoveCommand = Commands.either(
             m_wrist.applyAngle(Rotation2d.fromDegrees(65)),
-            m_wrist.applyAngle(Rotation2d.kCW_90deg),
+            m_wrist.applyAngle(Rotation2d.kCCW_90deg),
             () -> superState.getGrabberPossession() == GrabberPossession.ALGAE
         );
         return Commands.sequence(
