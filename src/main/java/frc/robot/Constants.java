@@ -74,16 +74,6 @@ public final class Constants {
 
     public static class SuperstructureConstants {
 
-        //Possession State
-        /*
-        public enum GamePieceState {
-            EMPTY,
-            CORAL_INDEXER,
-            CORAL_GRABBER,
-            ALGAE,
-            CORAL_ALGAE, //Coral is implicitly stored in indexer
-        }*/
-
         //Grabber Possession State
         public enum GrabberPossession {
             EMPTY,
@@ -91,6 +81,7 @@ public final class Constants {
             ALGAE
         }
 
+        //Index Possession State
         public enum IndexPossession {
             EMPTY,
             CORAL
@@ -117,6 +108,7 @@ public final class Constants {
             }
         }
 
+        //Index State
         public enum IndexState {
             EMPTY_IDLE(false),
             CORAL_INTAKE(true),
@@ -129,7 +121,7 @@ public final class Constants {
         }
 
         //Represent the elevator height and wrist angle for different positions, the full position of the grabber
-        //Should we have an eject state with an optoinal elevator height? just to immediately eject if a game piece is stuck
+        //Should we have an eject state with an optional elevator height? just to immediately eject if a game piece is stuck
         public enum GrabberPosition {
             
             TRAVEL(0.08128,90),
@@ -157,126 +149,7 @@ public final class Constants {
                 this.wristAngle = Rotation2d.fromDegrees(wristAngleDegrees);
             }
         }
-
-        /*
-        public enum SuperState {
-
-            public final GrabberState grabberState;
-            public final GrabberPosition grabberPosition;
-            public final IndexerState indexerState;
-            public final GamePieceState possession;
-
-            private SuperState(GrabberState grabberState, GrabberPosition grabberPosition, IndexerState indexerState){
-                this.grabberState = grabberState;
-                this.grabberPosition = grabberPosition;
-                this.indexerState = indexerState;
-                switch (grabberState.possession) {
-                    case EMPTY -> {
-                        this.possession = indexerState.possession 
-                        ? GamePieceState.CORAL_INDEXER 
-                        : GamePieceState.EMPTY;
-                    }
-                    case CORAL -> {
-                        this.possession = GamePieceState.CORAL_GRABBER;
-                    }
-                    case ALGAE -> {
-                        this.possession = indexerState.possession 
-                        ? GamePieceState.CORAL_ALGAE 
-                        : GamePieceState.ALGAE;
-                    }
-                }
-            }
-        }*/
-
-        public enum CoralScore {
-            L1,
-            L2,
-            L3,
-            L4
-        }
     }
-
-    /*
-    public static class SuperstructureConstants {
-
-        //Possession State
-        public enum GamePieceState {
-            EMPTY,
-            CORAL_INDEXER,
-            CORAL_GRABBER,
-            ALGAE,
-            CORAL_ALGAE, //Coral is implicitly stored in indexer
-        }
-
-
-        public enum SuperState {
-            //TODO: Fix superstate structure
-            
-            EMPTY_TRAVEL(90,0,false,false,0,0, GamePieceState.EMPTY,GamePieceState.EMPTY),
-            CORAL_SAFE_INTAKE(90,0.08128,true,false,0,0,GamePieceState.EMPTY,GamePieceState.CORAL_INDEXER),
-            CORAL_SAFE_INTAKE_GRABBER(90,0.08128,true,false,0,0,GamePieceState.CORAL_INDEXER,GamePieceState.CORAL_GRABBER), //represents the coral entering the grabber after a safe index
-            
-            CORAL_SAFE_INTAKE_ALGAE(90,0.08128,true,true,0,0,GamePieceState.ALGAE,GamePieceState.CORAL_ALGAE),
-
-            CORAL_DIRECT_INTAKE(-23.5,0.08128,true,true,5,5,GamePieceState.EMPTY,GamePieceState.CORAL_GRABBER),
-            CORAL_TRAVEL(90,0,false,false,0,0,GamePieceState.CORAL_INDEXER,GamePieceState.CORAL_INDEXER),
-            CORAL_TRAVEL_ALGAE(90,0,false,false,0,0,GamePieceState.CORAL_ALGAE,GamePieceState.CORAL_ALGAE),
-
-            //PRE_L1(-1,-1,false,-1,-1)
-            //SCORE_L1
-
-            PRE_L2(-35,0.71628,false,false,0,0,GamePieceState.CORAL_GRABBER,GamePieceState.CORAL_GRABBER),
-            SCORE_L2(-35,0.71628,false,false,12,12,GamePieceState.CORAL_GRABBER,GamePieceState.EMPTY),
-
-            PRE_L3(-35,1.11252,false,false,0,0,GamePieceState.CORAL_GRABBER,GamePieceState.CORAL_GRABBER),
-            SCORE_L3(-35,1.11252,false,false,12,12,GamePieceState.CORAL_GRABBER,GamePieceState.EMPTY),
-
-            PRE_L4(-45,1.8161,false,false,0,0,GamePieceState.CORAL_GRABBER,GamePieceState.CORAL_GRABBER),
-            SCORE_L4(-45,1.8161,false,false,12,12,GamePieceState.CORAL_GRABBER,GamePieceState.EMPTY),
-
-            ///ALGAE_GROUND_INTAKE
-
-            ALGAE_LOW_INTAKE(-35,0.9144,false,false,-12,-12,GamePieceState.EMPTY,GamePieceState.ALGAE),
-            ALGAE_HIGH_INTAKE(-35,1.30556,false,false,-12,-12,GamePieceState.EMPTY,GamePieceState.ALGAE),
-            ALGAE_TRAVEL(65,0,false,false,0,0,GamePieceState.ALGAE,GamePieceState.ALGAE),
-
-            PRE_PROCESSOR(0,0.184277,false,false,0,0,GamePieceState.ALGAE,GamePieceState.ALGAE),
-            SCORE_PROCESSOR(0,0.184277,false,false,6,6,GamePieceState.ALGAE,GamePieceState.EMPTY),
-
-            PRE_NET(65,1.8288,false,false,0,0,GamePieceState.ALGAE,GamePieceState.ALGAE),
-            SCORE_NET(65,1.8288,false,false,12,12,GamePieceState.ALGAE,GamePieceState.EMPTY),
-
-            ALGAE_LOW_INTAKE_CORAL(-35,0.9144,false,false,-12,-12,GamePieceState.CORAL_INDEXER,GamePieceState.CORAL_ALGAE),
-            ALGAE_HIGH_INTAKE_CORAL(-35,1.30556,false,false,-12,-12,GamePieceState.CORAL_INDEXER,GamePieceState.CORAL_ALGAE),
-            ALGAE_TRAVEL_CORAL(65,0,false,false,0,0,GamePieceState.CORAL_ALGAE,GamePieceState.CORAL_ALGAE),
-
-            PRE_PROCESSOR_CORAL(0,0.184277,false,false,0,0,GamePieceState.CORAL_ALGAE,GamePieceState.CORAL_ALGAE),
-            SCORE_PROCESSOR_CORAL(0,0.184277,false,false,6,6,GamePieceState.CORAL_ALGAE,GamePieceState.CORAL_INDEXER),
-
-            PRE_NET_CORAL(65,1.8288,false,false,0,0,GamePieceState.CORAL_ALGAE,GamePieceState.CORAL_ALGAE),
-            SCORE_NET_CORAL(65,1.8288,false,false,12,12,GamePieceState.CORAL_ALGAE,GamePieceState.CORAL_INDEXER);
-
-            public final Rotation2d wristAngle;
-            public final double elevatorHeightMeters;
-            public final boolean isIntaking;
-            public final boolean isIndexing;
-            public final double leftMotorVoltage;
-            public final double rightMotorVoltage;
-            public final GamePieceState startPossession;
-            public final GamePieceState endPossession;
-            private SuperState(double wristAngleDegrees, double elevatorHeightMeters,boolean isIntaking, boolean isIndexing, double leftMotorVoltage, double rightMotorVoltage, GamePieceState startPossession, GamePieceState endPossession) {
-                this.wristAngle = Rotation2d.fromDegrees(wristAngleDegrees);
-                this.elevatorHeightMeters = elevatorHeightMeters;
-                this.isIntaking = isIntaking;
-                this.isIndexing = isIndexing;
-                this.leftMotorVoltage = leftMotorVoltage;
-                this.rightMotorVoltage = rightMotorVoltage;
-                this.startPossession = startPossession;
-                this.endPossession = endPossession;
-            }
-        }
-    }
-    */
 
     /** Contains data about the field */
     public static class FieldConstants {

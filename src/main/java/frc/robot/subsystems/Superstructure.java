@@ -12,6 +12,7 @@ import frc.robot.subsystems.grabber.GrabberSubsystem;
 import frc.robot.subsystems.index.IndexSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import lib.extendedcommands.CommandUtils;
+import lib.extendedcommands.SelectWithFallbackCommand;
 import frc.robot.commands.elevator.SetElevatorPositionCommand;
 import frc.robot.commands.wrist.SetWristAngleCommand;
 
@@ -45,7 +46,6 @@ public class Superstructure {
             this.indexState = indexState;
             grabberPossession = GrabberPossession.EMPTY;
             indexPossession = IndexPossession.EMPTY;
-            //calculatePossession();
         }
 
         public SuperState() {}
@@ -145,6 +145,11 @@ public class Superstructure {
         return m_index;
     }
 
+    /**
+     * Folds back wrist, moves elevator, then deploys wrist
+     * @param position the GrabberPosition, which consists of elevator height and wrist angle, to transition to
+     * @return generic transition command from one state to another 
+     */
     private Command applyGrabberPosition(GrabberPosition position) {
         Command wristPreMoveCommand = Commands.either(
             new SetWristAngleCommand(Rotation2d.fromDegrees(65), m_wrist),
@@ -159,6 +164,11 @@ public class Superstructure {
         );
     }
 
+    /**
+     * Sets grabber wheels to run at desired state
+     * @param state the GrabberState
+     * @return command to run grabber as certain state
+     */
     private Command applyGrabberState(GrabberState state) {
         return Commands.sequence(
             Commands.runOnce(() -> superState.setGrabberState(state)),
@@ -166,6 +176,11 @@ public class Superstructure {
         );
     }
 
+    /**
+     * Sets indexer to run at desired state
+     * @param state the IndexState
+     * @return command to run index as certain state
+     */
     private Command applyIndexState(IndexState state) {
         return Commands.sequence(
             Commands.runOnce(() -> superState.setIndexerState(state)),
@@ -195,40 +210,35 @@ public class Superstructure {
             scoringCommands.put(GrabberPosition.L4, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
             scoringCommands.put(GrabberPosition.NET, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
             scoringCommands.put(GrabberPosition.PROCESSOR, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
-            scoringCommands.put(null, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE)); //default if above isn't found
 
         }
 
-        /*
+        /**
          * Score game piece differently depending on robot state
          */
         public Command scoreGamePiece() {
-            return Commands.select(
+            return new SelectWithFallbackCommand<GrabberPosition>(
                 scoringCommands,
-                () -> {
-                    final GrabberPosition grabberPosition = superstructure.getSuperState().grabberPosition;
-                    return scoringCommands.containsKey(grabberPosition)
-                        ? grabberPosition
-                        : null;
-                }
+                superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE), //Default command to do if command can't be chosen from scoringCommands
+                this.superstructure.getSuperState()::getGrabberPosition
             );
         }
 
-        /*
+        /**
          * Stop grabber wheels from spinning
          */
         public Command stopGrabber(){
             return superstructure.applyGrabberState(GrabberState.IDLE);
         }
 
-        /*
+        /**
          * Retract mechanisms to travel state
          */
         public Command retractMechanisms(){
             return superstructure.applyGrabberPosition(GrabberPosition.TRAVEL);
         }
 
-        /*
+        /**
          * Call this on button releases, stops grabber movement and retracts mechanisms to travel state
          */
         public Command stopAndRetract(){
@@ -238,49 +248,49 @@ public class Superstructure {
             );
         }
 
-        /*
+        /**
          * Set elevator and wrist to L1 preset
          */
         public Command preL1(){
             return superstructure.applyGrabberPosition(GrabberPosition.L1);
         }
 
-        /*
+        /**
          * Set elevator and wrist to L2 preset
          */
         public Command preL2(){
             return superstructure.applyGrabberPosition(GrabberPosition.L2);
         }
 
-        /*
+        /**
          * Set elevator and wrist to L3 preset
          */
         public Command preL3(){
             return superstructure.applyGrabberPosition(GrabberPosition.L3);
         }
 
-        /*
+        /**
          * Set elevator and wrist to L4 preset
          */
         public Command preL4(){
             return superstructure.applyGrabberPosition(GrabberPosition.L4);
         }
 
-        /*
+        /**
          * Set elevator and wrist to net preset
          */
         public Command preNet(){
             return superstructure.applyGrabberPosition(GrabberPosition.NET);
         }
 
-        /*
+        /**
          * Set elevator and wrist to processor preset
          */
         public Command preProcessor(){
             return superstructure.applyGrabberPosition(GrabberPosition.PROCESSOR);
         }
 
-        /*
+        /**
          * Set elevator and wrist to ground algae preset while running grabber intake if open
          */
         public Command groundAlgaeIntake(){
@@ -292,7 +302,7 @@ public class Superstructure {
             );
         }
 
-        /*
+        /**
          * Set elevator and wrist to low algae preset while running grabber intake if open
          */
         public Command lowAlgaeIntake(){
@@ -304,7 +314,7 @@ public class Superstructure {
             );   
         }
 
-        /*
+        /**
          * Set elevator and wrist to high algae preset while running grabber intake if open
          */
         public Command highAlgaeIntake(){
@@ -316,7 +326,9 @@ public class Superstructure {
             
         }
 
-        /** Transfers a coral from the funnel to the indexer */
+        /** 
+         * Transfers a coral from the funnel to the indexer 
+         */
         private Command indexCoral() {
             return Commands.sequence(
                 superstructure.applyIndexState(IndexState.CORAL_INTAKE),
@@ -325,7 +337,9 @@ public class Superstructure {
             );
         }
 
-        /** Transfers a coral from the indexer to the grabber, without checking for position */
+        /** 
+         * Transfers a coral from the indexer to the grabber, without checking for position 
+         */
         private Command transferCoral() {
             return Commands.parallel(
                 Commands.sequence(
@@ -351,7 +365,7 @@ public class Superstructure {
             );
         }
 
-        /*
+        /**
          * Used to calculate what the robot is possessing based on breambreaks
          */
         public Command calculatePossession(){
