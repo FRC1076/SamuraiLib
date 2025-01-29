@@ -48,9 +48,7 @@ public class ElevatorIOSim implements ElevatorIO{
         ElevatorSimConstants.Control.kA
     );
 
-    private final MechanismLigament2d elevatorLigament;
-
-    public ElevatorIOSim(MechanismLigament2d elevatorLigament) {
+    public ElevatorIOSim() {
         m_elevatorSim = new ElevatorSim(
             m_elevatorGearbox,
             ElevatorSimConstants.kElevatorGearing,
@@ -110,8 +108,6 @@ public class ElevatorIOSim implements ElevatorIO{
             ElevatorSimConstants.Control.kI,
             ElevatorSimConstants.Control.kD
         );
-
-        this.elevatorLigament = elevatorLigament;
     }
 
     @Override
@@ -154,6 +150,5 @@ public class ElevatorIOSim implements ElevatorIO{
         m_encoderSim.setPosition(m_elevatorSim.getPositionMeters());
 
         // Update elevator visualization with position
-        elevatorLigament.setLength(m_encoderSim.getPosition() + 0.01); //can't set to min value or else advantage scope visualization disappears
     }
 }

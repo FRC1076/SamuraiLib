@@ -129,6 +129,22 @@ public class Superstructure {
         return this.superState;
     }
 
+    public ElevatorSubsystem getElevator() {
+        return m_elevator;
+    }
+
+    public GrabberSubsystem getGrabber() {
+        return m_grabber;
+    }
+
+    public WristSubsystem getWrist() {
+        return m_wrist;
+    }
+    
+    public IndexSubsystem getIndex() {
+        return m_index;
+    }
+
     private Command applyGrabberPosition(GrabberPosition position) {
         Command wristPreMoveCommand = Commands.either(
             new SetWristAngleCommand(Rotation2d.fromDegrees(65), m_wrist),

@@ -19,7 +19,12 @@ import frc.robot.subsystems.drive.TunerConstants;
 import frc.robot.subsystems.elevator.ElevatorIOHardware;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
+import frc.robot.subsystems.grabber.GrabberIOHardware;
+import frc.robot.subsystems.grabber.GrabberIOSim;
 import frc.robot.subsystems.grabber.GrabberSubsystem;
+import frc.robot.subsystems.index.IndexIOHardware;
+import frc.robot.subsystems.index.IndexIOSim;
+import frc.robot.subsystems.index.IndexSubsystem;
 import frc.robot.subsystems.wrist.WristIOHardware;
 import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristSubsystem;
@@ -60,16 +65,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private final DriveSubsystem m_drive;
-  private final ElevatorSubsystem m_elevator;
-  private final WristSubsystem m_wrist;
-  private final GrabberSubsystem m_grabber;
-  private final Trigger m_indexBeamBreak;
-  private final Trigger m_transferBeamBreak;
-  private final Trigger m_grabberBeamBreak;
-  private final Superstructure m_superstructure;
+    // The robot's subsystems and commands are defined here...
+    private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+    private final DriveSubsystem m_drive;
+    private final ElevatorSubsystem m_elevator;
+    private final WristSubsystem m_wrist;
+    private final GrabberSubsystem m_grabber;
+    private final IndexSubsystem m_index;
+    private final Trigger m_indexBeamBreak;
+    private final Trigger m_transferBeamBreak;
+    private final Trigger m_grabberBeamBreak;
+    private final Superstructure m_superstructure;
+    private final SuperstructureVisualizer superVis;
+
 
     // Replace with CommandPS4Controller or CommandJoystick if needed
     private final CommandXboxController m_driverController =
@@ -90,63 +98,70 @@ public class RobotContainer {
     Also, ignore the "comparing identical expressions" and "dead code" warnings
     */
     
-
-    if (Akit.currentMode == 0) {
-        m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()));
-        SuperstructureVisualizer superstructureVisualizer = new SuperstructureVisualizer();
-        m_elevator = new ElevatorSubsystem(new ElevatorIOHardware());
-        m_wrist = new WristSubsystem(new WristIOHardware());
-
-        m_indexBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.indexBeamBreakPort)::get);
-        m_transferBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.transferBeamBreakPort)::get);
-        m_grabberBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.grabberBeamBreakPort)::get);
-    } else if (Akit.currentMode == 1) {
-        m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
-        SuperstructureVisualizer superstructureVisualizer = new SuperstructureVisualizer();
-        m_elevator = new ElevatorSubsystem(new ElevatorIOSim(superstructureVisualizer.getElevatorLigament()));
-        m_wrist = new WristSubsystem(new WristIOSim(superstructureVisualizer.getWristLigament()));
-        m_indexBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.indexBeamBreakPort)::get);
-        m_transferBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.transferBeamBreakPort)::get);
-        m_grabberBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.grabberBeamBreakPort)::get);
-    }
-
-    m_superstructure = new Superstructure(
-        m_elevator,
-        m_grabber, null, m_wrist, m_indexBeamBreak, m_transferBeamBreak, m_grabberBeamBreak)
-
-    teleopDriveCommand = m_drive.CommandBuilder.teleopDrive(
-        () -> MathUtil.applyDeadband(-m_driverController.getLeftY(), OIConstants.kControllerDeadband), 
-        () -> MathUtil.applyDeadband(-m_driverController.getLeftX(), OIConstants.kControllerDeadband),
-        () -> MathUtil.applyDeadband(-m_driverController.getRightX(), OIConstants.kControllerDeadband)
-    );
-
-    m_drive.setDefaultCommand(
-        teleopDriveCommand
-    );
-
-    m_elevator.setDefaultCommand(new RunCommand(
-      () -> m_elevator.setVoltage(0),
-      m_elevator)
-    );
-
-    m_wrist.setDefaultCommand(new RunCommand(
-      () -> m_wrist.setVoltage(0),
-      m_wrist)
-    );
-
-    // Configure the trigger bindings
-    configureDriverBindings();
-
-    // Configure the operator bindings
-    configureOperatorBindings();
     
-    //configure beam break triggers
-    configureBeamBreakTriggers();
+        m_indexBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.indexBeamBreakPort)::get);
+        m_transferBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.transferBeamBreakPort)::get);
+        m_grabberBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.grabberBeamBreakPort)::get);
 
-    //Build the auto chooser with PathPlanner
-    m_autoChooser = AutoBuilder.buildAutoChooser();
-    SmartDashboard.putData(m_autoChooser);
-  }
+        if (Akit.currentMode == 0) {
+            m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()));
+            m_elevator = new ElevatorSubsystem(new ElevatorIOHardware());
+            m_wrist = new WristSubsystem(new WristIOHardware());
+            m_grabber = new GrabberSubsystem(new GrabberIOHardware());
+            m_index = new IndexSubsystem(new IndexIOHardware());
+        } else if (Akit.currentMode == 1) {
+            m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
+            m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
+            m_wrist = new WristSubsystem(new WristIOSim());
+            m_grabber = new GrabberSubsystem(new GrabberIOSim());
+            m_index = new IndexSubsystem(new IndexIOSim());
+        }
+
+        m_superstructure = new Superstructure(
+            m_elevator,
+            m_grabber,
+            m_index, 
+            m_wrist, 
+            m_indexBeamBreak, 
+            m_transferBeamBreak, 
+            m_grabberBeamBreak
+        );
+
+        superVis = new SuperstructureVisualizer(m_superstructure);
+
+        teleopDriveCommand = m_drive.CommandBuilder.teleopDrive(
+            () -> MathUtil.applyDeadband(-m_driverController.getLeftY(), OIConstants.kControllerDeadband), 
+            () -> MathUtil.applyDeadband(-m_driverController.getLeftX(), OIConstants.kControllerDeadband),
+            () -> MathUtil.applyDeadband(-m_driverController.getRightX(), OIConstants.kControllerDeadband)
+        );
+
+        m_drive.setDefaultCommand(
+            teleopDriveCommand
+        );
+
+        m_elevator.setDefaultCommand(new RunCommand(
+            () -> m_elevator.setVoltage(0),
+            m_elevator
+        ));
+
+        m_wrist.setDefaultCommand(new RunCommand(
+            () -> m_wrist.setVoltage(0),
+            m_wrist
+        ));
+
+        // Configure the trigger bindings
+        configureDriverBindings();
+
+        // Configure the operator bindings
+        configureOperatorBindings();
+    
+        //configure beam break triggers
+        configureBeamBreakTriggers();
+
+        //Build the auto chooser with PathPlanner
+        m_autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData(m_autoChooser);
+    }
 
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
@@ -186,55 +201,55 @@ public class RobotContainer {
         .whileTrue(m_drive.CommandBuilder.directDriveToNearestReefFace());
     */
 
-  }
+    }
 
-  private void configureDriverBindings() {
+    private void configureDriverBindings() {
 
-    m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
+        m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
 
-    m_driverController.rightBumper().whileTrue(teleopDriveCommand.applySingleClutch());
+        m_driverController.rightBumper().whileTrue(teleopDriveCommand.applySingleClutch());
 
-    m_driverController.leftBumper().whileTrue(teleopDriveCommand.applyDoubleClutch());
+        m_driverController.leftBumper().whileTrue(teleopDriveCommand.applyDoubleClutch());
 
-    m_driverController.x().and(
+        m_driverController.x().and(
+            m_driverController.leftBumper().and(
+                m_driverController.rightBumper()
+            ).negate()
+        ).whileTrue(teleopDriveCommand.applyOppositeCoralHeadingLock());
+
+        m_driverController.b().whileTrue(teleopDriveCommand.applyProcessorCoralHeadingLock());
+
+        m_driverController.y().whileTrue(teleopDriveCommand.applyForwardHeadingLock());
+
         m_driverController.leftBumper().and(
-            m_driverController.rightBumper()
-        ).negate()
-    ).whileTrue(teleopDriveCommand.applyOppositeCoralHeadingLock());
+            m_driverController.rightBumper().and(
+                m_driverController.x()
+            )
+        ).onTrue(new InstantCommand(
+            () -> m_drive.resetHeading()
+        ));
+    }
 
-    m_driverController.b().whileTrue(teleopDriveCommand.applyProcessorCoralHeadingLock());
-
-    m_driverController.y().whileTrue(teleopDriveCommand.applyForwardHeadingLock());
-
-    m_driverController.leftBumper().and(
-        m_driverController.rightBumper().and(
-            m_driverController.x()
-        )
-    ).onTrue(new InstantCommand(
-        () -> m_drive.resetHeading()
-    ));
-  }
-
-  private void configureOperatorBindings() {
+    private void configureOperatorBindings() {
     
-  }
+    }
 
-  private void configureBeamBreakTriggers() {
-    m_indexBeamBreak.or(
-      m_transferBeamBreak.or(
-        m_grabberBeamBreak
-      )
-    ).onChange(
-      Superstructure.
-    );
-  }
+    private void configureBeamBreakTriggers() {
+        m_indexBeamBreak.or(
+            m_transferBeamBreak.or(
+                m_grabberBeamBreak
+            )
+        ).onChange(
+            m_superstructure.CommandBuilder.calculatePossession()
+        );
+    }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
-    return m_autoChooser.getSelected();
-  }
+    public Command getAutonomousCommand() {
+        return m_autoChooser.getSelected();
+    }
 }

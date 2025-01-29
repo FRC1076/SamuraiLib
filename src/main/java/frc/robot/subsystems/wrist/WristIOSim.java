@@ -38,13 +38,11 @@ public class WristIOSim implements WristIO {
         WristSimConstants.Control.kA
     );
 
-    private MechanismLigament2d wristLigament;
-
     private final SingleJointedArmSim m_wristSim;
 
     private final PIDController m_PIDController;
 
-    public WristIOSim(MechanismLigament2d wristLigament) {
+    public WristIOSim() {
         m_wristGearbox = DCMotor.getNEO(2);
 
         m_leadMotor = new SparkMax(WristConstants.kLeadMotorPort, MotorType.kBrushless);
@@ -98,8 +96,6 @@ public class WristIOSim implements WristIO {
         m_encoderSim = m_leadMotorSim.getRelativeEncoderSim();
 
         m_PIDController = new PIDController(WristSimConstants.Control.kP, WristSimConstants.Control.kI, WristSimConstants.Control.kD);
-
-        this.wristLigament = wristLigament;
     }
 
     @Override
@@ -110,8 +106,6 @@ public class WristIOSim implements WristIO {
         m_wristSim.update(0.020);
 
         m_encoderSim.setPosition(m_wristSim.getAngleRads());
-
-        wristLigament.setAngle(Units.radiansToDegrees(m_wristSim.getAngleRads()));
     }
 
     @Override
