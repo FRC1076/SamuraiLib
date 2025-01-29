@@ -173,34 +173,7 @@ public class RobotContainer {
    * joysticks}.
    */
     private void configureBindings() {
-        /*m_driverController.leftTrigger(OIConstants.kControllerTriggerThreshold)
-            .whileTrue(m_drive.CommandBuilder.directDriveToNearestLeftBranch());
-            
-        m_driverController.rightTrigger(OIConstants.kControllerTriggerThreshold)
-            .whileTrue(m_drive.CommandBuilder.directDriveToNearestRightBranch());*/
-    
-    // OPERATOR CONTROLS
-    /* 
-    m_driverController.leftTrigger().whileTrue(new ParallelCommandGroup(
-      new RunCommand(() -> m_wrist.setPosition(Rotation2d.fromDegrees(-23.5).getRadians()), m_wrist),
-      new RunCommand(() -> m_elevator.setPosition(0.08128), m_elevator)
-    ));
-
-    m_driverController.rightTrigger().whileFalse(new ParallelCommandGroup(
-      new RunCommand(() -> m_wrist.setPosition(Rotation2d.fromDegrees(90).getRadians()), m_wrist),
-      new RunCommand(() -> m_elevator.setPosition(0), m_elevator)
-    ));
-
-    m_driverController.y().whileTrue(new ParallelCommandGroup(
-      new RunCommand(() -> m_wrist.setPosition(Rotation2d.fromDegrees(-45).getRadians()), m_wrist),
-      new RunCommand(() -> m_elevator.setPosition(1.8161), m_elevator)
-    ));
-
-    /*m_driverController.leftTrigger(OIConstants.kControllerTriggerThreshold)
-        .and(m_driverController.rightTrigger(OIConstants.kControllerTriggerThreshold))
-        .whileTrue(m_drive.CommandBuilder.directDriveToNearestReefFace());
-    */
-
+        
     }
 
     private void configureDriverBindings() {
@@ -231,7 +204,7 @@ public class RobotContainer {
     }
 
     private void configureOperatorBindings() {
-    
+        
     }
 
     private void configureBeamBreakTriggers() {
