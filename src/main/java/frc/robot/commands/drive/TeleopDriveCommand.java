@@ -238,7 +238,7 @@ public class TeleopDriveCommand extends Command {
     }
 
     /** Returns a command that applies an Opposite side coral station-oriented heading lock */
-    public Command applyLeftstationHeadingLock() {
+    public Command applyLeftStationHeadingLock() {
         return applyHeadingLock(
             DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue
                 ? PoseOfInterest.BLU_RIGHT_STATION.pose.getRotation()
