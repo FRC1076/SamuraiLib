@@ -28,14 +28,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         return inputs.elevatorHeightMeters;
     }
 
-    public Command applyPosition(double positionMeters) {
-        return runOnce(() -> setPosition(positionMeters));
-    }
-
-    public Command applyVoltage(double volts) {
-        return runOnce(() -> setVoltage(volts));
-    }
-
 
     @Override
     public void periodic(){
