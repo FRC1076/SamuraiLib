@@ -31,6 +31,7 @@ public final class Constants {
 
     public static class OIConstants{
         public static final int kDriverControllerPort = 0;
+        public static final int kOperatorControllerPort = 1;
         public static final double kControllerDeadband = 0.15;
         public static final double kControllerTriggerThreshold = 0.7;
     }
@@ -204,10 +205,10 @@ public final class Constants {
         public enum PoseOfInterest {
             BLU_PROCESSOR(0,0,0), //Placeholder
             RED_PROCESSOR(0,0,0), //Placeholder
-            BLU_CORAL_STATION_PROCESSOR(Units.inchesToMeters(33.51),Units.inchesToMeters(25.80),54),
-            BLU_CORAL_STATION_OPPOSITE(Units.inchesToMeters(33.51),Units.inchesToMeters(291.20),306),
-            RED_CORAL_STATION_PROCESSOR(Units.inchesToMeters(657.37),Units.inchesToMeters(291.20),-125),
-            RED_CORAL_STATION_OPPOSITE(Units.inchesToMeters(657.37),Units.inchesToMeters(25.80),125);
+            BLU_RIGHT_STATION(Units.inchesToMeters(33.51),Units.inchesToMeters(25.80),55),
+            BLU_LEFT_STATION(Units.inchesToMeters(33.51),Units.inchesToMeters(291.20),305),
+            RED_RIGHT_STATION(Units.inchesToMeters(657.37),Units.inchesToMeters(291.20),-125),
+            RED_LEFT_STATION(Units.inchesToMeters(657.37),Units.inchesToMeters(25.80),125);
 
             public final Pose2d pose;
             private PoseOfInterest(double xMeters, double yMeters, double omegaDeg) {

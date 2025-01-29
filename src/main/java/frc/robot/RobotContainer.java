@@ -82,6 +82,9 @@ public class RobotContainer {
     // Replace with CommandPS4Controller or CommandJoystick if needed
     private final CommandXboxController m_driverController =
         new CommandXboxController(OIConstants.kDriverControllerPort);
+
+    private final CommandXboxController m_operatorController =
+        new CommandXboxController(OIConstants.kOperatorControllerPort);
     
     private final SendableChooser<Command> m_autoChooser;
 
@@ -178,19 +181,22 @@ public class RobotContainer {
 
     private void configureDriverBindings() {
 
+        //Point to reef
         m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
 
+        //Apply single clutch
         m_driverController.rightBumper().whileTrue(teleopDriveCommand.applySingleClutch());
 
+        //Apply double clutch
         m_driverController.leftBumper().whileTrue(teleopDriveCommand.applyDoubleClutch());
 
         m_driverController.x().and(
             m_driverController.leftBumper().and(
                 m_driverController.rightBumper()
             ).negate()
-        ).whileTrue(teleopDriveCommand.applyOppositeCoralHeadingLock());
+        ).whileTrue(teleopDriveCommand.applyLeftStationHeadingLock());
 
-        m_driverController.b().whileTrue(teleopDriveCommand.applyProcessorCoralHeadingLock());
+        m_driverController.b().whileTrue(teleopDriveCommand.applyRightStationHeadingLock());
 
         m_driverController.y().whileTrue(teleopDriveCommand.applyForwardHeadingLock());
 
