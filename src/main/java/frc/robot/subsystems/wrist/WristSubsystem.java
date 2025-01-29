@@ -44,7 +44,7 @@ public class WristSubsystem extends SubsystemBase {
             () -> {},
             () -> setPosition(angle), 
             (interrupted) -> {}, 
-            () -> Math.abs(angle.minus(getAngle()).getRadians()) > WristConstants.wristAngleToleranceRadians,
+            () -> Math.abs(angle.minus(getAngle()).getRadians()) < WristConstants.wristAngleToleranceRadians,
             this
         );
     }

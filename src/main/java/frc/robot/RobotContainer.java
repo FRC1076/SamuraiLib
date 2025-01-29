@@ -29,6 +29,7 @@ import frc.robot.subsystems.wrist.WristIOHardware;
 import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.subsystems.SuperstructureVisualizer;
+import frc.robot.subsystems.Superstructure.SuperstructureCommandFactory;
 
 import static edu.wpi.first.units.Units.Rotation;
 
@@ -55,6 +56,7 @@ import frc.robot.Constants.Akit;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.FieldConstants.ReefFace;
 import frc.robot.Constants.BeamBreakConstants;
+import frc.robot.subsystems.Superstructure;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -211,6 +213,28 @@ public class RobotContainer {
 
     private void configureOperatorBindings() {
         
+        final SuperstructureCommandFactory superstructureCommands = m_superstructure.getCommands();
+
+        //L1
+        m_operatorController.x().whileTrue(
+            superstructureCommands.preL1()
+        );
+
+        //L2
+        m_operatorController.a().whileTrue(
+            superstructureCommands.preL2()
+        );
+
+        //L3
+        m_operatorController.b().whileTrue(
+            superstructureCommands.preL3()
+        );
+
+        //L4
+        m_operatorController.y().whileTrue(
+            superstructureCommands.preL4()
+        );
+
     }
 
     private void configureBeamBreakTriggers() {

@@ -145,6 +145,10 @@ public class Superstructure {
         return m_index;
     }
 
+    public SuperstructureCommandFactory getCommands(){
+        return CommandBuilder;
+    }
+
     /**
      * Folds back wrist, moves elevator, then deploys wrist
      * @param position the GrabberPosition, which consists of elevator height and wrist angle, to transition to

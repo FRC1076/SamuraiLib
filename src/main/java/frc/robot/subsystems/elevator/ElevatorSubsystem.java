@@ -38,7 +38,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             () -> {},
             () -> setPosition(positionMeters),
             (interrupted) -> {},
-            () -> Math.abs(positionMeters - getPositionMeters()) > ElevatorConstants.elevatorPositionToleranceMeters,
+            () -> Math.abs(positionMeters - getPositionMeters()) < ElevatorConstants.elevatorPositionToleranceMeters,
             this
         );
     }

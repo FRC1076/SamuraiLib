@@ -38,7 +38,7 @@ public class SuperstructureVisualizer {
             new MechanismLigament2d("Wrist", 0.3048, 0, 10, new Color8Bit("#770085"))
         );
         SmartDashboard.putData("Superstructure Visualization", superstructureVis);
-        CommandUtils.makePeriodic(this::updateVisualization);
+        CommandUtils.makePeriodic(this::updateVisualization, true);
     }
 
     public MechanismLigament2d getElevatorLigament(){
