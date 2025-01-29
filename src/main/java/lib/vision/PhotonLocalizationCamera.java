@@ -38,6 +38,15 @@ public class PhotonLocalizationCamera implements LocalizationCamera {
         this.defaultMultiStdDevs = defaultMultiStdDevs;
     }
 
+    public PhotonLocalizationCamera withCameraOffset(Transform3d offset){
+        setCameraOffset(offset);
+        return this;
+    }
+
+    public void setCameraOffset(Transform3d offset){
+        this.poseEstimator.setRobotToCameraTransform(offset);
+    }
+
     private Matrix<N3,N1> calculateStdDevs(EstimatedRobotPose est) {
         var stdDevs = defaultSingleStdDevs;
         int numTargets = 0;
