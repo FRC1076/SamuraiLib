@@ -171,6 +171,14 @@ public class RobotContainer {
 
     private void configureDriverBindings() {
 
+        m_driverController.leftTrigger().whileTrue(
+            m_drive.CommandBuilder.directDriveToNearestLeftBranch()
+        );
+
+        m_driverController.rightTrigger().whileTrue(
+            m_drive.CommandBuilder.directDriveToNearestRightBranch()
+        );
+
         //Point to reef
         m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
 
@@ -222,10 +230,11 @@ public class RobotContainer {
         m_operatorController.y().whileTrue(
             superstructureCommands.preL4()
         );
-        
-        if (Akit.currentMode == 0) {
 
-        }
+        m_operatorController.rightTrigger().whileFalse(
+            superstructureCommands.stopAndRetract()
+        );
+
     }
 
     private void configureBeamBreakTriggers() {
