@@ -26,13 +26,6 @@ public class WristSubsystem extends SubsystemBase {
         return inputs.angle;
     }
 
-    public Command applyVoltage(double volts) {
-        return runOnce(() -> setVoltage(volts));
-    }
-
-    public Command applyPosition(Rotation2d position) {
-        return runOnce(() -> setPosition(position));
-    }
 
     public void stop() {
         setVoltage(0);

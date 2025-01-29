@@ -53,7 +53,7 @@ public class DriveSubsystem extends SubsystemBase {
                 this::getPose,
                 this::resetPose,
                 () -> driveInputs.Speeds,
-                (speeds,feedforwards) -> driveCO(speeds),
+                (speeds) -> driveCO(speeds),
                 new PPHolonomicDriveController(
                     // PID constants for translation
                     new PIDConstants(5, 0, 0),
