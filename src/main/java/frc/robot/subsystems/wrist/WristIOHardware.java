@@ -77,7 +77,7 @@ public class WristIOHardware implements WristIO {
 
     @Override
     public void setVoltage(double volts) {
-        m_leadMotor.setVoltage(volts + WristConstants.Control.kG);
+        m_leadMotor.setVoltage(volts);
     }
 
     @Override

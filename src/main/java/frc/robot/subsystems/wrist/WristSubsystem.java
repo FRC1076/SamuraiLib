@@ -19,7 +19,7 @@ public class WristSubsystem extends SubsystemBase {
     }
 
     public void setVoltage(double volts) {
-        io.setVoltage(volts);
+        io.setVoltage(volts + WristConstants.Control.kG);
     }
 
     public void setPosition(Rotation2d position) {
