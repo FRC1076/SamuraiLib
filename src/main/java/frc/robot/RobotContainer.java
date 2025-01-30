@@ -35,6 +35,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -45,6 +47,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import frc.robot.Constants.Akit;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.FieldConstants.PoseOfInterest;
 import frc.robot.Constants.BeamBreakConstants;
 import frc.robot.subsystems.Superstructure;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -192,9 +195,17 @@ public class RobotContainer {
             m_driverController.leftBumper().and(
                 m_driverController.rightBumper()
             ).negate()
-        ).whileTrue(teleopDriveCommand.applyLeftStationHeadingLock());
+        ).whileTrue(m_drive.CommandBuilder.directDriveToPose(
+            DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue 
+                ? PoseOfInterest.BLU_LEFT_STATION.pose
+                : PoseOfInterest.RED_LEFT_STATION.pose
+        ));
 
-        m_driverController.b().whileTrue(teleopDriveCommand.applyRightStationHeadingLock());
+        m_driverController.b().whileTrue(m_drive.CommandBuilder.directDriveToPose(
+            DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue 
+                ? PoseOfInterest.BLU_RIGHT_STATION.pose
+                : PoseOfInterest.RED_RIGHT_STATION.pose
+        ));
 
         m_driverController.y().whileTrue(teleopDriveCommand.applyForwardHeadingLock());
 
