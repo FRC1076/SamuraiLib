@@ -77,6 +77,8 @@ public class RobotContainer {
     private final Trigger m_indexBeamBreak;
     private final Trigger m_transferBeamBreak;
     private final Trigger m_grabberBeamBreak;
+    private final Trigger m_interruptElevator;
+    private final Trigger m_interruptGrabber;
     private final Superstructure m_superstructure;
     private final SuperstructureVisualizer superVis;
 
@@ -107,6 +109,9 @@ public class RobotContainer {
         m_indexBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.indexBeamBreakPort)::get);
         m_transferBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.transferBeamBreakPort)::get);
         m_grabberBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.grabberBeamBreakPort)::get);
+        m_interruptElevator = new Trigger(() -> m_operatorController.getLeftY() != 0);
+        m_interruptGrabber = new Trigger(() -> m_operatorController.getRightY() != 0);
+
 
         if (Akit.currentMode == 0) {
             m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()));
@@ -224,28 +229,19 @@ public class RobotContainer {
         final SuperstructureCommandFactory superstructureCommands = m_superstructure.getCommands();
 
         //L1
-        m_operatorController.x().whileTrue(
-            superstructureCommands.preL1()
-        );
+        m_operatorController.x().onTrue(superstructureCommands.preL1());
 
         //L2
-        m_operatorController.a().whileTrue(
-            superstructureCommands.preL2()
-        );
+        m_operatorController.a().onTrue(superstructureCommands.preL2());
 
         //L3
-        m_operatorController.b().whileTrue(
-            superstructureCommands.preL3()
-        );
+        m_operatorController.b().onTrue(superstructureCommands.preL3());
 
         //L4
-        m_operatorController.y().whileTrue(
-            superstructureCommands.preL4()
-        );
+        m_operatorController.y().onTrue(superstructureCommands.preL4());
 
-        m_operatorController.rightTrigger().whileFalse(
-            superstructureCommands.stopAndRetract()
-        );
+        //Retract mechanisms and stop grabber
+        m_operatorController.rightTrigger().onFalse(superstructureCommands.stopAndRetract());
 
     }
 

@@ -48,6 +48,7 @@ public class DirectDriveToPoseCommand extends Command {
         else{
             followPathCommand = Commands.none();
         }
+        followPathCommand.schedule();
     }
 
     @Override
