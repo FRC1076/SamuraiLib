@@ -51,7 +51,7 @@ public class Superstructure {
         public SuperState() {}
 
         //Calculates game piece possession from beambreaks
-        public void calculatePossession(boolean indexBeamBreak, boolean transferBeamBreak, boolean grabberBeamBreak){
+        protected void _calculatePossession(boolean indexBeamBreak, boolean transferBeamBreak, boolean grabberBeamBreak){
             indexPossession = indexBeamBreak 
                 ? IndexPossession.CORAL 
                 : IndexPossession.EMPTY;
@@ -191,6 +191,19 @@ public class Superstructure {
             Commands.runOnce(() -> superState.setIndexerState(state)),
             m_index.applyVolts(kIndexVoltage).onlyIf(() -> state.running) //Can do a runOnce because runVolts is sticky
         );
+    }
+
+    /**
+     * Recalculates game piece possession based on beambreaks
+     */
+    public void calculatePossession(
+        boolean indexBB,
+        boolean transferBB,
+        boolean grabberBB
+    ) {
+        superState._calculatePossession(indexBB, transferBB, grabberBB);
+        m_elevator.setKg(superState.grabberPossession.elevator_kG);
+        m_wrist.setKg(superState.grabberPossession.wrist_kG);
     }
 
     public class SuperstructureCommandFactory { 
@@ -375,7 +388,7 @@ public class Superstructure {
          */
         public Command calculatePossession(){
             return Commands.runOnce(
-                () -> this.superstructure.superState.calculatePossession(
+                () -> superstructure.calculatePossession(
                     m_indexBeamBreak.getAsBoolean(),
                     m_transferBeamBreak.getAsBoolean(),
                     m_grabberBeamBreak.getAsBoolean()

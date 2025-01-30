@@ -28,6 +28,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         io.setVoltage(volts);
     }
 
+    public void setKg(double kg) {
+        this.io.setFFkG(kg);
+    }
+
     /** Returns position of the elevator, as a double */
     public double getPositionMeters(){
         return inputs.elevatorHeightMeters;

@@ -77,9 +77,17 @@ public final class Constants {
 
         //Grabber Possession State
         public enum GrabberPossession {
-            EMPTY,
-            CORAL,
-            ALGAE
+            EMPTY(0,0.6),
+            CORAL(0,0.6),
+            ALGAE(0,0.6);
+
+            public final double wrist_kG;
+            public final double elevator_kG;
+
+            private GrabberPossession(double wrist_kG, double elevator_kG) {
+                this.wrist_kG = wrist_kG;
+                this.elevator_kG = elevator_kG;
+            }
         }
 
         //Index Possession State

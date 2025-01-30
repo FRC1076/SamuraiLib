@@ -39,6 +39,10 @@ public class WristSubsystem extends SubsystemBase {
         return getAngle().getRadians();
     }
 
+    public void setKg(double kg) {
+        this.io.setFFkG(kg);
+    }
+
     public Command applyAngle(Rotation2d angle) {
         return new FunctionalCommand(
             () -> {},
