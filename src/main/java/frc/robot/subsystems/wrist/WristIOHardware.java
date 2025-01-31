@@ -1,6 +1,10 @@
 package frc.robot.subsystems.wrist;
 
 import frc.robot.Constants.WristConstants;
+import lib.control.VariableArmFeedforward;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
@@ -14,7 +18,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class WristIOHardware implements WristIO {
@@ -28,7 +31,7 @@ public class WristIOHardware implements WristIO {
 
     private final RelativeEncoder m_alternateEncoder;
 
-    private final ArmFeedforward FFController = new ArmFeedforward(
+    private final VariableArmFeedforward FFController = new VariableArmFeedforward(
         WristConstants.Control.kS,
         WristConstants.Control.kG,
         WristConstants.Control.kV,
@@ -86,7 +89,7 @@ public class WristIOHardware implements WristIO {
             positionRadians,
             ControlType.kPosition,
             ClosedLoopSlot.kSlot0,
-            FFController.calculate(0, 0), // these values might be wrong
+            FFController.calculate(positionRadians, 0), // these values might be wrong
             ArbFFUnits.kVoltage
         );
     }
@@ -98,4 +101,10 @@ public class WristIOHardware implements WristIO {
         inputs.followCurrentAmps = m_followMotor.getOutputCurrent();
         inputs.angle = Rotation2d.fromRadians(m_alternateEncoder.getPosition());
     }
+
+    @Override
+    public void setFFkG(double kG){
+        FFController.setKg(kG);
+    }
+
 }

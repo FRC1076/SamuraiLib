@@ -19,5 +19,11 @@ public interface ElevatorIO {
 
     public abstract void setVoltage(double volts) ;
 
+    public default void setVoltage(double volts, double kg) {
+        setVoltage(volts + kg);
+    }
+
+    public default void setFFkG(double kG) {}
+
     public default void simulationPeriodic() {}
 }

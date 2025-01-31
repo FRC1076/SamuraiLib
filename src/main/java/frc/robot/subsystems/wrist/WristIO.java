@@ -19,5 +19,7 @@ public interface WristIO {
 
     public default void setPosition(double position) {}
 
+    public default void setFFkG(double kG) {}
+
     public default void simulationPeriodic() {}
 }

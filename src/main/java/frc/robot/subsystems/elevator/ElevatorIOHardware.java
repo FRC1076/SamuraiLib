@@ -23,6 +23,9 @@ import static frc.robot.Constants.ElevatorConstants.kMotorPort1;
 import static frc.robot.Constants.ElevatorConstants.kPositionConversionFactor;
 import static frc.robot.Constants.ElevatorConstants.kVelocityConversionFactor;
 import static frc.robot.Constants.ElevatorConstants.Electrical.*;
+
+import java.util.Map;
+
 import frc.robot.Constants.ElevatorConstants;
 
 public class ElevatorIOHardware implements ElevatorIO {
@@ -36,12 +39,7 @@ public class ElevatorIOHardware implements ElevatorIO {
 
     private final SparkClosedLoopController m_closedLoopController;
 
-    private final ElevatorFeedforward FFController = new ElevatorFeedforward(
-        kS, 
-        kG,
-        kV, 
-        kA
-    );
+    private double kG = 0.6;
 
     public ElevatorIOHardware() {
         m_leadMotor = new SparkMax(kMotorPort0,SparkMax.MotorType.kBrushless);
@@ -85,8 +83,13 @@ public class ElevatorIOHardware implements ElevatorIO {
     }
 
     @Override
-    public void setVoltage(double volts){
+    public void setVoltage(double volts, double kG){
         m_leadMotor.setVoltage(volts + kG);
+    }
+
+    @Override
+    public void setVoltage(double volts){
+        m_leadMotor.setVoltage(volts);
     }
 
     @Override
@@ -95,9 +98,14 @@ public class ElevatorIOHardware implements ElevatorIO {
             positionMeters,
             ControlType.kPosition,
             ClosedLoopSlot.kSlot0,
-            FFController.calculate(0),
+            kG,
             ArbFFUnits.kVoltage
         );
+    }
+
+    @Override
+    public void setFFkG(double kG) {
+        this.kG = kG;
     }
 
     @Override
