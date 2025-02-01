@@ -12,6 +12,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.LinearSystem;
+import lib.utils.MatrixUtils;
 
 
 /**
@@ -35,6 +36,7 @@ import edu.wpi.first.math.system.LinearSystem;
  * In field-oriented mode, the controller outputs field-oriented ChassisSpeeds objects,
  * while in chassis-oriented mode, the controller outputs chassis-oriented ChassisSpeeds objects
  */
+
 public class LQRHolonomicDriveController {
 
     /**
@@ -159,8 +161,8 @@ public class LQRHolonomicDriveController {
      * the calculated field-oriented controller feedbacks, in the form of a vector
      */
     public Matrix<N3,N1> calculateRaw(Pose2d pv, Pose2d setpoint) {
-        var spVec = StateSpaceUtil.poseToVector(setpoint);
-        var pvVec = StateSpaceUtil.poseToVector(pv);
+        var spVec = MatrixUtils.poseToVector(setpoint);
+        var pvVec = MatrixUtils.poseToVector(pv);
         return LQRController.calculate(pvVec,spVec);
     }
 
@@ -173,8 +175,8 @@ public class LQRHolonomicDriveController {
      * a field-oriented ChassisSpeeds object
     */
     public ChassisSpeeds calculateFieldOriented(Pose2d pv, Pose2d setpoint){
-        var spVec = StateSpaceUtil.poseToVector(setpoint);
-        var pvVec = StateSpaceUtil.poseToVector(pv);
+        var spVec = MatrixUtils.poseToVector(setpoint);
+        var pvVec = MatrixUtils.poseToVector(pv);
         var outputFieldRelative = LQRController.calculate(pvVec, spVec);
         return new ChassisSpeeds(outputFieldRelative.get(0,0),outputFieldRelative.get(1,0),outputFieldRelative.get(2,0));
     }
@@ -188,8 +190,8 @@ public class LQRHolonomicDriveController {
      * a chassis-oriented ChassisSpeeds object
     */
     public ChassisSpeeds calculateChassisOriented(Pose2d pv, Pose2d setpoint){
-        var spVec = StateSpaceUtil.poseToVector(setpoint);
-        var pvVec = StateSpaceUtil.poseToVector(pv);
+        var spVec = MatrixUtils.poseToVector(setpoint);
+        var pvVec = MatrixUtils.poseToVector(pv);
         var outputFieldRelative = LQRController.calculate(pvVec, spVec);
         return ChassisSpeeds.fromFieldRelativeSpeeds(outputFieldRelative.get(0,0),outputFieldRelative.get(1,0),outputFieldRelative.get(2,0),pv.getRotation());
     }

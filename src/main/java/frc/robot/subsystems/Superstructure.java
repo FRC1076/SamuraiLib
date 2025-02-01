@@ -40,7 +40,7 @@ public class Superstructure {
         protected GrabberPossession grabberPossession;
         protected IndexPossession indexPossession;
 
-        public SuperState(GrabberState grabberState, WristevatorState WristevatorState, IndexState indexState){
+        public MutableSuperState(GrabberState grabberState, WristevatorState WristevatorState, IndexState indexState){
             this.grabberState = grabberState;
             this.WristevatorState = WristevatorState;
             this.indexState = indexState;
