@@ -1,7 +1,7 @@
 package frc.robot.subsystems.wrist;
 
 import frc.robot.Constants.WristConstants;
-import lib.control.VariableArmFeedforward;
+import lib.control.MutableArmFeedforward;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +16,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -31,7 +32,7 @@ public class WristIOHardware implements WristIO {
 
     private final RelativeEncoder m_alternateEncoder;
 
-    private final VariableArmFeedforward FFController = new VariableArmFeedforward(
+    private final MutableArmFeedforward FFController = new MutableArmFeedforward(
         WristConstants.Control.kS,
         WristConstants.Control.kG,
         WristConstants.Control.kV,
@@ -44,6 +45,7 @@ public class WristIOHardware implements WristIO {
 
         m_leadMotorConfig = new SparkMaxConfig();
         m_followMotorConfig = new SparkMaxConfig();
+        
 
         // create motor configurations
         m_leadMotorConfig
@@ -51,11 +53,12 @@ public class WristIOHardware implements WristIO {
             .idleMode(IdleMode.kBrake);
             
         m_leadMotorConfig.closedLoop
-        .pid(
-            WristConstants.Control.kP,
-            WristConstants.Control.kI,
-            WristConstants.Control.kD
-        );
+            .feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder)
+            .pid(
+                WristConstants.Control.kP,
+                WristConstants.Control.kI,
+                WristConstants.Control.kD
+            );
 
         m_leadMotorConfig.alternateEncoder
             .setSparkMaxDataPortConfig()
@@ -74,13 +77,27 @@ public class WristIOHardware implements WristIO {
         m_followMotor.configure(m_followMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
         m_closedLoopController = m_leadMotor.getClosedLoopController();
-
         m_alternateEncoder = m_leadMotor.getAlternateEncoder();
     }
 
     @Override
     public void setVoltage(double volts) {
         m_leadMotor.setVoltage(volts);
+    }
+
+    @Override
+    public void setVelocity(double velocityRadiansPerSecond) {
+        m_closedLoopController.setReference(
+            velocityRadiansPerSecond,
+            ControlType.kVelocity,
+            ClosedLoopSlot.kSlot0,
+            FFController.calculateWithVelocities(
+                m_alternateEncoder.getPosition(),
+                m_alternateEncoder.getVelocity(),
+                velocityRadiansPerSecond
+            ),
+            ArbFFUnits.kVoltage
+        );
     }
 
     @Override

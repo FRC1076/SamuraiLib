@@ -61,6 +61,10 @@ public class WristSubsystem extends SubsystemBase {
         this.io.setFFkG(kg);
     }
 
+    public void setVelocity(double velocityRadiansPerSecond) {
+        this.io.setVelocity(velocityRadiansPerSecond);
+    }
+
     public Command applyAngle(Rotation2d angle) {
         return new FunctionalCommand(
             () -> {},
@@ -72,7 +76,7 @@ public class WristSubsystem extends SubsystemBase {
     }
 
     public Command applyManualControl(DoubleSupplier controlSupplier) {
-        return run(() -> setVoltage(controlSupplier.getAsDouble() * WristConstants.maxOperatorControlVolts));
+        return run(() -> setVelocity(controlSupplier.getAsDouble() * WristConstants.maxOperatorControlVolts));
     }
 
     @Override

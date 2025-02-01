@@ -15,7 +15,7 @@ import edu.wpi.first.util.struct.StructSerializable;
  * A helper class that computes feedforward outputs for a simple arm (modeled as a motor acting
  * against the force of gravity on a beam suspended at an angle). This one is better because you can dynamically set kG
  */
-public class VariableArmFeedforward implements ProtobufSerializable, StructSerializable {
+public class MutableArmFeedforward implements ProtobufSerializable, StructSerializable {
   /** The static gain, in volts. */
   private final double ks;
 
@@ -43,7 +43,7 @@ public class VariableArmFeedforward implements ProtobufSerializable, StructSeria
    * @throws IllegalArgumentException for ka &lt; zero.
    * @throws IllegalArgumentException for period &le; zero.
    */
-  public VariableArmFeedforward(double ks, double kg, double kv, double ka, double dtSeconds) {
+  public MutableArmFeedforward(double ks, double kg, double kv, double ka, double dtSeconds) {
     this.ks = ks;
     this.kg = kg;
     this.kv = kv;
@@ -71,7 +71,7 @@ public class VariableArmFeedforward implements ProtobufSerializable, StructSeria
    * @throws IllegalArgumentException for kv &lt; zero.
    * @throws IllegalArgumentException for ka &lt; zero.
    */
-  public VariableArmFeedforward(double ks, double kg, double kv, double ka) {
+  public MutableArmFeedforward(double ks, double kg, double kv, double ka) {
     this(ks, kg, kv, ka, 0.020);
   }
 
@@ -83,7 +83,7 @@ public class VariableArmFeedforward implements ProtobufSerializable, StructSeria
    * @param kv The velocity gain in V/(rad/s).
    * @throws IllegalArgumentException for kv &lt; zero.
    */
-  public VariableArmFeedforward(double ks, double kg, double kv) {
+  public MutableArmFeedforward(double ks, double kg, double kv) {
     this(ks, kg, kv, 0);
   }
 
