@@ -17,7 +17,7 @@ public interface ElevatorIO {
 
     public abstract void setPosition(double positionMeters) ;
 
-    public abstract void setVoltage(double volts) ;
+    public abstract void setVoltage(double volts);
 
     public abstract void setVelocity(double velocityMetersPerSecond) ;
 

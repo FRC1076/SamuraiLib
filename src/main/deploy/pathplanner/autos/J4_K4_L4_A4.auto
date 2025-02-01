@@ -5,33 +5,51 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Example Path"
+            "name": "stopAndRetract"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "New Path"
+            "pathName": "1-J4"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "New New Path"
+            "pathName": "J4_LOUT"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "New New New Path"
+            "pathName": "LOUT-K4"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Copy of New New Path"
+            "pathName": "K4-LOUT"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LOUT-L4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "L4-LOUT"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "LOUT-A4"
           }
         }
       ]

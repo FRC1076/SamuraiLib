@@ -2,7 +2,7 @@ package frc.robot.subsystems;
 
 import java.util.HashMap;
 import java.util.Map;
-import frc.robot.Constants.SuperstructureConstants.GrabberPosition;
+import frc.robot.Constants.SuperstructureConstants.WristevatorState;
 import frc.robot.Constants.SuperstructureConstants.GrabberPossession;
 import frc.robot.Constants.SuperstructureConstants.GrabberState;
 import frc.robot.Constants.SuperstructureConstants.IndexPossession;
@@ -35,14 +35,14 @@ public class Superstructure {
     public static class MutableSuperState {
 
         protected GrabberState grabberState;
-        protected GrabberPosition grabberPosition;
+        protected WristevatorState WristevatorState;
         protected IndexState indexState;
         protected GrabberPossession grabberPossession;
         protected IndexPossession indexPossession;
 
-        public MutableSuperState(GrabberState grabberState, GrabberPosition grabberPosition, IndexState indexState){
+        public SuperState(GrabberState grabberState, WristevatorState WristevatorState, IndexState indexState){
             this.grabberState = grabberState;
-            this.grabberPosition = grabberPosition;
+            this.WristevatorState = WristevatorState;
             this.indexState = indexState;
             grabberPossession = GrabberPossession.EMPTY;
             indexPossession = IndexPossession.EMPTY;
@@ -62,8 +62,8 @@ public class Superstructure {
                 : GrabberPossession.EMPTY;
         }
 
-        public void setGrabberPosition(GrabberPosition position) {
-            this.grabberPosition = position;
+        public void setWristevatorState(WristevatorState position) {
+            this.WristevatorState = position;
         }
 
         public void setGrabberState(GrabberState state) {
@@ -78,8 +78,8 @@ public class Superstructure {
             return grabberState;
         }
 
-        public GrabberPosition getGrabberPosition() {
-            return grabberPosition;
+        public WristevatorState getWristevatorState() {
+            return WristevatorState;
         }
 
         public IndexState getIndexerState() {
@@ -151,19 +151,19 @@ public class Superstructure {
 
     /**
      * Folds back wrist, moves elevator, then deploys wrist
-     * @param position the GrabberPosition, which consists of elevator height and wrist angle, to transition to
+     * @param position the WristevatorState, which consists of elevator height and wrist angle, to transition to
      * @return generic transition command from one state to another 
      */
-    private Command applyGrabberPosition(GrabberPosition position) {
+    private Command applyWristevatorState(WristevatorState position) {
         Command wristPreMoveCommand = Commands.either(
             m_wrist.applyAngle(Rotation2d.fromDegrees(65)),
             m_wrist.applyAngle(Rotation2d.kCCW_90deg),
             () -> superState.getGrabberPossession() == GrabberPossession.ALGAE
         );
         
-        return Commands.sequence(
-            Commands.runOnce(() -> superState.setGrabberPosition(position)),
-            wristPreMoveCommand,
+        return Commands.parallel(
+            Commands.runOnce(() -> superState.setWristevatorState(position)),
+            //wristPreMoveCommand,
             m_elevator.applyPosition(position.elevatorHeightMeters),
             m_wrist.applyAngle(position.wristAngle)
         );
@@ -211,7 +211,7 @@ public class Superstructure {
         private final BooleanSupplier m_indexBeamBreak;
         private final BooleanSupplier m_transferBeamBreak;
         private final BooleanSupplier m_grabberBeamBreak;
-        private final Map<GrabberPosition, Command> scoringCommands = new HashMap<>();
+        private final Map<WristevatorState, Command> scoringCommands = new HashMap<>();
         private SuperstructureCommandFactory (
             Superstructure superstructure,
             BooleanSupplier indexBeamBreak,
@@ -222,12 +222,12 @@ public class Superstructure {
             m_indexBeamBreak = indexBeamBreak;
             m_transferBeamBreak = transferBeamBreak;
             m_grabberBeamBreak = grabberBeamBreak;
-            scoringCommands.put(GrabberPosition.L1, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
-            scoringCommands.put(GrabberPosition.L2, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
-            scoringCommands.put(GrabberPosition.L3, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
-            scoringCommands.put(GrabberPosition.L4, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
-            scoringCommands.put(GrabberPosition.NET, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
-            scoringCommands.put(GrabberPosition.PROCESSOR, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
+            scoringCommands.put(WristevatorState.L1, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
+            scoringCommands.put(WristevatorState.L2, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
+            scoringCommands.put(WristevatorState.L3, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
+            scoringCommands.put(WristevatorState.L4, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
+            scoringCommands.put(WristevatorState.NET, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
+            scoringCommands.put(WristevatorState.PROCESSOR, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
 
         }
 
@@ -235,10 +235,10 @@ public class Superstructure {
          * Score game piece differently depending on robot state
          */
         public Command scoreGamePiece() {
-            return new SelectWithFallbackCommand<GrabberPosition>(
+            return new SelectWithFallbackCommand<WristevatorState>(
                 scoringCommands,
                 superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE), //Default command to do if command can't be chosen from scoringCommands
-                this.superstructure.getSuperState()::getGrabberPosition
+                this.superstructure.getSuperState()::getWristevatorState
             );
         }
 
@@ -253,7 +253,7 @@ public class Superstructure {
          * Retract mechanisms to travel state
          */
         public Command retractMechanisms(){
-            return superstructure.applyGrabberPosition(GrabberPosition.TRAVEL);
+            return superstructure.applyWristevatorState(WristevatorState.TRAVEL);
         }
 
         /**
@@ -270,42 +270,42 @@ public class Superstructure {
          * Set elevator and wrist to L1 preset
          */
         public Command preL1(){
-            return superstructure.applyGrabberPosition(GrabberPosition.L1);
+            return superstructure.applyWristevatorState(WristevatorState.L1);
         }
 
         /**
          * Set elevator and wrist to L2 preset
          */
         public Command preL2(){
-            return superstructure.applyGrabberPosition(GrabberPosition.L2);
+            return superstructure.applyWristevatorState(WristevatorState.L2);
         }
 
         /**
          * Set elevator and wrist to L3 preset
          */
         public Command preL3(){
-            return superstructure.applyGrabberPosition(GrabberPosition.L3);
+            return superstructure.applyWristevatorState(WristevatorState.L3);
         }
 
         /**
          * Set elevator and wrist to L4 preset
          */
         public Command preL4(){
-            return superstructure.applyGrabberPosition(GrabberPosition.L4);
+            return superstructure.applyWristevatorState(WristevatorState.L4);
         }
 
         /**
          * Set elevator and wrist to net preset
          */
         public Command preNet(){
-            return superstructure.applyGrabberPosition(GrabberPosition.NET);
+            return superstructure.applyWristevatorState(WristevatorState.NET);
         }
 
         /**
          * Set elevator and wrist to processor preset
          */
         public Command preProcessor(){
-            return superstructure.applyGrabberPosition(GrabberPosition.PROCESSOR);
+            return superstructure.applyWristevatorState(WristevatorState.PROCESSOR);
         }
 
         /**
@@ -314,7 +314,7 @@ public class Superstructure {
         public Command groundAlgaeIntake(){
             return 
             Commands.parallel(
-                superstructure.applyGrabberPosition(GrabberPosition.GROUND_INTAKE),
+                superstructure.applyWristevatorState(WristevatorState.GROUND_INTAKE),
                 superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
                     .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE) // Check if there is already an algae intaked
             );
@@ -326,7 +326,7 @@ public class Superstructure {
         public Command lowAlgaeIntake(){
             return 
             Commands.parallel(
-                superstructure.applyGrabberPosition(GrabberPosition.LOW_INTAKE),
+                superstructure.applyWristevatorState(WristevatorState.LOW_INTAKE),
                 superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
                     .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE) // Check if there is already an algae intaked
             );   
@@ -337,7 +337,7 @@ public class Superstructure {
          */
         public Command highAlgaeIntake(){
             return Commands.parallel(
-                superstructure.applyGrabberPosition(GrabberPosition.HIGH_INTAKE),
+                superstructure.applyWristevatorState(WristevatorState.HIGH_INTAKE),
                 superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
                     .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE) // Check if there is already an algae intaked
             );
@@ -375,10 +375,10 @@ public class Superstructure {
 
         public Command intakeCoral(BooleanSupplier safeSignal){
             return Commands.sequence(
-                superstructure.applyGrabberPosition(GrabberPosition.TRAVEL),
+                superstructure.applyWristevatorState(WristevatorState.TRAVEL),
                 indexCoral(),
                 Commands.waitUntil(safeSignal),
-                superstructure.applyGrabberPosition(GrabberPosition.CORAL_TRANSFER),
+                superstructure.applyWristevatorState(WristevatorState.CORAL_TRANSFER),
                 transferCoral()
             );
         }

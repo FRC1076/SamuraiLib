@@ -50,6 +50,10 @@ import frc.robot.subsystems.Superstructure;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import com.pathplanner.lib.auto.NamedCommands;
+
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -147,6 +151,8 @@ public class RobotContainer {
             () -> MathUtil.applyDeadband(-m_operatorController.getLeftY(), OIConstants.kControllerDeadband)
         ));
 
+        configureNamedCommands();
+
         // Configure the trigger bindings
         configureDriverBindings();
 
@@ -172,6 +178,16 @@ public class RobotContainer {
    */
     private void configureBindings() {
         
+    }
+
+    private void configureNamedCommands(){
+        final SuperstructureCommandFactory superstructureCommands = m_superstructure.getCommandBuilder();
+        NamedCommands.registerCommand("preL1", superstructureCommands.preL1());
+        NamedCommands.registerCommand("preL2", superstructureCommands.preL2());
+        NamedCommands.registerCommand("preL3", superstructureCommands.preL3());
+        NamedCommands.registerCommand("preL4", superstructureCommands.preL4());
+        NamedCommands.registerCommand("scoreGamePiece", superstructureCommands.scoreGamePiece());
+        NamedCommands.registerCommand("stopAndRetract", superstructureCommands.stopAndRetract());
     }
 
     private void configureDriverBindings() {
@@ -210,6 +226,42 @@ public class RobotContainer {
         ).onTrue(new InstantCommand(
             () -> m_drive.resetHeading()
         ));
+
+        //Quasistsic and Dynamic control scheme for Elevator Sysid
+        m_driverController.rightBumper().and(
+          m_driverController.a()
+        ).onTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+        m_driverController.rightBumper().and(
+          m_driverController.b()
+        ).onTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+        m_driverController.rightBumper().and(
+          m_driverController.x()
+        ).onTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kForward));
+        
+        m_driverController.rightBumper().and(
+          m_driverController.y()
+        ).onTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+        //Quasistsic and Dynamic control scheme for Wrist Sysid
+        // m_driverController.rightBumper().and(
+        //   m_driverController.a()
+        // ).onTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+        // m_driverController.rightBumper().and(
+        //   m_driverController.b()
+        // ).onTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+        // m_driverController.rightBumper().and(
+        //   m_driverController.x()
+        // ).onTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kForward));
+        
+        // m_driverController.rightBumper().and(
+        //   m_driverController.y()
+        // ).onTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+
     }
 
     private void configureOperatorBindings() {
@@ -227,6 +279,18 @@ public class RobotContainer {
 
         //L4
         m_operatorController.y().onTrue(superstructureCommands.preL4());
+
+        //Net
+        m_operatorController.y().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.preNet());
+
+        //High Intake
+        m_operatorController.b().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.highAlgaeIntake());
+
+        //Low Intake
+        m_operatorController.a().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.lowAlgaeIntake());
+
+        //Processor
+        m_operatorController.x().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.preProcessor());
 
         //Retract mechanisms and stop grabber
         m_operatorController.rightTrigger().onFalse(superstructureCommands.stopAndRetract());
