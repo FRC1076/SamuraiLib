@@ -50,6 +50,8 @@ import frc.robot.subsystems.Superstructure;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 /**
@@ -149,6 +151,8 @@ public class RobotContainer {
             () -> MathUtil.applyDeadband(-m_operatorController.getLeftY(), OIConstants.kControllerDeadband)
         ));
 
+        configureNamedCommands();
+
         // Configure the trigger bindings
         configureDriverBindings();
 
@@ -174,6 +178,16 @@ public class RobotContainer {
    */
     private void configureBindings() {
         
+    }
+
+    private void configureNamedCommands(){
+        final SuperstructureCommandFactory superstructureCommands = m_superstructure.getCommandBuilder();
+        NamedCommands.registerCommand("preL1", superstructureCommands.preL1());
+        NamedCommands.registerCommand("preL2", superstructureCommands.preL2());
+        NamedCommands.registerCommand("preL3", superstructureCommands.preL3());
+        NamedCommands.registerCommand("preL4", superstructureCommands.preL4());
+        NamedCommands.registerCommand("scoreGamePiece", superstructureCommands.scoreGamePiece());
+        NamedCommands.registerCommand("stopAndRetract", superstructureCommands.stopAndRetract());
     }
 
     private void configureDriverBindings() {

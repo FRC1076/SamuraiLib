@@ -232,8 +232,8 @@ public class TeleopDriveCommand extends Command {
     public Command applyRightStationHeadingLock() {
         return applyHeadingLock(
             DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue
-                ? PoseOfInterest.BLU_LEFT_STATION.pose.getRotation()
-                : PoseOfInterest.RED_LEFT_STATION.pose.getRotation()
+                ? PoseOfInterest.BLU_RIGHT_STATION.pose.getRotation()
+                : PoseOfInterest.RED_RIGHT_STATION.pose.getRotation()
         );
     }
 
@@ -241,7 +241,7 @@ public class TeleopDriveCommand extends Command {
     public Command applyLeftStationHeadingLock() {
         return applyHeadingLock(
             DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue
-                ? PoseOfInterest.BLU_RIGHT_STATION.pose.getRotation()
+                ? PoseOfInterest.BLU_LEFT_STATION.pose.getRotation()
                 : PoseOfInterest.RED_LEFT_STATION.pose.getRotation()
         );
     }

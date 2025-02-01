@@ -161,9 +161,9 @@ public class Superstructure {
             () -> superState.getGrabberPossession() == GrabberPossession.ALGAE
         );
         
-        return Commands.sequence(
+        return Commands.parallel(
             Commands.runOnce(() -> superState.setWristevatorState(position)),
-            wristPreMoveCommand,
+            //wristPreMoveCommand,
             m_elevator.applyPosition(position.elevatorHeightMeters),
             m_wrist.applyAngle(position.wristAngle)
         );
