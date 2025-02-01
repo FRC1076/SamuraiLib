@@ -228,6 +228,18 @@ public class RobotContainer {
         //L4
         m_operatorController.y().onTrue(superstructureCommands.preL4());
 
+        //Net
+        m_operatorController.y().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.preNet());
+
+        //High Intake
+        m_operatorController.b().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.highAlgaeIntake());
+
+        //Low Intake
+        m_operatorController.a().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.lowAlgaeIntake());
+
+        //Processor
+        m_operatorController.x().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.preProcessor());
+
         //Retract mechanisms and stop grabber
         m_operatorController.rightTrigger().onFalse(superstructureCommands.stopAndRetract());
 
