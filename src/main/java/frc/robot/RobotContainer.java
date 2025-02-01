@@ -50,6 +50,8 @@ import frc.robot.subsystems.Superstructure;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -210,6 +212,42 @@ public class RobotContainer {
         ).onTrue(new InstantCommand(
             () -> m_drive.resetHeading()
         ));
+
+        //Quasistsic and Dynamic control scheme for Elevator Sysid
+        m_driverController.rightBumper().and(
+          m_driverController.a()
+        ).onTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+        m_driverController.rightBumper().and(
+          m_driverController.b()
+        ).onTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+        m_driverController.rightBumper().and(
+          m_driverController.x()
+        ).onTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kForward));
+        
+        m_driverController.rightBumper().and(
+          m_driverController.y()
+        ).onTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+        //Quasistsic and Dynamic control scheme for Wrist Sysid
+        // m_driverController.rightBumper().and(
+        //   m_driverController.a()
+        // ).onTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+        // m_driverController.rightBumper().and(
+        //   m_driverController.b()
+        // ).onTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+        // m_driverController.rightBumper().and(
+        //   m_driverController.x()
+        // ).onTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kForward));
+        
+        // m_driverController.rightBumper().and(
+        //   m_driverController.y()
+        // ).onTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+
     }
 
     private void configureOperatorBindings() {
