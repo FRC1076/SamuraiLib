@@ -41,6 +41,14 @@ public class ElevatorSubsystem extends SubsystemBase {
         this.io = io;
     }
 
+    public Command elevatorSysIdQuasistatic(SysIdRoutine.Direction direction) {
+        return m_elevatorSysIdRoutine.quasistatic(direction);
+    }
+
+    public Command elevatorSysIdDynamic(SysIdRoutine.Direction direction) {
+        return m_elevatorSysIdRoutine.dynamic(direction);
+    }
+
     public void setPosition(double positionMeters) {
         io.setPosition(positionMeters);
     }
