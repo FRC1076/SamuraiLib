@@ -213,36 +213,40 @@ public class TeleopDriveCommand extends Command {
 
     /** Returns a command that applies a reef-oriented heading lock */
     public Command applyReefHeadingLock() {
-        return applyHeadingLock(
-            DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue 
-                ? () -> {
-                    Translation2d teamReef = PointOfInterest.BLU_REEF.position;
-                    Rotation2d angleToReef = teamReef.minus(m_drive.getPose().getTranslation()).getAngle();
-                    return angleToReef;
-                }
-                : () -> {
+        return Commands.either(
+            applyHeadingLock(
+                () -> {
                     Translation2d teamReef = PointOfInterest.RED_REEF.position;
                     Rotation2d angleToReef = teamReef.minus(m_drive.getPose().getTranslation()).getAngle();
                     return angleToReef;
                 }
+            ),
+            applyHeadingLock(
+                () -> {
+                    Translation2d teamReef = PointOfInterest.BLU_REEF.position;
+                    Rotation2d angleToReef = teamReef.minus(m_drive.getPose().getTranslation()).getAngle();
+                    return angleToReef;
+                }
+            ),
+            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
         );
     }
 
     /** Returns a command that applies a Processor side coral station-oriented heading lock*/
     public Command applyRightStationHeadingLock() {
-        return applyHeadingLock(
-            DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue
-                ? PoseOfInterest.BLU_RIGHT_STATION.pose.getRotation()
-                : PoseOfInterest.RED_RIGHT_STATION.pose.getRotation()
+        return Commands.either(
+            applyHeadingLock(PoseOfInterest.RED_RIGHT_STATION.pose.getRotation()),
+            applyHeadingLock(PoseOfInterest.BLU_RIGHT_STATION.pose.getRotation()),
+            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
         );
     }
 
     /** Returns a command that applies an Opposite side coral station-oriented heading lock */
     public Command applyLeftStationHeadingLock() {
-        return applyHeadingLock(
-            DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue
-                ? PoseOfInterest.BLU_LEFT_STATION.pose.getRotation()
-                : PoseOfInterest.RED_LEFT_STATION.pose.getRotation()
+        return Commands.either(
+            applyHeadingLock(PoseOfInterest.RED_LEFT_STATION.pose.getRotation()),
+            applyHeadingLock(PoseOfInterest.BLU_LEFT_STATION.pose.getRotation()),
+            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
         );
     }
 
