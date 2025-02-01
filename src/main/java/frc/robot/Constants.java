@@ -369,6 +369,15 @@ public final class Constants {
         public static final int grabberBeamBreakPort = 2;
     }
 
+    public static class LedConstants {
+        public enum LedStates {
+            EMPTY,
+            CORAL_IN_FUNNEL, // keep for now, might not be useful, ask Ollie
+            CORAL_IN_GRABBER,
+            ALGAE_IN_GRABBER
+        }
+    }
+
     private Constants() {
         throw new NotImplementedException();
     }
