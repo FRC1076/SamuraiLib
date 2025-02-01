@@ -13,11 +13,13 @@ public interface WristIO {
         public Rotation2d angle = new Rotation2d();
     }
 
-    public default void updateInputs(WristIOInputs inputs) {}
+    public abstract void updateInputs(WristIOInputs inputs);
 
-    public default void setVoltage(double volts) {}
+    public abstract void setVoltage(double volts);
 
-    public default void setPosition(double position) {}
+    public abstract void setVelocity(double velocityRadiansPerSecond);
+
+    public abstract void setPosition(double position);
 
     public default void setFFkG(double kG) {}
 

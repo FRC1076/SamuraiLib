@@ -32,7 +32,7 @@ public class Superstructure {
 
     // A mutable class representing the Superstructure's state
     @AutoLog
-    public static class SuperState {
+    public static class MutableSuperState {
 
         protected GrabberState grabberState;
         protected GrabberPosition grabberPosition;
@@ -40,7 +40,7 @@ public class Superstructure {
         protected GrabberPossession grabberPossession;
         protected IndexPossession indexPossession;
 
-        public SuperState(GrabberState grabberState, GrabberPosition grabberPosition, IndexState indexState){
+        public MutableSuperState(GrabberState grabberState, GrabberPosition grabberPosition, IndexState indexState){
             this.grabberState = grabberState;
             this.grabberPosition = grabberPosition;
             this.indexState = indexState;
@@ -48,7 +48,7 @@ public class Superstructure {
             indexPossession = IndexPossession.EMPTY;
         }
 
-        public SuperState() {}
+        public MutableSuperState() {}
 
         //Calculates game piece possession from beambreaks
         protected void _calculatePossession(boolean indexBeamBreak, boolean transferBeamBreak, boolean grabberBeamBreak){
@@ -103,7 +103,7 @@ public class Superstructure {
     public final SuperstructureCommandFactory CommandBuilder;
 
     //Super State
-    private final SuperStateAutoLogged superState = new SuperStateAutoLogged();
+    private final MutableSuperStateAutoLogged superState = new MutableSuperStateAutoLogged();
 
     public Superstructure (
         ElevatorSubsystem elevator,
@@ -125,7 +125,7 @@ public class Superstructure {
         CommandBuilder = new SuperstructureCommandFactory(this, indexBeamBreak, transferBeamBreak, grabberBeamBreak);
     }
 
-    public SuperState getSuperState() {
+    public MutableSuperState getSuperState() {
         return this.superState;
     }
 
