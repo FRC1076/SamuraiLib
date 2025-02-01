@@ -16,6 +16,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.SerialPort.Port;
 
 import com.pathplanner.lib.path.PathConstraints;
 
@@ -370,6 +372,8 @@ public final class Constants {
     }
 
     public static class LedConstants {
+        public static final Port kLedPort = Port.kUSB1; // may not be correct
+        public static final int kBaudRate = 9600; // make sure this matches on the Arduino
         public enum LedStates {
             EMPTY,
             CORAL_IN_FUNNEL, // keep for now, might not be useful, ask Ollie
