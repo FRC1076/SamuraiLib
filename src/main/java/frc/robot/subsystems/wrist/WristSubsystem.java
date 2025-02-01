@@ -85,4 +85,14 @@ public class WristSubsystem extends SubsystemBase {
     public void simulationPeriodic() {
         io.simulationPeriodic();
     }
+
+    public Command wristSysIDQuasistatic(SysIdRoutine.Direction direction)
+    {
+        return sysid.quasistatic(direction);
+    }
+
+    public Command wristSysIDDynamic(SysIdRoutine.Direction direction)
+    {
+        return sysid.dynamic(direction);
+    }
 }
