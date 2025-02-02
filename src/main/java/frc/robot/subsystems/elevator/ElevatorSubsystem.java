@@ -57,10 +57,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         io.setVoltage(volts);
     }
 
-    public void setVelocity(double velocityMetersPerSecond) {
-        io.setVelocity(velocityMetersPerSecond);
-    }
-
     public void setKg(double kg) {
         this.io.setFFkG(kg);
     }
@@ -81,7 +77,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
     
     public Command applyManualControl(DoubleSupplier controlSupplier) {
-        return run(() -> setVelocity(controlSupplier.getAsDouble() * ElevatorConstants.maxOperatorControlVolts));
+        return run(() -> setVoltage(controlSupplier.getAsDouble() * ElevatorConstants.maxOperatorControlVolts + io.getFFkG()));
     }
 
     @Override

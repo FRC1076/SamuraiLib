@@ -84,17 +84,6 @@ public class ElevatorIOHardware implements ElevatorIO {
     }
 
     @Override
-    public void setVelocity(double velocityMetersPerSecond) {
-        m_closedLoopController.setReference(
-            velocityMetersPerSecond,
-            ControlType.kVelocity,
-            ClosedLoopSlot.kSlot0,
-            FFcontroller.calculate(velocityMetersPerSecond),
-            ArbFFUnits.kVoltage
-        );
-    }
-
-    @Override
     public void setVoltage(double volts){
         m_leadMotor.setVoltage(volts);
     }
