@@ -1,4 +1,7 @@
-package frc.robot.subsystems.wristevator;
+package frc.robot.subsystems;
+
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -33,11 +36,26 @@ public class Wristevator {
     }
 
     /** Allows the user to define a deploy safe height, so that the wrist can begin deploying as quickly as possible */
-    public Command applyStateDynamic(WristevatorState state, Rotation2d safeAngle, double wristDeploySafeHeightMeters) {
-        return Commands.parallel(
-            m_elevator.applyPosition(state.elevatorHeightMeters),
-            Commands.waitUntil(() -> m_elevator.getPositionMeters() >= wristDeploySafeHeightMeters)
-                .andThen(m_wrist.applyAngle(state.wristAngle))
-        ).beforeStarting(m_wrist.applyAngle(safeAngle));
+    public Command applyStateDynamic(WristevatorState state, Supplier<Rotation2d> safeAngle, BooleanSupplier goingUp, double wristDeploySafeHeightMeters) {
+        return Commands.either(
+            Commands.parallel(
+                m_elevator.applyPosition(state.elevatorHeightMeters),
+                Commands.waitUntil(() -> m_elevator.getPositionMeters() >= wristDeploySafeHeightMeters)
+                    .andThen(m_wrist.applyAngle(state.wristAngle))
+            ).beforeStarting(m_wrist.applyAngle(safeAngle.get())
+                .onlyIf(() -> m_elevator.getPositionMeters() < wristDeploySafeHeightMeters)
+            ),
+            Commands.sequence(
+                Commands.parallel(
+                    m_elevator.applyPosition(wristDeploySafeHeightMeters),
+                    m_wrist.applyAngle(safeAngle.get())
+                ),
+                Commands.parallel(
+                    m_elevator.applyPosition(state.elevatorHeightMeters),
+                    m_wrist.applyAngle(state.wristAngle)
+                )
+            ),
+            goingUp
+        );
     }
 }
