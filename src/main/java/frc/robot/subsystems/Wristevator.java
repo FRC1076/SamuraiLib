@@ -49,7 +49,7 @@ public class Wristevator {
                 Commands.parallel(
                     m_elevator.applyPosition(wristDeploySafeHeightMeters),
                     m_wrist.applyAngle(safeAngle.get())
-                ),
+                ).onlyIf(() -> m_elevator.getPositionMeters() > wristDeploySafeHeightMeters),
                 Commands.parallel(
                     m_elevator.applyPosition(state.elevatorHeightMeters),
                     m_wrist.applyAngle(state.wristAngle)
