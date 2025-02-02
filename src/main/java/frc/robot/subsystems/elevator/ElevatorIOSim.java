@@ -135,12 +135,12 @@ public class ElevatorIOSim implements ElevatorIO{
 
     @Override
     public void setVoltage(double voltage) {
-        m_leadMotorSim.setAppliedOutput(voltage/m_leadMotorSim.getBusVoltage());
+        m_leadMotorSim.setAppliedOutput(voltage/12);
     }
 
     @Override 
     public void updateInputs(ElevatorIOInputs inputs) {
-        inputs.appliedVolts = m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage();
+        inputs.appliedVolts = m_leadMotorSim.getAppliedOutput() * 12;
         inputs.leadCurrentAmps = m_leadMotorSim.getMotorCurrent();
         inputs.followCurrentAmps = m_followMotorSim.getMotorCurrent();
         inputs.elevatorHeightMeters = m_encoderSim.getPosition();
@@ -151,12 +151,12 @@ public class ElevatorIOSim implements ElevatorIO{
     public void simulationPeriodic() {
         // In this method, we update our simulation of what our elevator is doing
         // First, we set our "inputs" (voltages)
-        m_elevatorSim.setInput(m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage());
+        m_elevatorSim.setInput(m_leadMotorSim.getAppliedOutput() * 12);
 
         // Next, we update it. The standard loop time is 20ms.
         m_elevatorSim.update(0.020);
 
-        m_leadMotorSim.iterate(m_elevatorSim.getVelocityMetersPerSecond(), m_leadMotorSim.getBusVoltage(), 0.02);
-        m_followMotorSim.iterate(m_elevatorSim.getVelocityMetersPerSecond(), m_followMotorSim.getBusVoltage(), 0.02);
+        m_leadMotorSim.iterate(m_elevatorSim.getVelocityMetersPerSecond(), 12, 0.02);
+        m_followMotorSim.iterate(m_elevatorSim.getVelocityMetersPerSecond(), 12, 0.02);
     }
 }

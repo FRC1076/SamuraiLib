@@ -106,17 +106,17 @@ public class WristIOSim implements WristIO {
 
     @Override
     public void simulationPeriodic() {
-        m_wristSim.setInput(m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage());
+        m_wristSim.setInput(m_leadMotorSim.getAppliedOutput() * 12);
         m_wristSim.update(0.020);
         
-        m_leadMotorSim.iterate(m_wristSim.getVelocityRadPerSec(),m_leadMotorSim.getBusVoltage(),0.02);
-        m_followMotorSim.iterate(m_wristSim.getVelocityRadPerSec(),m_followMotorSim.getBusVoltage(),0.02);
+        m_leadMotorSim.iterate(m_wristSim.getVelocityRadPerSec(),12,0.02);
+        m_followMotorSim.iterate(m_wristSim.getVelocityRadPerSec(),12,0.02);
         //m_encoderSim.setPosition(m_wristSim.getAngleRads());
     }
 
     @Override
     public void setVoltage(double voltage) {
-        m_leadMotorSim.setAppliedOutput(voltage/m_leadMotorSim.getBusVoltage());
+        m_leadMotorSim.setAppliedOutput(voltage/12);
     }
 
     @Override
@@ -147,7 +147,7 @@ public class WristIOSim implements WristIO {
 
     @Override
     public void updateInputs(WristIOInputs inputs) {
-        inputs.appliedVolts = m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage();
+        inputs.appliedVolts = m_leadMotorSim.getAppliedOutput() * 12;
         inputs.leadCurrentAmps = m_leadMotorSim.getMotorCurrent();
         inputs.followCurrentAmps = m_followMotorSim.getMotorCurrent();
         inputs.angle = Rotation2d.fromRadians(m_encoderSim.getPosition());
