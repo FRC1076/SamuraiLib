@@ -211,8 +211,8 @@ public final class Constants {
 
         //Poses of interest
         public enum PoseOfInterest {
-            BLU_PROCESSOR(0,0,0), //Placeholder
-            RED_PROCESSOR(0,0,0), //Placeholder
+            BLU_PROCESSOR(5.973318,-0.00381,90), //Taken from April Tag coordinates
+            RED_PROCESSOR(11.56081,	8.05561,	270), //Taken from April Tag coordinates
             BLU_RIGHT_STATION(Units.inchesToMeters(33.51),Units.inchesToMeters(25.80),55),
             BLU_LEFT_STATION(Units.inchesToMeters(33.51),Units.inchesToMeters(291.20),305),
             RED_RIGHT_STATION(Units.inchesToMeters(657.37),Units.inchesToMeters(291.20),-125),
