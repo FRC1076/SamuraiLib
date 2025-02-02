@@ -3,16 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.176903973509933,
-        "y": 5.146803977272728
+        "x": 1.6489445364238413,
+        "y": 7.344681291390729
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.891150874831382,
-        "y": 5.24141770461667
+        "x": 2.148168394668109,
+        "y": 7.069979302603392
       },
       "isLocked": false,
-      "linkedName": "1"
+      "linkedName": "LOUT"
     },
     {
       "anchor": {
@@ -20,8 +20,8 @@
         "y": 5.267156456953642
       },
       "prevControl": {
-        "x": 6.0951699816417015,
-        "y": 5.176266748897606
+        "x": 4.778753914066214,
+        "y": 5.95214773999208
       },
       "nextControl": null,
       "isLocked": false,
@@ -34,7 +34,7 @@
   "eventMarkers": [
     {
       "name": "preL4",
-      "waypointRelativePos": 0.0,
+      "waypointRelativePos": 0.4,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -60,7 +60,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -54.0
   },
   "useDefaultConstraints": true
 }
