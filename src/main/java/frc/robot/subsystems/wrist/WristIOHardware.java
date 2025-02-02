@@ -86,21 +86,6 @@ public class WristIOHardware implements WristIO {
     }
 
     @Override
-    public void setVelocity(double velocityRadiansPerSecond) {
-        m_closedLoopController.setReference(
-            velocityRadiansPerSecond,
-            ControlType.kVelocity,
-            ClosedLoopSlot.kSlot0,
-            FFController.calculateWithVelocities(
-                m_alternateEncoder.getPosition(),
-                m_alternateEncoder.getVelocity(),
-                velocityRadiansPerSecond
-            ),
-            ArbFFUnits.kVoltage
-        );
-    }
-
-    @Override
     public void setPosition(double positionRadians){
         m_closedLoopController.setReference(
             positionRadians,
@@ -122,6 +107,11 @@ public class WristIOHardware implements WristIO {
     @Override
     public void setFFkG(double kG){
         FFController.setKg(kG);
+    }
+
+    @Override
+    public double getFFkG() {
+        return FFController.getKg();
     }
 
 }

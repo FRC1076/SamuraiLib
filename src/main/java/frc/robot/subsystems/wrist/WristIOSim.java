@@ -123,17 +123,6 @@ public class WristIOSim implements WristIO {
     }
 
     @Override
-    public void setVelocity(double velocityRadPerSec){
-        m_leadMotorSim.setAppliedOutput(
-            m_FFController.calculateWithVelocities(
-                m_encoderSim.getPosition(),
-                m_encoderSim.getVelocity(),
-                velocityRadPerSec
-            ) / m_leadMotorSim.getBusVoltage()
-        );
-    }
-
-    @Override
     public void updateInputs(WristIOInputs inputs) {
         inputs.appliedVolts = m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage();
         inputs.leadCurrentAmps = m_leadMotorSim.getMotorCurrent();

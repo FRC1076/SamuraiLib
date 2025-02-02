@@ -314,7 +314,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
     public Command getAutonomousCommand() {
-        return AutoBuilder.buildAuto("J4_K4_L4_A4");
-        //return m_autoChooser.getSelected();
+        //return AutoBuilder.buildAuto("J4_K4_L4_A4");
+        return m_autoChooser.getSelected();
     }
 }

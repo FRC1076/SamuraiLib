@@ -119,13 +119,6 @@ public class ElevatorIOSim implements ElevatorIO {
     }
 
     @Override
-    public void setVelocity(double velocityMetersPerSecond) {
-        m_leadMotorSim.setAppliedOutput(
-            m_FFController.calculate(velocityMetersPerSecond)/m_leadMotorSim.getBusVoltage()
-        );
-    }
-
-    @Override
     public void setVoltage(double voltage) {
         m_leadMotorSim.setAppliedOutput(
             voltage/m_leadMotorSim.getBusVoltage()
