@@ -407,7 +407,7 @@ public class Superstructure {
             );
         }
 
-        //TODO: 
+        //TODO: Write separate intake coral command for auton
 
         /**
          * Used to calculate what the robot is possessing based on breambreaks
