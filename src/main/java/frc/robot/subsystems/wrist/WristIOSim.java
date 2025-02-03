@@ -9,6 +9,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
@@ -37,13 +38,11 @@ public class WristIOSim implements WristIO {
         WristSimConstants.Control.kA
     );
 
-    private MechanismLigament2d wristLigament;
-
     private final SingleJointedArmSim m_wristSim;
 
     private final PIDController m_PIDController;
 
-    public WristIOSim(MechanismLigament2d wristLigament) {
+    public WristIOSim() {
         m_wristGearbox = DCMotor.getNEO(2);
 
         m_leadMotor = new SparkMax(WristConstants.kLeadMotorPort, MotorType.kBrushless);
@@ -97,8 +96,6 @@ public class WristIOSim implements WristIO {
         m_encoderSim = m_leadMotorSim.getRelativeEncoderSim();
 
         m_PIDController = new PIDController(WristSimConstants.Control.kP, WristSimConstants.Control.kI, WristSimConstants.Control.kD);
-
-        this.wristLigament = wristLigament;
     }
 
     @Override
@@ -109,18 +106,11 @@ public class WristIOSim implements WristIO {
         m_wristSim.update(0.020);
 
         m_encoderSim.setPosition(m_wristSim.getAngleRads());
-
-        wristLigament.setAngle(Units.radiansToDegrees(m_wristSim.getAngleRads()));
     }
 
     @Override
     public void setVoltage(double voltage) {
-        m_leadMotorSim.setAppliedOutput(
-            (voltage + m_FFController.calculate(
-                m_encoderSim.getPosition(), 0
-                )
-            )/m_leadMotorSim.getBusVoltage()
-        );
+        m_leadMotorSim.setAppliedOutput(voltage/m_leadMotorSim.getBusVoltage());
     }
 
     @Override
@@ -137,5 +127,6 @@ public class WristIOSim implements WristIO {
         inputs.appliedVolts = m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage();
         inputs.leadCurrentAmps = m_leadMotorSim.getMotorCurrent();
         inputs.followCurrentAmps = m_followMotorSim.getMotorCurrent();
+        inputs.angle = Rotation2d.fromRadians(m_encoderSim.getPosition());
     }
 }

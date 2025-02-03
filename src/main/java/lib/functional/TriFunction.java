@@ -1,4 +1,4 @@
-package frc.robot.utils;
+package lib.functional;
 
 import java.util.Objects;
 import java.util.function.Function;

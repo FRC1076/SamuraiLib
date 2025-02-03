@@ -139,8 +139,8 @@ public class DriveIOSim extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> imple
     }
 
     @Override
-    public void resetHeading(Rotation2d heading){
-        super.resetRotation(heading);
+    public void resetHeading(){
+        super.seedFieldCentric();
     }
 
     @Override

@@ -131,8 +131,8 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
     }
 
     @Override
-    public void resetHeading(Rotation2d heading) {
-        super.resetRotation(heading);
+    public void resetHeading() {
+        super.seedFieldCentric();
     }
 
     @Override

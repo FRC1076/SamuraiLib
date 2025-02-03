@@ -1,6 +1,8 @@
 package frc.robot.subsystems.elevator;
 import org.littletonrobotics.junction.AutoLog;
 
+import frc.robot.Constants.ElevatorConstants;
+
 public interface ElevatorIO {
     @AutoLog
     public static class ElevatorIOInputs {
@@ -17,7 +19,11 @@ public interface ElevatorIO {
 
     public abstract void setPosition(double positionMeters) ;
 
-    public abstract void setVoltage(double volts) ;
+    public abstract void setVoltage(double volts);
+
+    public default void setFFkG(double kG) {}
+
+    public default double getFFkG() {return ElevatorConstants.Control.kG;}
 
     public default void simulationPeriodic() {}
 }

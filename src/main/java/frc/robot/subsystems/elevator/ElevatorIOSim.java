@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorSimConstants;
 
-public class ElevatorIOSim implements ElevatorIO{
+public class ElevatorIOSim implements ElevatorIO {
     // This gearbox represents a gearbox containing 4 Vex 775pro motors.
     private final DCMotor m_elevatorGearbox = DCMotor.getNEO(2);
 
@@ -48,9 +48,7 @@ public class ElevatorIOSim implements ElevatorIO{
         ElevatorSimConstants.Control.kA
     );
 
-    private final MechanismLigament2d elevatorLigament;
-
-    public ElevatorIOSim(MechanismLigament2d elevatorLigament) {
+    public ElevatorIOSim() {
         m_elevatorSim = new ElevatorSim(
             m_elevatorGearbox,
             ElevatorSimConstants.kElevatorGearing,
@@ -110,25 +108,20 @@ public class ElevatorIOSim implements ElevatorIO{
             ElevatorSimConstants.Control.kI,
             ElevatorSimConstants.Control.kD
         );
-
-        this.elevatorLigament = elevatorLigament;
     }
 
     @Override
     public void setPosition(double positionMeters) {
         // With the setpoint value we run PID control like normal
         double pidOutput = m_PIDController.calculate(m_encoderSim.getPosition(), positionMeters);
-        double feedforwardOutput = m_FFController.calculate(m_PIDController.getSetpoint());
+        double feedforwardOutput = m_FFController.getKg();
         m_leadMotorSim.setAppliedOutput((pidOutput + feedforwardOutput)/m_leadMotorSim.getBusVoltage());
     }
 
     @Override
     public void setVoltage(double voltage) {
         m_leadMotorSim.setAppliedOutput(
-            (voltage + m_FFController.calculate(
-                m_encoderSim.getPosition(), m_encoderSim.getVelocity()
-                )
-            )/m_leadMotorSim.getBusVoltage()
+            voltage/m_leadMotorSim.getBusVoltage()
         );
     }
 
@@ -154,6 +147,5 @@ public class ElevatorIOSim implements ElevatorIO{
         m_encoderSim.setPosition(m_elevatorSim.getPositionMeters());
 
         // Update elevator visualization with position
-        elevatorLigament.setLength(m_encoderSim.getPosition() + 0.01); //can't set to min value or else advantage scope visualization disappears
     }
 }

@@ -23,7 +23,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utils.GeometryUtils;
+import lib.utils.GeometryUtils;
 import frc.robot.Constants.DriveConstants.PathPlannerConstants;
 import frc.robot.Constants.FieldConstants.ReefFace;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -122,8 +122,8 @@ public class DriveSubsystem extends SubsystemBase {
         io.resetPose(pose);
     }
 
-    public void resetHeading(Rotation2d heading) {
-        io.resetHeading(heading);
+    public void resetHeading() {
+        io.resetHeading();
     }
 
     public Pose2d getPose() {

@@ -5,6 +5,9 @@
 package frc.robot;
 
 import java.util.List;
+
+import org.apache.commons.lang3.NotImplementedException;
+
 import java.util.Arrays;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -28,6 +31,7 @@ public final class Constants {
 
     public static class OIConstants{
         public static final int kDriverControllerPort = 0;
+        public static final int kOperatorControllerPort = 1;
         public static final double kControllerDeadband = 0.15;
         public static final double kControllerTriggerThreshold = 0.7;
     }
@@ -50,6 +54,7 @@ public final class Constants {
         public static class PathPlannerConstants {
             public static final PathConstraints pathConstraints = new PathConstraints(4.69, 25, Units.degreesToRadians(1080), Units.degreesToRadians(1080));
             public static final Transform2d robotOffset = new Transform2d(0.4572, 0, Rotation2d.kZero);
+            public static final double pathGenerationToleranceMeters = 0.011; // technically it's anything larger than 0.01, but I'm adding .001 just to be safe
         }
 
         public enum HeadingMode {
@@ -68,41 +73,147 @@ public final class Constants {
 
     }
 
+    public static class SuperstructureConstants {
+
+        //Grabber Possession State
+        public enum GrabberPossession {
+            EMPTY(0,0.6),
+            CORAL(0,0.6),
+            ALGAE(0,0.6);
+
+            public final double wrist_kG;
+            public final double elevator_kG;
+
+            private GrabberPossession(double wrist_kG, double elevator_kG) {
+                this.wrist_kG = wrist_kG;
+                this.elevator_kG = elevator_kG;
+            }
+        }
+
+        //Index Possession State
+        public enum IndexPossession {
+            EMPTY,
+            CORAL
+        }
+
+        //Grabber State
+        public enum GrabberState {
+
+            IDLE(0,0),
+            
+            ALGAE_INTAKE(-12,-12),
+            CORAL_INTAKE(5,5),
+
+            ALGAE_OUTTAKE(6,6),
+            CORAL_OUTTAKE(12,12);
+
+
+            public final double leftVoltage;
+            public final double rightVoltage;
+
+            private GrabberState(double leftVoltage, double rightVoltage) {
+                this.leftVoltage = leftVoltage;
+                this.rightVoltage = rightVoltage;
+            }
+        }
+
+        //Index State
+        public enum IndexState {
+            EMPTY_IDLE(false),
+            CORAL_INTAKE(true),
+            CORAL_TRANSFER(true),
+            CORAL_IDLE(false);
+            public final boolean running; //Whether or not the indexer motors are running
+            private IndexState(boolean running) {
+                this.running = running;
+            }
+        }
+
+        //Represent the elevator height and wrist angle for different positions, the full position of the grabber
+        //Should we have an eject state with an optional elevator height? just to immediately eject if a game piece is stuck
+        public enum WristevatorState {
+            
+            TRAVEL(0.08128,90),
+            ALGAE_TRAVEL(0.08128, 65),
+
+            CORAL_TRANSFER(0.08128,-23.5), //same as CORAL_DIRECT_INTAKE
+
+            L1(-1,-1), //Placeholder
+            L2(0.71628,-35),
+            L3(1.11252,-35),
+            L4(1.8161,-45),
+
+            GROUND_INTAKE(-1, -1),
+            LOW_INTAKE(0.9144,-35),
+            HIGH_INTAKE(1.30556,-35),
+
+            PROCESSOR(0.184277,0),
+            NET(1.8288,65);
+
+            public final double elevatorHeightMeters;
+            public final Rotation2d wristAngle;
+            
+            private WristevatorState(double elevatorHeightMeters, double wristAngleDegrees) {
+                this.elevatorHeightMeters = elevatorHeightMeters;
+                this.wristAngle = Rotation2d.fromDegrees(wristAngleDegrees);
+            }
+        }
+    }
+
     /** Contains data about the field */
     public static class FieldConstants {
+        private static final double branchOffset = Units.inchesToMeters(6.469);
+        private static final Transform2d leftBranchTransform = new Transform2d(0.0, -branchOffset, Rotation2d.kZero);
+        private static final Transform2d rightBranchTransform = new Transform2d(0.0, branchOffset, Rotation2d.kZero);
         /**
          * @description Provides coordinates for april tags
          * @description See https://docs.google.com/spreadsheets/d/1mz5djBDrFm8Ro_M04Yq4eea92x4Xyj_pqlt54wsXnxA/edit?usp=sharing
          */
         public enum ReefFace {
+            // IMPORTANT: Fudge factors are always positive and should be in meters (use the Units.inchesToMeters() method)
 
             //Blue Reef
-            BLU_REEF_CD(17, 4.073906, 3.306318, 240.0, 3.930, 3.400, 4.210, 3.200),
-            BLU_REEF_AB(18, 3.657600, 4.025900, 180.0, 3.658, 4.180, 3.658, 3.860),
-            BLU_REEF_LK(19, 4.073906, 4.745482, 120.0, 4.190, 4.850, 3.920, 4.670),
-            BLU_REEF_JI(20, 4.904740, 4.745482, 60.0, 5.060, 4.690, 4.780, 4.840),
-            BLU_REEF_HG(21, 5.321046, 4.025900, 0.0, 5.321, 3.850, 5.321, 4.170),
-            BLU_REEF_EF(22, 4.904740, 3.306318, 300.0, 4.780, 3.220, 5.060, 3.340),
+            BLU_REEF_AB(18, 3.657600, 4.025900, 180.0, null, null),
+            BLU_REEF_CD(17, 4.073906, 3.306318, 240.0, null, null),
+            BLU_REEF_EF(22, 4.904740, 3.306318, 300.0, null, null),
+            BLU_REEF_GH(21, 5.321046, 4.025900, 0.0, null, null),
+            BLU_REEF_IJ(20, 4.904740, 4.745482, 60.0, null, null),
+            BLU_REEF_KL(19, 4.073906, 4.745482, 120.0, null, null),
 
             //Red Reef
-            RED_REEF_KL(6, 13.474446, 3.306318, 300.0, 15.350, 3.210, 13.640, 3.340),
-            RED_REEF_BA(7, 13.890498, 4.025900, 0.0, 13.910, 3.860, 13.910, 4.190),
-            RED_REEF_DC(8, 13.474446, 4.745482, 60.0, 13.640, 4.690, 13.360, 4.830),
-            RED_REEF_FE(9, 12.643358, 4.745482, 120.0, 12.780, 4.830, 12.510, 4.680),
-            RED_REEF_GH(10, 12.227306, 4.025900, 180.0, 12.220, 4.190, 12.220, 3.850),
-            RED_REEF_IJ(11, 12.643358, 3.306318, 240.0, 12.490, 3.360, 12.790, 3.210);
+            RED_REEF_AB(7, 13.890498, 4.025900, 0.0, null, null),
+            RED_REEF_CD(8, 13.474446, 4.745482, 60., null, null),
+            RED_REEF_EF(9, 12.643358, 4.745482, 120.0, null, null),
+            RED_REEF_GH(10, 12.227306, 4.025900, 180.0, null, null),
+            RED_REEF_IJ(11, 12.643358, 3.306318, 240.0, null, null),
+            RED_REEF_KL(6, 13.474446, 3.306318, 300.0, null, null);
 
 
+            public final Double leftBranchFudgeTransform;
+            public final Double rightBranchFudgeTransform;
             public final Pose2d leftBranch;
             public final Pose2d rightBranch;
             public final Pose2d AprilTag;
             public final int AprilTagID;
 
-            private ReefFace(int AprilTagID, double AT_x, double AT_y, double AT_theta, double L_x, double L_y, double R_x, double R_y) {
+            //AT stands for AprilTag
+            private ReefFace(int AprilTagID, double AT_x, double AT_y, double AT_theta, Double leftBranchFudgeTransform, Double rightBranchFudgeTransform) {
                 this.AprilTagID = AprilTagID;
                 this.AprilTag = new Pose2d(AT_x, AT_y, Rotation2d.fromDegrees(AT_theta));
-                this.leftBranch = new Pose2d(L_x, L_y,Rotation2d.fromDegrees(AT_theta));
-                this.rightBranch = new Pose2d(R_x, R_y,Rotation2d.fromDegrees(AT_theta));
+                this.leftBranchFudgeTransform = leftBranchFudgeTransform;
+                this.rightBranchFudgeTransform = rightBranchFudgeTransform;
+
+                if(this.leftBranchFudgeTransform == null) {
+                    this.leftBranch = AprilTag.transformBy(leftBranchTransform);
+                } else {
+                    this.leftBranch = AprilTag.transformBy(new Transform2d(0.0, -this.leftBranchFudgeTransform, Rotation2d.kZero));
+                }
+                
+                if(this.rightBranchFudgeTransform == null) {
+                    this.rightBranch = AprilTag.transformBy(rightBranchTransform);
+                } else {
+                    this.rightBranch = AprilTag.transformBy(new Transform2d(0.0, this.rightBranchFudgeTransform, Rotation2d.kZero));
+                }
             }
         }
 
@@ -121,80 +232,25 @@ public final class Constants {
         public enum PoseOfInterest {
             BLU_PROCESSOR(0,0,0), //Placeholder
             RED_PROCESSOR(0,0,0), //Placeholder
-            BLU_CORAL_STATION_PROCESSOR(Units.inchesToMeters(33.51),Units.inchesToMeters(25.80),54),
-            BLU_CORAL_STATION_OPPOSITE(Units.inchesToMeters(33.51),Units.inchesToMeters(291.20),306),
-            RED_CORAL_STATION_PROCESSOR(Units.inchesToMeters(657.37),Units.inchesToMeters(291.20),-125),
-            RED_CORAL_STATION_OPPOSITE(Units.inchesToMeters(657.37),Units.inchesToMeters(25.80),125);
+            BLU_RIGHT_STATION(Units.inchesToMeters(33.51),Units.inchesToMeters(25.80),55),
+            BLU_LEFT_STATION(Units.inchesToMeters(33.51),Units.inchesToMeters(291.20),305),
+            RED_RIGHT_STATION(Units.inchesToMeters(657.37),Units.inchesToMeters(291.20),-125),
+            RED_LEFT_STATION(Units.inchesToMeters(657.37),Units.inchesToMeters(25.80),125);
 
             public final Pose2d pose;
+
             private PoseOfInterest(double xMeters, double yMeters, double omegaDeg) {
                 this.pose = new Pose2d(xMeters,yMeters,Rotation2d.fromDegrees(omegaDeg));
             }
         }
     }
 
-    public static class Coordinates {
-        public static final List<Pose2d> reefCenterCoordinates = Arrays.asList(
-            new Pose2d(4.073906, 3.306318, Rotation2d.fromDegrees(240)), // 17
-            new Pose2d(3.6576, 4.0259, Rotation2d.fromDegrees(180)), //18
-            new Pose2d(4.073906, 4.745482, Rotation2d.fromDegrees(120)), //19
-            new Pose2d(4.90474, 4.74582, Rotation2d.fromDegrees(60)), //20
-            new Pose2d(5.321046, 4.0259, Rotation2d.fromDegrees(0)), //21
-            new Pose2d(4.90474, 3.306318, Rotation2d.fromDegrees(300)), // 22 - end of blue
-            new Pose2d(13.474446, 3.306318, Rotation2d.fromDegrees(300)), //6
-            new Pose2d(13.890498, 4.0259, Rotation2d.fromDegrees(0)), //7
-            new Pose2d(13.474446, 4.745482, Rotation2d.fromDegrees(60)), //8
-            new Pose2d(12.643358, 4.745482, Rotation2d.fromDegrees(120)), //9
-            new Pose2d(12.227306, 4.0259, Rotation2d.fromDegrees(180)), //10
-            new Pose2d(12.643358, 3.306318, Rotation2d.fromDegrees(240)) //11
-        );
-
-        public static final List<Pose2d> leftBranchCoordinates = Arrays.asList(
-            new Pose2d(3.93, 3.39, Rotation2d.fromDegrees(-120.00)),
-            new Pose2d(3.66, 4.19, Rotation2d.fromDegrees(180.00)),
-            new Pose2d(4.21, 4.83, Rotation2d.fromDegrees(120.00)),
-            new Pose2d(5.04, 4.67, Rotation2d.fromDegrees(60.00)),
-            new Pose2d(5.32, 3.86, Rotation2d.fromDegrees(0.00)),
-            new Pose2d(4.77, 3.23, Rotation2d.fromDegrees(-60.00)),
-            new Pose2d(13.33, 3.23, Rotation2d.fromDegrees(-60.00)),
-            new Pose2d(13.89, 3.86, Rotation2d.fromDegrees(0.00)),
-            new Pose2d(13.61, 4.66, Rotation2d.fromDegrees(60.00)),
-            new Pose2d(12.78, 4.83, Rotation2d.fromDegrees(120.00)),
-            new Pose2d(12.23, 4.19, Rotation2d.fromDegrees(180.00)),
-            new Pose2d(12.50, 3.39, Rotation2d.fromDegrees(-120.00))
-        );
-
-        public static final List<Pose2d> rightBranchCoordinates = Arrays.asList(
-            new Pose2d(4.21, 3.23, Rotation2d.fromDegrees(-120.00)),
-            new Pose2d(3.66, 3.86, Rotation2d.fromDegrees(180.00)),
-            new Pose2d(3.93, 4.66, Rotation2d.fromDegrees(120.00)),
-            new Pose2d(4.77, 4.83, Rotation2d.fromDegrees(60.00)),
-            new Pose2d(5.32, 4.19, Rotation2d.fromDegrees(0.00)),
-            new Pose2d(5.04, 3.39, Rotation2d.fromDegrees(-60.00)),
-            new Pose2d(13.61, 3.39, Rotation2d.fromDegrees(-60.00)),
-            new Pose2d(13.89, 4.19, Rotation2d.fromDegrees(0.00)),
-            new Pose2d(13.33, 4.83, Rotation2d.fromDegrees(60.00)),
-            new Pose2d(12.50, 4.66, Rotation2d.fromDegrees(120.00)),
-            new Pose2d(12.23, 3.86, Rotation2d.fromDegrees(180.00)),
-            new Pose2d(12.78, 3.23, Rotation2d.fromDegrees(-120.00))
-        );
-        
-        public static final Translation2d blueReefCenter = new Translation2d(4.487, 4.010);
-        public static final Translation2d redReefCenter = new Translation2d(13.062, 4.010);
-
-        public static final Rotation2d leftCoralStationAngle = Rotation2d.fromDegrees(-55);
-        public static final Rotation2d rightCoralStationAngle = Rotation2d.fromDegrees(55);
-
-        public enum ReefAlignment{
-            LEFT_BRANCH,
-            RIGHT_BRANCH,
-            CENTER,
-        }
-    }
-
     public static class ElevatorConstants {
         public static final int kMotorPort0 = -1;
         public static final int kMotorPort1 = -1;
+        
+        public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(0.5);
+        public static final double maxOperatorControlVolts = 6;
 
         public static final boolean leadMotorInverted = false;
         public static final boolean followMotorInverted = false;
@@ -253,10 +309,10 @@ public final class Constants {
             public static final double kD = 0.0;
 
             //Feedforward Constants - STILL SET TO WAPUR ELEVATOR VALUES
-            public static final double kS = 0; //Static gain (voltage)
-            public static final double kG = 2.8605; //Gravity gain (voltage)
+            public static final double kS = 0; // Static gain (voltage)
+            public static final double kG = 2.8605; // Gravity gain (voltage)
             public static final double kV = 0; // velocity gain
-            public static final double kA = 0; //Acceleration Gain
+            public static final double kA = 0; // Acceleration Gain
         }
     }
 
@@ -270,6 +326,9 @@ public final class Constants {
     public static class WristConstants {
         public static final int kLeadMotorPort = -2;
         public static final int kFollowMotorPort = -3;
+
+        public static final double wristAngleToleranceRadians = Units.degreesToRadians(1);
+        public static final double maxOperatorControlVolts = 6;
 
         public static final boolean kLeadMotorInverted = false;
         public static final boolean kFollowMotorInverted = false;
@@ -318,8 +377,19 @@ public final class Constants {
         public static final int kFollowMotorPort = -10;
 
         public static final double kCurrentLimit = 40;
+        public static final double kIndexVoltage = 6;
 
         public static final boolean kLeadMotorInverted = false;
         public static final boolean kFollowMotorInverted = false;
+    }
+
+    public static class BeamBreakConstants{
+        public static final int indexBeamBreakPort = 0;
+        public static final int transferBeamBreakPort = 1;
+        public static final int grabberBeamBreakPort = 2;
+    }
+
+    private Constants() {
+        throw new NotImplementedException();
     }
 }

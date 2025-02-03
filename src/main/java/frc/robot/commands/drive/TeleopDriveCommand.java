@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.FieldConstants.PointOfInterest;
 import frc.robot.Constants.FieldConstants.PoseOfInterest;
-import frc.robot.utils.TriFunction;
+import lib.functional.TriFunction;
 
 public class TeleopDriveCommand extends Command {
     //The raw speed suppliers, unaffected by the clutches. A reference to these is maintained in order to make applying and unapplying clutches easier
@@ -229,20 +229,20 @@ public class TeleopDriveCommand extends Command {
     }
 
     /** Returns a command that applies a Processor side coral station-oriented heading lock*/
-    public Command applyProcessorCoralHeadingLock() {
+    public Command applyRightStationHeadingLock() {
         return applyHeadingLock(
             DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue
-                ? PoseOfInterest.BLU_CORAL_STATION_PROCESSOR.pose.getRotation()
-                : PoseOfInterest.RED_CORAL_STATION_PROCESSOR.pose.getRotation()
+                ? PoseOfInterest.BLU_RIGHT_STATION.pose.getRotation()
+                : PoseOfInterest.RED_RIGHT_STATION.pose.getRotation()
         );
     }
 
     /** Returns a command that applies an Opposite side coral station-oriented heading lock */
-    public Command applyOppositeCoralHeadingLock() {
+    public Command applyLeftStationHeadingLock() {
         return applyHeadingLock(
             DriverStation.getAlliance().orElse(Alliance.Red) == Alliance.Blue
-                ? PoseOfInterest.BLU_CORAL_STATION_OPPOSITE.pose.getRotation()
-                : PoseOfInterest.RED_CORAL_STATION_OPPOSITE.pose.getRotation()
+                ? PoseOfInterest.BLU_LEFT_STATION.pose.getRotation()
+                : PoseOfInterest.RED_LEFT_STATION.pose.getRotation()
         );
     }
 
