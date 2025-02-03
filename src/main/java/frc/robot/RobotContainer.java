@@ -183,7 +183,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("preL2", superstructureCommands.preL2());
         NamedCommands.registerCommand("preL3", superstructureCommands.preL3());
         NamedCommands.registerCommand("preL4", superstructureCommands.preL4());
-        NamedCommands.registerCommand("scoreGamePiece", superstructureCommands.scoreGamePiece());
+        // TODO: Change this to match later
+        NamedCommands.registerCommand("scoreGamePiece", superstructureCommands.doGrabberAction());
         NamedCommands.registerCommand("stopAndRetract", superstructureCommands.stopAndRetract());
     }
 
@@ -300,7 +301,7 @@ public class RobotContainer {
                 m_grabberBeamBreak
             )
         ).onChange(
-            m_superstructure.CommandBuilder.calculatePossession()
+            m_superstructure.CommandBuilder.updatePossessionAndKg()
         );
     }
 

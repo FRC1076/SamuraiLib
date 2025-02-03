@@ -96,7 +96,7 @@ public final class Constants {
             CORAL_INTAKE(5,5),
 
             ALGAE_OUTTAKE(6,6),
-            CORAL_OUTTAKE(12,12);
+            CORAL_OUTTAKE(12,12),
             DEFAULT_OUTTAKE(12,12);
 
 
