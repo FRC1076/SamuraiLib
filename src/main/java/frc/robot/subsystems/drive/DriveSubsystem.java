@@ -1,41 +1,42 @@
 package frc.robot.subsystems.drive;
 
-import com.ctre.phoenix6.swerve.SwerveRequest.ApplyRobotSpeeds;
-
+import frc.robot.Constants.DriveConstants.PathPlannerConstants;
+import frc.robot.Constants.FieldConstants.ReefFace;
+import frc.robot.commands.drive.DirectDriveToPoseCommand;
+import frc.robot.commands.drive.TeleopDriveCommand;
+import frc.robot.utils.Localization;
 import static frc.robot.Constants.DriveConstants.PathPlannerConstants.robotOffset;
+
+import lib.utils.GeometryUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-import org.littletonrobotics.junction.Logger;
-import frc.robot.commands.drive.DirectDriveToPoseCommand;
-import frc.robot.commands.drive.TeleopDriveCommand;
-import frc.robot.utils.Localization;
-
-import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.ctre.phoenix6.swerve.SwerveRequest.ApplyFieldSpeeds;
-import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentricFacingAngle;
-import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
-
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import lib.utils.GeometryUtils;
-import frc.robot.Constants.DriveConstants.PathPlannerConstants;
-import frc.robot.Constants.FieldConstants.ReefFace;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+
+import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
+
+import com.ctre.phoenix6.swerve.SwerveRequest.ApplyRobotSpeeds;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest.ApplyFieldSpeeds;
+import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentricFacingAngle;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
+
 public class DriveSubsystem extends SubsystemBase {
     private final DriveIO io;
     private final DriveIOInputsAutoLogged driveInputs = new DriveIOInputsAutoLogged();
@@ -43,7 +44,7 @@ public class DriveSubsystem extends SubsystemBase {
     private final ModuleIOInputsAutoLogged frontRightInputs = new ModuleIOInputsAutoLogged();
     private final ModuleIOInputsAutoLogged rearLeftInputs = new ModuleIOInputsAutoLogged();
     private final ModuleIOInputsAutoLogged rearRightInputs = new ModuleIOInputsAutoLogged();
-    private Boolean hasSetAlliance = false;
+    private Boolean hasSetAlliance = false; // Wait until the driverstation had an alliance before setting it
     public final DriveCommandFactory CommandBuilder;
 
     public DriveSubsystem(DriveIO io) {
@@ -53,7 +54,7 @@ public class DriveSubsystem extends SubsystemBase {
                 this::getPose,
                 this::resetPose,
                 () -> driveInputs.Speeds,
-                (speeds) -> driveCO(speeds),
+                (speeds,feedforwards) -> driveCO(speeds),
                 new PPHolonomicDriveController(
                     // PID constants for translation
                     new PIDConstants(5, 0, 0),
@@ -73,6 +74,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic(){
+        // updateModuleInputs and processInputs are only used for logging
         io.periodic(); //currently just for calling sim
         io.updateInputs(driveInputs);
         io.updateModuleInputs(frontLeftInputs,0);
@@ -95,14 +97,17 @@ public class DriveSubsystem extends SubsystemBase {
         }
     }
 
+    /** Swerve drive request with chassis-oriented chassisSpeeds */
     public void driveCO(ChassisSpeeds speeds) {
         io.acceptRequest(new ApplyRobotSpeeds().withSpeeds(speeds));
     }
 
+    /** Swerve drive request with field-oriented chassisSpeeds */
     public void driveFO(ChassisSpeeds speeds) {
         io.acceptRequest(new ApplyFieldSpeeds().withSpeeds(speeds).withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective));
     }
 
+    /** Swerve drive request with heading lock */
     public void driveFOHeadingLocked(double xMetersPerSecond, double yMetersPerSecond, Rotation2d targetDirection) {
         FieldCentricFacingAngle request = new FieldCentricFacingAngle()
         .withVelocityX(xMetersPerSecond)
@@ -114,14 +119,19 @@ public class DriveSubsystem extends SubsystemBase {
         io.acceptRequest(request);
     }
 
+    /** Set swerveRequest */
     public void acceptRequest(SwerveRequest request) {
         io.acceptRequest(request);
     }
 
+    /** Resets the pose of the robot */
     public void resetPose(Pose2d pose) {
         io.resetPose(pose);
     }
 
+    /** Makes the current heading of the robot the default zero degree heading
+     * (Used if forward is the wrong direction)
+     */
     public void resetHeading() {
         io.resetHeading();
     }

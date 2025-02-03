@@ -1,26 +1,25 @@
 package frc.robot.subsystems.elevator;
 
+import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.ElevatorSimConstants;
 import static frc.robot.Constants.ElevatorConstants.kPositionConversionFactor;
 import static frc.robot.Constants.ElevatorConstants.kVelocityConversionFactor;
 import static frc.robot.Constants.ElevatorConstants.Electrical.kCurrentLimit;
 import static frc.robot.Constants.ElevatorConstants.Electrical.kVoltageCompensation;
 
+import edu.wpi.first.math.controller.ElevatorFeedforward;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+
 import com.revrobotics.sim.SparkMaxSim;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.sim.SparkRelativeEncoderSim;
 
-import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.simulation.ElevatorSim;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.ElevatorSimConstants;
+
 
 public class ElevatorIOSim implements ElevatorIO {
     // This gearbox represents a gearbox containing 4 Vex 775pro motors.

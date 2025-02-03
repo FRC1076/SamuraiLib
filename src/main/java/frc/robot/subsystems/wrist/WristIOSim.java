@@ -11,9 +11,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import frc.robot.Constants.WristConstants;
 import frc.robot.Constants.WristSimConstants;
 
@@ -111,6 +109,11 @@ public class WristIOSim implements WristIO {
     @Override
     public void setVoltage(double voltage) {
         m_leadMotorSim.setAppliedOutput(voltage/m_leadMotorSim.getBusVoltage());
+    }
+
+    @Override
+    public void setVoltageCharacterization(double voltage){
+        setVoltage(voltage);
     }
 
     @Override

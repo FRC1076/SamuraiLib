@@ -1,5 +1,8 @@
 package frc.robot.commands.drive;
 
+import frc.robot.subsystems.drive.DriveSubsystem;
+import frc.robot.Constants.FieldConstants.PointOfInterest;
+import frc.robot.Constants.FieldConstants.PoseOfInterest;
 import static frc.robot.Constants.DriveConstants.DriverControlConstants.doubleClutchRotationFactor;
 import static frc.robot.Constants.DriveConstants.DriverControlConstants.doubleClutchTranslationFactor;
 import static frc.robot.Constants.DriveConstants.DriverControlConstants.maxRotationSpeedRadPerSec;
@@ -7,16 +10,11 @@ import static frc.robot.Constants.DriveConstants.DriverControlConstants.maxTrans
 import static frc.robot.Constants.DriveConstants.DriverControlConstants.singleClutchRotationFactor;
 import static frc.robot.Constants.DriveConstants.DriverControlConstants.singleClutchTranslationFactor;
 
+import lib.functional.TriFunction;
+
 import java.util.Optional;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
-import frc.robot.subsystems.drive.DriveSubsystem;
-
-import com.ctre.phoenix6.swerve.SwerveRequest.ApplyFieldSpeeds;
-import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentricFacingAngle;
-import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -25,42 +23,44 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Constants.FieldConstants.PointOfInterest;
-import frc.robot.Constants.FieldConstants.PoseOfInterest;
-import lib.functional.TriFunction;
+
+import com.ctre.phoenix6.swerve.SwerveRequest.ApplyFieldSpeeds;
+import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentricFacingAngle;
+import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
 public class TeleopDriveCommand extends Command {
-    //The raw speed suppliers, unaffected by the clutches. A reference to these is maintained in order to make applying and unapplying clutches easier
+    // The raw speed suppliers, unaffected by the clutches. A reference to these is maintained in order to make applying and unapplying clutches easier
     private final DoubleSupplier rawXSupplier;
     private final DoubleSupplier rawYSupplier;
     private final DoubleSupplier rawOmegaSupplier;
 
-    //The required drive subsystem
+    // The required drive subsystem
     private final DriveSubsystem m_drive;
 
-    //The clutch factors being used
+    // The clutch factors being used
     private double transClutch = 1.0;
     private double rotClutch = 1.0;
 
-    //The actual speed suppliers, these are affected by the clutch factor
+    // The actual speed suppliers, these are affected by the clutch factor
     private DoubleSupplier xSupplier;
     private DoubleSupplier ySupplier;
     private DoubleSupplier omegaSupplier;
 
-    //Request Generator declarations
+    // Request Generator declarations
 
-    //The request generator is a function that takes three doubles as parameters and returns a SwerveRequest.
-    //During every loop, the requestGenerator is invoked with the values of the three doublesuppliers as parameters,
-    //And the resulting SwerveRequest is applied to the Drivetrain
+    // The request generator is a function that takes three doubles as parameters and returns a SwerveRequest.
+    // During every loop, the requestGenerator is invoked with the values of the three doublesuppliers as parameters,
+    // And the resulting SwerveRequest is applied to the Drivetrain
     private TriFunction<Double,Double,Double,SwerveRequest> requestGenerator;
 
-    //A swerve request override. If this optional is not empty, it signals to the TeleopDriveCommand that the request generator has been overridden, and will not
-    //generate a default requestGenerator during reloadCommand()
-    //The presence of a requestGeneratorOverride supersedes the presence of a headingSupplier
+    // A swerve request override. If this optional is not empty, it signals to the TeleopDriveCommand that the request generator has been overridden, and will not
+    // generate a default requestGenerator during reloadCommand()
+    // The presence of a requestGeneratorOverride supersedes the presence of a headingSupplier
     private Optional<TriFunction<Double,Double,Double,SwerveRequest>> requestGeneratorOverride = Optional.empty();
 
-    //A heading override. If this optional is not empty, it signals to the TeleopDriveCommand that the heading has been locked,
-    //And will generate a requestGenerator that returns a FieldCentricFacingAngle request
+    // A heading override. If this optional is not empty, it signals to the TeleopDriveCommand that the heading has been locked,
+    // And will generate a requestGenerator that returns a FieldCentricFacingAngle request
     private Optional<Supplier<Rotation2d>> headingSupplier = Optional.empty();
 
     public TeleopDriveCommand(DriveSubsystem drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier omegaSupplier) {
@@ -130,13 +130,15 @@ public class TeleopDriveCommand extends Command {
         }
     }
 
-    /** Overrides the requestGenerator */
-    private void overrideRequestGenerator(TriFunction<Double,Double,Double,SwerveRequest> newRequestGenerator){
+    /** Overrides the requestGenerator 
+     * Used for custom swerve requests, like x-locking and heading-locking, etc
+    */
+    private void setRequestGenerator(TriFunction<Double,Double,Double,SwerveRequest> newRequestGenerator){
         this.requestGeneratorOverride = Optional.of(newRequestGenerator);
         reloadCommand();
     }
 
-    /** Clears any requestGenerator overrides */
+    /** Clears any requestGenerator overrides and restores default teleop control */
     private void clearRequestGeneratorOverride() {
         this.requestGeneratorOverride = Optional.empty();
         reloadCommand();
@@ -181,9 +183,9 @@ public class TeleopDriveCommand extends Command {
     }
 
     /** Returns a command that applies an arbitrary request generator override */
-    public Command applyRequestGeneratorOverride(TriFunction<Double,Double,Double,SwerveRequest> override) {
+    public Command applyRequestGenerator(TriFunction<Double,Double,Double,SwerveRequest> reqgen) {
         return Commands.startEnd(
-            () -> overrideRequestGenerator(override), 
+            () -> setRequestGenerator(reqgen), 
             () -> clearRequestGeneratorOverride()
         );
     }
@@ -211,44 +213,44 @@ public class TeleopDriveCommand extends Command {
         return applyClutchFactor(doubleClutchTranslationFactor, doubleClutchRotationFactor);
     }
 
-        /** Returns a command that applies a reef-oriented heading lock */
-        public Command applyReefHeadingLock() {
-            return Commands.either(
-                applyHeadingLock(
-                    () -> {
-                        Translation2d teamReef = PointOfInterest.RED_REEF.position;
-                        Rotation2d angleToReef = teamReef.minus(m_drive.getPose().getTranslation()).getAngle();
-                        return angleToReef;
-                    }
-                ),
-                applyHeadingLock(
-                    () -> {
-                        Translation2d teamReef = PointOfInterest.BLU_REEF.position;
-                        Rotation2d angleToReef = teamReef.minus(m_drive.getPose().getTranslation()).getAngle();
-                        return angleToReef;
-                    }
-                ),
-                () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
-            );
-        }
-    
-        /** Returns a command that applies a Processor side coral station-oriented heading lock*/
-        public Command applyRightStationHeadingLock() {
-            return Commands.either(
-                applyHeadingLock(PoseOfInterest.RED_RIGHT_STATION.pose.getRotation()),
-                applyHeadingLock(PoseOfInterest.BLU_RIGHT_STATION.pose.getRotation()),
-                () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
-            );
-        }
-    
-        /** Returns a command that applies an Opposite side coral station-oriented heading lock */
-        public Command applyLeftStationHeadingLock() {
-            return Commands.either(
-                applyHeadingLock(PoseOfInterest.RED_LEFT_STATION.pose.getRotation()),
-                applyHeadingLock(PoseOfInterest.BLU_LEFT_STATION.pose.getRotation()),
-                () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
-            );
-        }
+    /** Returns a command that applies a reef-oriented heading lock */
+    public Command applyReefHeadingLock() {
+        return Commands.either(
+            applyHeadingLock(
+                () -> {
+                    Translation2d teamReef = PointOfInterest.RED_REEF.position;
+                    Rotation2d angleToReef = teamReef.minus(m_drive.getPose().getTranslation()).getAngle();
+                    return angleToReef;
+                }
+            ),
+            applyHeadingLock(
+                () -> {
+                    Translation2d teamReef = PointOfInterest.BLU_REEF.position;
+                    Rotation2d angleToReef = teamReef.minus(m_drive.getPose().getTranslation()).getAngle();
+                    return angleToReef;
+                }
+            ),
+            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+        );
+    }
+
+    /** Returns a command that applies a Processor side coral station-oriented heading lock*/
+    public Command applyRightStationHeadingLock() {
+        return Commands.either(
+            applyHeadingLock(PoseOfInterest.RED_RIGHT_STATION.pose.getRotation()),
+            applyHeadingLock(PoseOfInterest.BLU_RIGHT_STATION.pose.getRotation()),
+            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+        );
+    }
+
+    /** Returns a command that applies an Opposite side coral station-oriented heading lock */
+    public Command applyLeftStationHeadingLock() {
+        return Commands.either(
+            applyHeadingLock(PoseOfInterest.RED_LEFT_STATION.pose.getRotation()),
+            applyHeadingLock(PoseOfInterest.BLU_LEFT_STATION.pose.getRotation()),
+            () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+        );
+    }
 
     /** Returns a command that applies a forward-oriented heading lock */
     public Command applyForwardHeadingLock() {

@@ -7,7 +7,6 @@ import org.apache.commons.lang3.NotImplementedException;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 
 public class CommandUtils {
     private CommandUtils() {
@@ -27,5 +26,4 @@ public class CommandUtils {
     public static void makePeriodic(Runnable runnable) {
         CommandScheduler.getInstance().schedule(Commands.run(runnable).ignoringDisable(false));
     }
-
 }

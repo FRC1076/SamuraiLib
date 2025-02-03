@@ -1,12 +1,12 @@
 package frc.robot.subsystems.grabber;
 
+import frc.robot.Constants.GrabberConstants;
+
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
-
-import frc.robot.Constants.GrabberConstants;
 
 public class GrabberIOHardware implements GrabberIO{
     private final SparkMax m_leftMotor;
@@ -30,18 +30,21 @@ public class GrabberIOHardware implements GrabberIO{
         m_rightMotor.configure(m_rightMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
+    /** Sets both motors to the same voltage */
     @Override
     public void runVolts(double volts) {
         m_leftMotor.setVoltage(volts);
         m_rightMotor.setVoltage(volts);
     }
 
+    /** Sets the voltages of the left and right motors individually */
     @Override
     public void runVoltsDifferential(double leftMotorVolts, double rightMotorVolts) {
         m_leftMotor.setVoltage(leftMotorVolts);
         m_rightMotor.setVoltage(rightMotorVolts);
     }
 
+    /** Used for logging */
     @Override
     public void updateInputs(GrabberIOInputs inputs) {
         inputs.leftMotorAppliedVoltage = m_leftMotor.getAppliedOutput() * m_leftMotor.getBusVoltage();

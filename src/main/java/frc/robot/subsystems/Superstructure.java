@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.HashMap;
-import java.util.Map;
 import frc.robot.Constants.SuperstructureConstants.WristevatorState;
 import frc.robot.Constants.SuperstructureConstants.GrabberPossession;
 import frc.robot.Constants.SuperstructureConstants.GrabberState;
@@ -11,26 +9,31 @@ import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.grabber.GrabberSubsystem;
 import frc.robot.subsystems.index.IndexSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
+import static frc.robot.Constants.IndexConstants.kIndexVoltage;
+
 import lib.extendedcommands.CommandUtils;
 import lib.extendedcommands.SelectWithFallbackCommand;
-import frc.robot.commands.elevator.SetElevatorPositionCommand;
-import frc.robot.commands.wrist.SetWristAngleCommand;
+
+import java.util.function.BooleanSupplier;
+import java.util.HashMap;
+import java.util.Map;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.function.BooleanSupplier;
-
-import edu.wpi.first.math.geometry.Rotation2d;
-
-import static frc.robot.Constants.IndexConstants.kIndexVoltage;
-
+/**
+ * Superstructure class that contains all subsystems and commands for the robot's superstructure <p>
+ * Allows all of the subsystems to talk to each other <p>
+ * Allows sensors to interact with subystems <p>
+ * Contains command factories for actions requiring multiple systems <p>
+ */
 public class Superstructure {
 
-    // A mutable class representing the Superstructure's state
+    /** A mutable (you can change the state after instantiation) class representing the Superstructure's desired state */
     @AutoLog
     public static class MutableSuperState {
 
@@ -49,29 +52,31 @@ public class Superstructure {
         }
 
         public MutableSuperState() {}
-
-        //Calculates game piece possession from beambreaks
-        protected void _calculatePossession(boolean indexBeamBreak, boolean transferBeamBreak, boolean grabberBeamBreak){
-            indexPossession = indexBeamBreak 
-                ? IndexPossession.CORAL 
-                : IndexPossession.EMPTY;
-            grabberPossession = grabberBeamBreak 
-                ? (transferBeamBreak 
-                    ? GrabberPossession.CORAL 
-                    : GrabberPossession.ALGAE) 
-                : GrabberPossession.EMPTY;
-        }
-
+        
+        /** Set state of the wristevator <p>
+         * States include elevator heights and wrist angles corresponding to specific actions
+         */
         public void setWristevatorState(WristevatorState position) {
             this.WristevatorState = position;
         }
 
+        /** Set state of the grabber. <p>
+         * States include voltage to run grabber wheels at for different actions (intake, outtake, idle)
+         */
         public void setGrabberState(GrabberState state) {
             this.grabberState = state;
         }
 
         public void setIndexerState(IndexState state) {
             this.indexState = state;
+        }
+
+        public void setGrabberPossession(GrabberPossession possession) {
+            this.grabberPossession = possession;
+        }
+
+        public void setIndexPossession(IndexPossession possession) {
+            this.indexPossession = possession;
         }
 
         public GrabberState getGrabberState() {
@@ -120,7 +125,7 @@ public class Superstructure {
         m_wrist = wrist;
         
         CommandUtils.makePeriodic(() -> {
-            Logger.processInputs("Superstructure",superState);
+            Logger.processInputs("Superstructure", superState);
         });
         CommandBuilder = new SuperstructureCommandFactory(this, indexBeamBreak, transferBeamBreak, grabberBeamBreak);
     }
@@ -148,6 +153,8 @@ public class Superstructure {
     public SuperstructureCommandFactory getCommandBuilder(){
         return CommandBuilder;
     }
+
+    // Command factories that apply states are private because they are only accessed by the main SuperStructureCommandFactory
 
     /**
      * Folds back wrist, moves elevator, then deploys wrist
@@ -194,24 +201,38 @@ public class Superstructure {
     }
 
     /**
-     * Recalculates game piece possession based on beambreaks
+     * Updates game piece possession based on beambreaks and updates kG accordingly
+     * (gamepieces have weight that affects elevator and wrist)
+     * @param indexBB whether the beambreak sensor in the indexer detects something
+     * @param transferBB whether the beambreak sensor between the indexer and grabber detects something
+     * @param greabberBB whether the beambreak sensor in the grabber detects something
      */
-    public void calculatePossession(
+    public void updatePossessionAndKg(
         boolean indexBB,
         boolean transferBB,
         boolean grabberBB
     ) {
-        superState._calculatePossession(indexBB, transferBB, grabberBB);
-        m_elevator.setKg(superState.grabberPossession.elevator_kG);
-        m_wrist.setKg(superState.grabberPossession.wrist_kG);
+        IndexPossession indexPossession = indexBB 
+            ? IndexPossession.CORAL 
+            : IndexPossession.EMPTY;
+        GrabberPossession grabberPossession = grabberBB
+            ? (transferBB
+                ? GrabberPossession.CORAL 
+                : GrabberPossession.ALGAE) 
+            : GrabberPossession.EMPTY;
+        m_elevator.setKg(grabberPossession.elevator_kG);
+        m_wrist.setKg(grabberPossession.wrist_kG);
+        superState.setIndexPossession(indexPossession);
+        superState.setGrabberPossession(grabberPossession);
     }
 
+    /** Contains all the command factories for the superstructure */
     public class SuperstructureCommandFactory { 
         private final Superstructure superstructure;
         private final BooleanSupplier m_indexBeamBreak;
         private final BooleanSupplier m_transferBeamBreak;
         private final BooleanSupplier m_grabberBeamBreak;
-        private final Map<WristevatorState, Command> scoringCommands = new HashMap<>();
+        private final Map<WristevatorState, Command> grabberActionCommands = new HashMap<>(); // We use a map of grabber action commands so that we can use the SelectWithFallBackCommand factory
         private SuperstructureCommandFactory (
             Superstructure superstructure,
             BooleanSupplier indexBeamBreak,
@@ -222,28 +243,36 @@ public class Superstructure {
             m_indexBeamBreak = indexBeamBreak;
             m_transferBeamBreak = transferBeamBreak;
             m_grabberBeamBreak = grabberBeamBreak;
-            scoringCommands.put(WristevatorState.L1, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
-            scoringCommands.put(WristevatorState.L2, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
-            scoringCommands.put(WristevatorState.L3, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
-            scoringCommands.put(WristevatorState.L4, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
-            scoringCommands.put(WristevatorState.NET, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
-            scoringCommands.put(WristevatorState.PROCESSOR, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
-
+            grabberActionCommands.put(WristevatorState.L1, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
+            grabberActionCommands.put(WristevatorState.L2, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
+            grabberActionCommands.put(WristevatorState.L3, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
+            grabberActionCommands.put(WristevatorState.L4, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
+            grabberActionCommands.put(WristevatorState.GROUND_INTAKE,
+                                        superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
+                                        .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE));
+            grabberActionCommands.put(WristevatorState.PROCESSOR, superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE));
+            grabberActionCommands.put(WristevatorState.LOW_INTAKE,
+                                        superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
+                                        .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE));
+            grabberActionCommands.put(WristevatorState.HIGH_INTAKE,
+                                        superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
+                                        .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE));
+            grabberActionCommands.put(WristevatorState.NET, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
         }
 
         /**
-         * Score game piece differently depending on robot state
+         * Returns a command that does a grabber action differently depending on robot state (scoring coral, scoring algae, intaking algae)
          */
-        public Command scoreGamePiece() {
+        public Command doGrabberAction() {
             return new SelectWithFallbackCommand<WristevatorState>(
-                scoringCommands,
-                superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE), //Default command to do if command can't be chosen from scoringCommands
+                grabberActionCommands,
+                superstructure.applyGrabberState(GrabberState.DEFAULT_OUTTAKE), // Default command to do if command can't be chosen from grabberActionCommands
                 this.superstructure.getSuperState()::getWristevatorState
             );
         }
 
         /**
-         * Stop grabber wheels from spinning
+         * Returns a command that stops grabber wheels from spinning
          */
         public Command stopGrabber(){
             return superstructure.applyGrabberState(GrabberState.IDLE);
@@ -257,7 +286,7 @@ public class Superstructure {
         }
 
         /**
-         * Call this on button releases, stops grabber movement and retracts mechanisms to travel state
+         * Call this on button releases after scoring game pieces, stops grabber movement and retracts mechanisms to travel state
          */
         public Command stopAndRetract(){
             return Commands.parallel(
@@ -309,38 +338,24 @@ public class Superstructure {
         }
 
         /**
-         * Set elevator and wrist to ground algae preset while running grabber intake if open
+         * Set elevator and wrist to ground algae preset
          */
         public Command groundAlgaeIntake(){
-            return 
-            Commands.parallel(
-                superstructure.applyWristevatorState(WristevatorState.GROUND_INTAKE),
-                superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
-                    .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE) // Check if there is already an algae intaked
-            );
+            return superstructure.applyWristevatorState(WristevatorState.GROUND_INTAKE);
         }
 
         /**
-         * Set elevator and wrist to low algae preset while running grabber intake if open
+         * Set elevator and wrist to low algae preset
          */
         public Command lowAlgaeIntake(){
-            return 
-            Commands.parallel(
-                superstructure.applyWristevatorState(WristevatorState.LOW_INTAKE),
-                superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
-                    .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE) // Check if there is already an algae intaked
-            );   
+            return superstructure.applyWristevatorState(WristevatorState.LOW_INTAKE);  
         }
 
         /**
-         * Set elevator and wrist to high algae preset while running grabber intake if open
+         * Set elevator and wrist to high algae preset
          */
         public Command highAlgaeIntake(){
-            return Commands.parallel(
-                superstructure.applyWristevatorState(WristevatorState.HIGH_INTAKE),
-                superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
-                    .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE) // Check if there is already an algae intaked
-            );
+            return superstructure.applyWristevatorState(WristevatorState.HIGH_INTAKE);
             
         }
 
@@ -373,6 +388,15 @@ public class Superstructure {
             ).onlyIf(() -> superstructure.getSuperState().getGrabberPossession() == GrabberPossession.EMPTY);
         }
 
+        /**
+         * Bring the wristevator down to its travel state (wrist up, elevator all the way down),
+         * brings the coral from the funnel into the indexer,
+         * waits for a signal that it is safe to transfer the coral to the grabber,
+         * rotates the wrist down,
+         * and the rotates the motors to bring the coral into the grabber.
+         * @param safeSignal a supplier indicating whether or not is safe to transfer the coral from the indexer to the grabber
+         * @return a command sequence
+         */
         public Command intakeCoral(BooleanSupplier safeSignal){
             return Commands.sequence(
                 superstructure.applyWristevatorState(WristevatorState.TRAVEL),
@@ -386,9 +410,9 @@ public class Superstructure {
         /**
          * Used to calculate what the robot is possessing based on breambreaks
          */
-        public Command calculatePossession(){
+        public Command updatePossessionAndKg(){
             return Commands.runOnce(
-                () -> superstructure.calculatePossession(
+                () -> superstructure.updatePossessionAndKg(
                     m_indexBeamBreak.getAsBoolean(),
                     m_transferBeamBreak.getAsBoolean(),
                     m_grabberBeamBreak.getAsBoolean()

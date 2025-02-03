@@ -24,16 +24,16 @@ public class SuperstructureVisualizer {
         // Create the canvas for mechanisms
         // Width is side frame perimeter (30 inches), height is max elevator height + some buffer
         superstructureVis = new Mechanism2d(0.762, 3);
-        //0.381 is center of frame, 0.127 shifts elevator 5 inches to side like with the real robot
+        // 0.381 is center of frame, 0.127 shifts elevator 5 inches to side like with the real robot
         elevatorRoot = superstructureVis.getRoot("Elevator Root", 0.381 + 0.127, 0.23114);
         elevator = elevatorRoot.append(
             new MechanismLigament2d("Elevator", 0, 90, 10, new Color8Bit("#000000"))
         );
-        //The fixed part of the wrist that has the pivot on the end for the grabber
+        // The fixed part of the wrist that has the pivot on the end for the grabber
         fixed = elevator.append(
             new MechanismLigament2d("Fixed", 0.127, -90, 10, new Color8Bit("#000000"))
         );
-        //Technically visualizes the grabber
+        // Technically visualizes the grabber
         wrist = fixed.append(
             new MechanismLigament2d("Wrist", 0.3048, 0, 10, new Color8Bit("#770085"))
         );

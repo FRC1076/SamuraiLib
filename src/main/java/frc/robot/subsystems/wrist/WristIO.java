@@ -1,10 +1,10 @@
 package frc.robot.subsystems.wrist;
 
-import org.littletonrobotics.junction.AutoLog;
+import frc.robot.Constants.WristConstants;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.WristConstants;
+
+import org.littletonrobotics.junction.AutoLog;
 
 public interface WristIO {
     @AutoLog
@@ -18,6 +18,8 @@ public interface WristIO {
     public abstract void updateInputs(WristIOInputs inputs);
 
     public abstract void setVoltage(double volts);
+
+    public abstract void setVoltageCharacterization(double volts);
 
     public abstract void setPosition(double position);
 

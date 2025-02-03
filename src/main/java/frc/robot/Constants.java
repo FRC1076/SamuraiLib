@@ -4,20 +4,21 @@
 
 package frc.robot;
 
+import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang3.NotImplementedException;
-
-import java.util.Arrays;
-
-import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
 
+import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
+
+import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+
+import org.apache.commons.lang3.NotImplementedException;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -55,22 +56,12 @@ public final class Constants {
             public static final PathConstraints pathConstraints = new PathConstraints(4.69, 25, Units.degreesToRadians(1080), Units.degreesToRadians(1080));
             public static final Transform2d robotOffset = new Transform2d(0.4572, 0, Rotation2d.kZero);
             public static final double pathGenerationToleranceMeters = 0.011; // technically it's anything larger than 0.01, but I'm adding .001 just to be safe
-        }
 
-        public enum HeadingMode {
-            NORMAL,
-            POINT_TO_REEF,
-            LEFT_CORAL_STATION,
-            RIGHT_CORAL_STATION,
-            STRAIGHT,
+            public static class Control {
+                public static final PIDConstants transPID = new PIDConstants(5,0,0);
+                public static final PIDConstants rotPID = new PIDConstants(5,0,0);
+            }
         }
-
-        public enum ClutchMode {
-            NORMAL,
-            SINGLE_CLUTCH,
-            DOUBLE_CLUTCH,
-        }
-
     }
 
     public static class SuperstructureConstants {
@@ -106,6 +97,7 @@ public final class Constants {
 
             ALGAE_OUTTAKE(6,6),
             CORAL_OUTTAKE(12,12);
+            DEFAULT_OUTTAKE(12,12);
 
 
             public final double leftVoltage;

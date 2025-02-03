@@ -4,10 +4,6 @@
 
 package frc.robot;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import frc.robot.commands.Autos;
 import frc.robot.commands.drive.DirectDriveToPoseCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -30,8 +26,13 @@ import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.subsystems.SuperstructureVisualizer;
 import frc.robot.subsystems.Superstructure.SuperstructureCommandFactory;
+import frc.robot.Constants.Akit;
+import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.BeamBreakConstants;
+import frc.robot.subsystems.Superstructure;
 
-import com.pathplanner.lib.auto.AutoBuilder;
+import java.util.HashMap;
+import java.util.Map;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -43,17 +44,12 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-
-import frc.robot.Constants.Akit;
-import frc.robot.Constants.OIConstants;
-import frc.robot.Constants.BeamBreakConstants;
-import frc.robot.subsystems.Superstructure;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a

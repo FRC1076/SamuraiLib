@@ -1,16 +1,6 @@
 package frc.robot.subsystems.elevator;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
-import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.math.controller.ElevatorFeedforward;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-
+import frc.robot.Constants.ElevatorConstants;
 import static frc.robot.Constants.ElevatorConstants.Control.kA;
 import static frc.robot.Constants.ElevatorConstants.Control.kD;
 import static frc.robot.Constants.ElevatorConstants.Control.kI;
@@ -24,14 +14,21 @@ import static frc.robot.Constants.ElevatorConstants.kPositionConversionFactor;
 import static frc.robot.Constants.ElevatorConstants.kVelocityConversionFactor;
 import static frc.robot.Constants.ElevatorConstants.Electrical.*;
 
-import java.util.Map;
+import lib.control.MutableElevatorFeedforward; // We use our own library! (We're literally 254 fr fr)
 
-import frc.robot.Constants.ElevatorConstants;
-import lib.control.MutableElevatorFeedforward;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 
 public class ElevatorIOHardware implements ElevatorIO {
-    private final SparkMax m_leadMotor; //Leader
-    private final SparkMax m_followMotor; //Follower
+    private final SparkMax m_leadMotor; // Leader
+    private final SparkMax m_followMotor; // Follower
 
     private final SparkMaxConfig m_leadMotorConfig;
     private final SparkMaxConfig m_followMotorConfig;
@@ -83,11 +80,17 @@ public class ElevatorIOHardware implements ElevatorIO {
         
     }
 
+    /** Sets the voltage of the leader and follower elevator motors 
+     * @param volts The voltage to set the motors to
+    */
     @Override
     public void setVoltage(double volts){
         m_leadMotor.setVoltage(volts);
     }
 
+    /** Set desired position of the elevator
+     * @param positionMeters The desired position of the elevator in meters
+     */
     @Override
     public void setPosition(double positionMeters){
         m_closedLoopController.setReference(
@@ -99,11 +102,16 @@ public class ElevatorIOHardware implements ElevatorIO {
         );
     }
 
-    @Override
+    /** Set kG of the elevator feedforward
+     * Used when the weight of the elevator changes because of game pieces
+     * @param kG The new kG value in volts
+     */
+     @Override
     public void setFFkG(double kG) {
         FFcontroller.setKg(kG);
     }
 
+    /** Used to log elevator status */
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
         inputs.appliedVolts = m_leadMotor.getAppliedOutput() * m_leadMotor.getBusVoltage();

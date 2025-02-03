@@ -1,10 +1,10 @@
 package frc.robot.subsystems.wrist;
 
 import frc.robot.Constants.WristConstants;
+
 import lib.control.MutableArmFeedforward;
 
-import java.util.HashMap;
-import java.util.Map;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
@@ -18,8 +18,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
-import edu.wpi.first.math.geometry.Rotation2d;
 
 public class WristIOHardware implements WristIO {
     private final SparkMax m_leadMotor;
@@ -82,6 +80,12 @@ public class WristIOHardware implements WristIO {
 
     @Override
     public void setVoltage(double volts) {
+        m_leadMotor.setVoltage(volts + FFController.calculate(m_alternateEncoder.getPosition(),0));
+    }
+    
+    /** Set voltage of the wrist motors without the feedforward */
+    @Override
+    public void setVoltageCharacterization(double volts) {
         m_leadMotor.setVoltage(volts);
     }
 

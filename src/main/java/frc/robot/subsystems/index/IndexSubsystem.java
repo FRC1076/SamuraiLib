@@ -1,9 +1,9 @@
 package frc.robot.subsystems.index;
 
-import org.littletonrobotics.junction.Logger;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import org.littletonrobotics.junction.Logger;
 
 public class IndexSubsystem extends SubsystemBase {
     private final IndexIO io;
@@ -13,6 +13,7 @@ public class IndexSubsystem extends SubsystemBase {
         this.io = io;
     }
 
+    /** Set voltage of the index motors */
     public void runVolts(double volts) {
         this.io.runVolts(volts);
     }
@@ -21,6 +22,9 @@ public class IndexSubsystem extends SubsystemBase {
         this.io.runVolts(0);
     }
 
+    /** Returns a command that sets the voltage of the index motors
+     * @param volts voltage to set the index motors to
+     */
     public Command applyVolts(double volts) {
         return runOnce(() -> runVolts(volts));
     }

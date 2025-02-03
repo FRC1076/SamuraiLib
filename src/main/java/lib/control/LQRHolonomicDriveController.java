@@ -3,7 +3,6 @@ package lib.control;
 import org.ejml.simple.SimpleMatrix;
 
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.StateSpaceUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.controller.LinearQuadraticRegulator;
@@ -16,23 +15,26 @@ import lib.utils.MatrixUtils;
 
 
 /**
- * Combines a state-space model and a Linear-Quadratic Regulator to provide feedforward inputs to a holonomic drivetrain
- * 
- * State-space model description
+ * Combines a state-space model and a Linear-Quadratic Regulator to provide feedback control to a holonomic drivetrain
+ * <p>
+ * State-space model description:
+ * <p>
  * Inputs: x velocity, y velocity, angular velocity (field-oriented)
+ * <p>
  * States: x position, y position, rotation
+ * <p>
  * A linear state-space model can be represented by the following equation:
- * 
+ * <p>
  * xdot = Ax + Bu
- * 
+ * <p>
  * y = Cx + Du 
- * 
+ * <p>
  * where xdot is the state's rate of change, y is the system's output, x is the system's current state, and u is the input.
- * 
+ * <p>
  * An LQR Controller works by minimizing a cost function, which is governed by the state-space model of the plant, as well an effort penalty matrix and an error penalty matrix.
  * The effort matrix contains the weights that governs how much the controller penalizes control efforts, and the error matrix governs how much the controller penalizes error. For simplicity's sake,
  * this class automatically generates the weight vectors based on an LQRHolonomicDriveControllerWeights object, which contains tolerances that are inversely proportional to the penalties
- * 
+ * <p>
  * In field-oriented mode, the controller outputs field-oriented ChassisSpeeds objects,
  * while in chassis-oriented mode, the controller outputs chassis-oriented ChassisSpeeds objects
  */
@@ -61,7 +63,7 @@ public class LQRHolonomicDriveController {
      * Constructor for an LQR controlled Holonomic Drive Train. All non-dimensionless values should be given in SI base units (seconds, meters, etc.)
      * 
      * @param q a vector representing the tolerances for error (A lower value will cause the controller to more strongly correct for error)
-     * @param r a vector representing the tolerances for effort (A lower value will cause the controller to more strongly dampen inputs
+     * @param r a vector representing the tolerances for effort (A lower value will cause the controller to more strongly dampen inputs)
      * @param dt discretization time step, in seconds
      */
     public LQRHolonomicDriveController(Vector<N3> q, Vector<N3> r, double dt) {
@@ -118,10 +120,10 @@ public class LQRHolonomicDriveController {
      * @param dt discretization time step, in seconds
      * @param fieldOriented whether or not the controller should output field-oriented outputs
      */
-    public LQRHolonomicDriveController(double errorPenalty, double effortPenalty, double dt) {
+    public LQRHolonomicDriveController(double errorTolerance, double effortTolerance, double dt) {
         this(
-            VecBuilder.fill(errorPenalty,errorPenalty,errorPenalty),
-            VecBuilder.fill(effortPenalty,effortPenalty,effortPenalty),
+            VecBuilder.fill(errorTolerance,errorTolerance,errorTolerance),
+            VecBuilder.fill(effortTolerance,effortTolerance,effortTolerance),
             dt
         );
     }
