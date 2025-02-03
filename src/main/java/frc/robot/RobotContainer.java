@@ -198,13 +198,13 @@ public class RobotContainer {
             m_drive.CommandBuilder.directDriveToNearestRightBranch()
         );
 
-        //Point to reef
+        // Point to reef
         m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
 
-        //Apply single clutch
+        // Apply single clutch
         m_driverController.rightBumper().whileTrue(teleopDriveCommand.applySingleClutch());
 
-        //Apply double clutch
+        // Apply double clutch
         m_driverController.leftBumper().whileTrue(teleopDriveCommand.applyDoubleClutch());
 
         m_driverController.x().and(
@@ -225,7 +225,7 @@ public class RobotContainer {
             () -> m_drive.resetHeading()
         ));
 
-        //Quasistsic and Dynamic control scheme for Elevator Sysid
+        // Quasistsic and Dynamic control scheme for Elevator Sysid
         m_driverController.rightBumper().and(
           m_driverController.a()
         ).onTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kForward));
@@ -263,34 +263,34 @@ public class RobotContainer {
     }
 
     private void configureOperatorBindings() {
-        
+        // TODO: Add coral and algae intake triggers
         final SuperstructureCommandFactory superstructureCommands = m_superstructure.getCommandBuilder();
         
-        //L1
+        // L1
         m_operatorController.x().onTrue(superstructureCommands.preL1());
 
-        //L2
+        // L2
         m_operatorController.a().onTrue(superstructureCommands.preL2());
 
-        //L3
+        // L3
         m_operatorController.b().onTrue(superstructureCommands.preL3());
 
-        //L4
+        // L4
         m_operatorController.y().onTrue(superstructureCommands.preL4());
 
-        //Net
+        // Net
         m_operatorController.y().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.preNet());
 
-        //High Intake
+        // High Algae Intake
         m_operatorController.b().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.highAlgaeIntake());
 
-        //Low Intake
+        // Low Algae Intake
         m_operatorController.a().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.lowAlgaeIntake());
 
-        //Processor
+        // Processor
         m_operatorController.x().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.preProcessor());
 
-        //Retract mechanisms and stop grabber
+        // Retract mechanisms and stop grabber
         m_operatorController.rightTrigger().onFalse(superstructureCommands.stopAndRetract());
 
     }
