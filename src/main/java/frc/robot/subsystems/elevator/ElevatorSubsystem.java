@@ -56,6 +56,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         io.setPosition(positionMeters);
     }
 
+    public void setVelocity(double velocityMetersPerSecond) {
+        io.setVelocity(velocityMetersPerSecond);
+    }
+
     /** Set voltage of the elevator motors
      * @param volts Desired voltage of the elevator
      */
@@ -73,6 +77,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     /** Returns position of the elevator, as a double */
     public double getPositionMeters(){
         return inputs.elevatorHeightMeters;
+    }
+
+    public double getVelocityMetersPerSec() {
+        return inputs.velocityMetersPerSecond;
     }
 
     

@@ -381,6 +381,19 @@ public final class Constants {
         public static final int grabberBeamBreakPort = 2;
     }
 
+    public static class WristevatorConstants {
+        public static class Control {
+            //POSITION CONTROL
+            public static final double wrist_kP = 1;
+            public static final double wrist_kI = 1;
+            public static final double wrist_kD = 1;
+            
+            public static final double elevator_kP = 1;
+            public static final double elevator_kI = 1;
+            public static final double elevator_kD = 1;
+        }
+    }
+
     private Constants() {
         throw new NotImplementedException();
     }

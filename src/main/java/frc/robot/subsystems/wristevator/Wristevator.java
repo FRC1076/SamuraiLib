@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.wristevator;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -6,17 +6,39 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Constants.SuperstructureConstants.WristevatorState;
+import frc.robot.Constants.SuperstructureConstants.WristevatorPreset;
+import frc.robot.Constants.WristevatorConstants.Control;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
+import frc.robot.subsystems.wristevator.control.WristevatorController;
+import frc.robot.subsystems.wristevator.control.WristevatorPIDController;
 
 public class Wristevator {
+
+    public static record WristevatorState(
+        double elevatorHeightMeters,
+        Rotation2d wristAngle,
+        double elevatorVelMetPerSec,
+        double wristVelRadPerSec
+    ) {}
+
     public final ElevatorSubsystem m_elevator;
     public final WristSubsystem m_wrist;
+    private final WristevatorController m_controller;
 
     public Wristevator(ElevatorSubsystem elevator, WristSubsystem wrist) {
         m_elevator = elevator;
         m_wrist = wrist;
+        m_controller = new WristevatorPIDController(
+            Control.wrist_kP,
+            Control.wrist_kI,
+            Control.wrist_kD,
+            Control.elevator_kP,
+            Control.elevator_kI,
+            Control.elevator_kD,
+            m_wrist::getAngle,
+            m_elevator::getPositionMeters
+        );
     }
 
     public void setKgConstants(double elevator_kG, double wrist_kG) {
@@ -24,19 +46,23 @@ public class Wristevator {
         m_wrist.setKg(wrist_kG);
     }
 
-    /**
-     * Sequentially sets wrist to a safe angle, moves elevator to desired state, then sets wrist to desired state
-     */
-    public Command applyStateSafe(WristevatorState state, Rotation2d safeAngle) {
-        return Commands.sequence(
-            m_wrist.applyAngle(safeAngle),
-            m_elevator.applyPosition(state.elevatorHeightMeters),
-            m_wrist.applyAngle(state.wristAngle)
+    public void applyState(WristevatorState state) {
+        var speeds = m_controller.calculateSpeedsFromDesiredState(state);
+        m_elevator.setVelocity(speeds.elevatorVelMetPerSec());
+        m_wrist.setVelocity(speeds.wristVelRadPerSec());
+    }
+
+    public WristevatorState getCurrentState() {
+        return new WristevatorState(
+            m_elevator.getPositionMeters(), 
+            m_wrist.getAngle(), 
+            m_elevator.getVelocityMetersPerSec(), 
+            m_wrist.getVelocityRadsPerSec()
         );
     }
 
     /** Allows the user to define a deploy safe height, so that the wrist can begin deploying as quickly as possible */
-    public Command applyStateDynamic(WristevatorState state, Supplier<Rotation2d> safeAngle, BooleanSupplier goingUp, double wristDeploySafeHeightMeters) {
+    public Command applyPresetDynamic(WristevatorPreset state, Supplier<Rotation2d> safeAngle, BooleanSupplier goingUp, double wristDeploySafeHeightMeters) {
         return Commands.either(
             Commands.parallel(
                 m_elevator.applyPosition(state.elevatorHeightMeters),

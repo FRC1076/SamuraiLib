@@ -38,6 +38,10 @@ public class WristSubsystem extends SubsystemBase {
         io.setVoltage(volts);
     }
 
+    public void setVelocity(double velocityRadsPerSec) {
+        io.setVelocity(velocityRadsPerSec);
+    }
+
     private void setVoltageCharacterization(double volts) {
         io.setVoltageCharacterization(volts);
     }
@@ -55,6 +59,10 @@ public class WristSubsystem extends SubsystemBase {
     /** Returns the angle of the wrist in radians */
     public double getAngleRadians() {
         return getAngle().getRadians();
+    }
+
+    public double getVelocityRadsPerSec() {
+        return inputs.velocityRadsPerSec;
     }
 
     public void stop() {

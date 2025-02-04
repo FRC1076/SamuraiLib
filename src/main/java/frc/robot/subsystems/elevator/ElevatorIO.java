@@ -27,6 +27,8 @@ public interface ElevatorIO {
 
     public abstract void setVoltage(double volts);
 
+    public abstract void setVelocity(double velocityMetersPerSecond);
+
     /** Sets the elevator controller's internal kG constant */
     public default void setFFkG(double kG) {}
 

@@ -22,6 +22,13 @@ import com.revrobotics.sim.SparkRelativeEncoderSim;
 
 
 public class ElevatorIOSim implements ElevatorIO {
+
+    private static enum SimControlMode {
+        DUTY_CYCLE,
+        VELOCITY,
+        POSITION
+    }
+
     // This gearbox represents a gearbox containing 4 Vex 775pro motors.
     private final DCMotor m_elevatorGearbox = DCMotor.getNEO(2);
 
@@ -36,9 +43,12 @@ public class ElevatorIOSim implements ElevatorIO {
     
     private final SparkRelativeEncoderSim m_encoderSim;
 
-    private final PIDController m_PIDController;
+    private final PIDController m_positionFeedbackController;
+    private final PIDController m_velocityFeedbackController;
 
     private final ElevatorSim m_elevatorSim;
+
+    private SimControlMode mode = SimControlMode.DUTY_CYCLE;
 
     private ElevatorFeedforward m_FFController = new ElevatorFeedforward(
         ElevatorSimConstants.Control.kS, 
@@ -48,6 +58,7 @@ public class ElevatorIOSim implements ElevatorIO {
     );
 
     public ElevatorIOSim() {
+        
         m_elevatorSim = new ElevatorSim(
             m_elevatorGearbox,
             ElevatorSimConstants.kElevatorGearing,
@@ -102,19 +113,36 @@ public class ElevatorIOSim implements ElevatorIO {
         m_followMotorSim = new SparkMaxSim(m_followMotor, m_elevatorGearbox);
         m_encoderSim = m_leadMotorSim.getRelativeEncoderSim();
 
-        m_PIDController = new PIDController(
+        m_positionFeedbackController = new PIDController(
             ElevatorSimConstants.Control.kP,
             ElevatorSimConstants.Control.kI,
             ElevatorSimConstants.Control.kD
+        );
+
+        m_velocityFeedbackController = new PIDController(
+            ElevatorConstants.Control.kP, 
+            ElevatorConstants.Control.kI,
+            ElevatorConstants.Control.kD
         );
     }
 
     @Override
     public void setPosition(double positionMeters) {
+        m_positionFeedbackController.setSetpoint(positionMeters);
+        mode = SimControlMode.POSITION;
         // With the setpoint value we run PID control like normal
-        double pidOutput = m_PIDController.calculate(m_encoderSim.getPosition(), positionMeters);
+        double pidOutput = m_positionFeedbackController.calculate(m_encoderSim.getPosition(), positionMeters);
         double feedforwardOutput = m_FFController.getKg();
         m_leadMotorSim.setAppliedOutput((pidOutput + feedforwardOutput)/m_leadMotorSim.getBusVoltage());
+    }
+
+    @Override
+    public void setVelocity(double velocityMetersPerSecond) {
+        m_velocityFeedbackController.setSetpoint(velocityMetersPerSecond);
+        mode = SimControlMode.VELOCITY;
+        double feedback = m_velocityFeedbackController.calculate(m_encoderSim.getVelocity(),velocityMetersPerSecond);
+        double feedforward = m_FFController.calculateWithVelocities(m_encoderSim.getVelocity(), velocityMetersPerSecond);
+        m_leadMotorSim.setAppliedOutput((feedback + feedforward));
     }
 
     @Override

@@ -102,6 +102,17 @@ public class ElevatorIOHardware implements ElevatorIO {
         );
     }
 
+    @Override
+    public void setVelocity(double velocityMetersPerSecond) {
+        m_closedLoopController.setReference(
+            velocityMetersPerSecond,
+            ControlType.kVelocity,
+            ClosedLoopSlot.kSlot0,
+            FFcontroller.calculate(velocityMetersPerSecond),
+            ArbFFUnits.kVoltage
+        );
+    }
+
     /** Set kG of the elevator feedforward
      * Used when the weight of the elevator changes because of game pieces
      * @param kG The new kG value in volts
