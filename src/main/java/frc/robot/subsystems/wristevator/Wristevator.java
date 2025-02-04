@@ -12,6 +12,7 @@ import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.subsystems.wristevator.control.WristevatorController;
 import frc.robot.subsystems.wristevator.control.WristevatorPIDController;
+import frc.robot.subsystems.wristevator.control.WristevatorController.WristevatorSpeeds;
 
 public class Wristevator {
 
@@ -36,8 +37,10 @@ public class Wristevator {
             Control.elevator_kP,
             Control.elevator_kI,
             Control.elevator_kD,
-            m_wrist::getAngle,
-            m_elevator::getPositionMeters
+            Control.wristVelMOE,
+            Control.wristPosMOE,
+            Control.elvtrVelMOE,
+            Control.elvtrPosMOE
         );
     }
 
@@ -46,8 +49,7 @@ public class Wristevator {
         m_wrist.setKg(wrist_kG);
     }
 
-    public void applyState(WristevatorState state) {
-        var speeds = m_controller.calculateSpeedsFromDesiredState(state);
+    public void applySpeeds(WristevatorSpeeds speeds) {
         m_elevator.setVelocity(speeds.elevatorVelMetPerSec());
         m_wrist.setVelocity(speeds.wristVelRadPerSec());
     }

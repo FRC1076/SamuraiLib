@@ -8,5 +8,9 @@ public interface WristevatorController {
         double wristVelRadPerSec
     ) {}
 
-    public abstract WristevatorSpeeds calculateSpeedsFromDesiredState(WristevatorState state);
+    public abstract void setSetpoint(WristevatorState setpoint);
+
+    public abstract WristevatorSpeeds calculate(WristevatorState measurement);
+
+    public abstract boolean atSetpoint(WristevatorState measurement);
 }

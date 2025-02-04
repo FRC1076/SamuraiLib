@@ -123,7 +123,7 @@ public final class Constants {
 
         //Represent the elevator height and wrist angle for different positions, the full position of the grabber
         //Should we have an eject state with an optional elevator height? just to immediately eject if a game piece is stuck
-        public enum WristevatorState {
+        public enum WristevatorPreset {
             
             TRAVEL(0.08128,90),
             ALGAE_TRAVEL(0.08128, 65),
@@ -145,7 +145,7 @@ public final class Constants {
             public final double elevatorHeightMeters;
             public final Rotation2d wristAngle;
             
-            private WristevatorState(double elevatorHeightMeters, double wristAngleDegrees) {
+            private WristevatorPreset(double elevatorHeightMeters, double wristAngleDegrees) {
                 this.elevatorHeightMeters = elevatorHeightMeters;
                 this.wristAngle = Rotation2d.fromDegrees(wristAngleDegrees);
             }
@@ -391,6 +391,11 @@ public final class Constants {
             public static final double elevator_kP = 1;
             public static final double elevator_kI = 1;
             public static final double elevator_kD = 1;
+
+            public static final double wristVelMOE = 0.1;
+            public static final double wristPosMOE = 0.1;
+            public static final double elvtrVelMOE = 0.1;
+            public static final double elvtrPosMOE = 0.1;
         }
     }
 

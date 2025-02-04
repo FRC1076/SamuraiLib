@@ -1,6 +1,6 @@
 package frc.robot.subsystems;
 
-import frc.robot.Constants.SuperstructureConstants.WristevatorState;
+import frc.robot.Constants.SuperstructureConstants.WristevatorPreset;
 import frc.robot.Constants.SuperstructureConstants.GrabberPossession;
 import frc.robot.Constants.SuperstructureConstants.GrabberState;
 import frc.robot.Constants.SuperstructureConstants.IndexPossession;
@@ -38,14 +38,14 @@ public class Superstructure {
     public static class MutableSuperState {
 
         protected GrabberState grabberState;
-        protected WristevatorState WristevatorState;
+        protected WristevatorPreset WristevatorPreset;
         protected IndexState indexState;
         protected GrabberPossession grabberPossession;
         protected IndexPossession indexPossession;
 
-        public MutableSuperState(GrabberState grabberState, WristevatorState WristevatorState, IndexState indexState){
+        public MutableSuperState(GrabberState grabberState, WristevatorPreset WristevatorPreset, IndexState indexState){
             this.grabberState = grabberState;
-            this.WristevatorState = WristevatorState;
+            this.WristevatorPreset = WristevatorPreset;
             this.indexState = indexState;
             grabberPossession = GrabberPossession.EMPTY;
             indexPossession = IndexPossession.EMPTY;
@@ -56,8 +56,8 @@ public class Superstructure {
         /** Set state of the wristevator <p>
          * States include elevator heights and wrist angles corresponding to specific actions
          */
-        public void setWristevatorState(WristevatorState position) {
-            this.WristevatorState = position;
+        public void setWristevatorPreset(WristevatorPreset position) {
+            this.WristevatorPreset = position;
         }
 
         /** Set state of the grabber. <p>
@@ -83,8 +83,8 @@ public class Superstructure {
             return grabberState;
         }
 
-        public WristevatorState getWristevatorState() {
-            return WristevatorState;
+        public WristevatorPreset getWristevatorPreset() {
+            return WristevatorPreset;
         }
 
         public IndexState getIndexerState() {
@@ -158,10 +158,10 @@ public class Superstructure {
 
     /**
      * Folds back wrist, moves elevator, then deploys wrist
-     * @param position the WristevatorState, which consists of elevator height and wrist angle, to transition to
+     * @param position the WristevatorPreset, which consists of elevator height and wrist angle, to transition to
      * @return generic transition command from one state to another 
      */
-    private Command applyWristevatorState(WristevatorState position) {
+    private Command applyWristevatorPreset(WristevatorPreset position) {
         Command wristPreMoveCommand = Commands.either(
             m_wrist.applyAngle(Rotation2d.fromDegrees(65)),
             m_wrist.applyAngle(Rotation2d.kCCW_90deg),
@@ -169,7 +169,7 @@ public class Superstructure {
         );
         
         return Commands.sequence(
-            Commands.runOnce(() -> superState.setWristevatorState(position)),
+            Commands.runOnce(() -> superState.setWristevatorPreset(position)),
             wristPreMoveCommand,
             m_elevator.applyPosition(position.elevatorHeightMeters),
             m_wrist.applyAngle(position.wristAngle)
@@ -232,7 +232,7 @@ public class Superstructure {
         private final BooleanSupplier m_indexBeamBreak;
         private final BooleanSupplier m_transferBeamBreak;
         private final BooleanSupplier m_grabberBeamBreak;
-        private final Map<WristevatorState, Command> grabberActionCommands = new HashMap<>(); // We use a map of grabber action commands so that we can use the SelectWithFallBackCommand factory
+        private final Map<WristevatorPreset, Command> grabberActionCommands = new HashMap<>(); // We use a map of grabber action commands so that we can use the SelectWithFallBackCommand factory
         private SuperstructureCommandFactory (
             Superstructure superstructure,
             BooleanSupplier indexBeamBreak,
@@ -243,31 +243,31 @@ public class Superstructure {
             m_indexBeamBreak = indexBeamBreak;
             m_transferBeamBreak = transferBeamBreak;
             m_grabberBeamBreak = grabberBeamBreak;
-            grabberActionCommands.put(WristevatorState.L1, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
-            grabberActionCommands.put(WristevatorState.L2, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
-            grabberActionCommands.put(WristevatorState.L3, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE)); 
-            grabberActionCommands.put(WristevatorState.L4, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE)); //TODO: Are there any risks if we have a coral, try to score it, and then hit the button again? The grabber will think it has an algae
-            grabberActionCommands.put(WristevatorState.GROUND_INTAKE,
+            grabberActionCommands.put(WristevatorPreset.L1, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
+            grabberActionCommands.put(WristevatorPreset.L2, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
+            grabberActionCommands.put(WristevatorPreset.L3, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE)); 
+            grabberActionCommands.put(WristevatorPreset.L4, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE)); //TODO: Are there any risks if we have a coral, try to score it, and then hit the button again? The grabber will think it has an algae
+            grabberActionCommands.put(WristevatorPreset.GROUND_INTAKE,
                                         superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
                                         .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE));
-            grabberActionCommands.put(WristevatorState.PROCESSOR, superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE));
-            grabberActionCommands.put(WristevatorState.LOW_INTAKE,
+            grabberActionCommands.put(WristevatorPreset.PROCESSOR, superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE));
+            grabberActionCommands.put(WristevatorPreset.LOW_INTAKE,
                                         superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
                                         .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE));
-            grabberActionCommands.put(WristevatorState.HIGH_INTAKE,
+            grabberActionCommands.put(WristevatorPreset.HIGH_INTAKE,
                                         superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
                                         .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE));
-            grabberActionCommands.put(WristevatorState.NET, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
+            grabberActionCommands.put(WristevatorPreset.NET, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
         }
 
         /**
          * Returns a command that does a grabber action differently depending on robot state (scoring coral, scoring algae, intaking algae)
          */
         public Command doGrabberAction() {
-            return new SelectWithFallbackCommand<WristevatorState>(
+            return new SelectWithFallbackCommand<WristevatorPreset>(
                 grabberActionCommands,
                 superstructure.applyGrabberState(GrabberState.DEFAULT_OUTTAKE), // Default command to do if command can't be chosen from grabberActionCommands
-                this.superstructure.getSuperState()::getWristevatorState
+                this.superstructure.getSuperState()::getWristevatorPreset
             );
         }
 
@@ -282,7 +282,7 @@ public class Superstructure {
          * Retract mechanisms to travel state
          */
         public Command retractMechanisms(){
-            return superstructure.applyWristevatorState(WristevatorState.TRAVEL);
+            return superstructure.applyWristevatorPreset(WristevatorPreset.TRAVEL);
         }
 
         /**
@@ -299,63 +299,63 @@ public class Superstructure {
          * Set elevator and wrist to L1 preset
          */
         public Command preL1(){
-            return superstructure.applyWristevatorState(WristevatorState.L1);
+            return superstructure.applyWristevatorPreset(WristevatorPreset.L1);
         }
 
         /**
          * Set elevator and wrist to L2 preset
          */
         public Command preL2(){
-            return superstructure.applyWristevatorState(WristevatorState.L2);
+            return superstructure.applyWristevatorPreset(WristevatorPreset.L2);
         }
 
         /**
          * Set elevator and wrist to L3 preset
          */
         public Command preL3(){
-            return superstructure.applyWristevatorState(WristevatorState.L3);
+            return superstructure.applyWristevatorPreset(WristevatorPreset.L3);
         }
 
         /**
          * Set elevator and wrist to L4 preset
          */
         public Command preL4(){
-            return superstructure.applyWristevatorState(WristevatorState.L4);
+            return superstructure.applyWristevatorPreset(WristevatorPreset.L4);
         }
 
         /**
          * Set elevator and wrist to net preset
          */
         public Command preNet(){
-            return superstructure.applyWristevatorState(WristevatorState.NET);
+            return superstructure.applyWristevatorPreset(WristevatorPreset.NET);
         }
 
         /**
          * Set elevator and wrist to processor preset
          */
         public Command preProcessor(){
-            return superstructure.applyWristevatorState(WristevatorState.PROCESSOR);
+            return superstructure.applyWristevatorPreset(WristevatorPreset.PROCESSOR);
         }
 
         /**
          * Set elevator and wrist to ground algae preset
          */
         public Command groundAlgaeIntake(){
-            return superstructure.applyWristevatorState(WristevatorState.GROUND_INTAKE);
+            return superstructure.applyWristevatorPreset(WristevatorPreset.GROUND_INTAKE);
         }
 
         /**
          * Set elevator and wrist to low algae preset
          */
         public Command lowAlgaeIntake(){
-            return superstructure.applyWristevatorState(WristevatorState.LOW_INTAKE);  
+            return superstructure.applyWristevatorPreset(WristevatorPreset.LOW_INTAKE);  
         }
 
         /**
          * Set elevator and wrist to high algae preset
          */
         public Command highAlgaeIntake(){
-            return superstructure.applyWristevatorState(WristevatorState.HIGH_INTAKE);
+            return superstructure.applyWristevatorPreset(WristevatorPreset.HIGH_INTAKE);
             
         }
 
@@ -399,10 +399,10 @@ public class Superstructure {
          */
         public Command intakeCoral(BooleanSupplier safeSignal){
             return Commands.sequence(
-                superstructure.applyWristevatorState(WristevatorState.TRAVEL),
+                superstructure.applyWristevatorPreset(WristevatorPreset.TRAVEL),
                 indexCoral(),
                 Commands.waitUntil(safeSignal),
-                superstructure.applyWristevatorState(WristevatorState.CORAL_TRANSFER),
+                superstructure.applyWristevatorPreset(WristevatorPreset.CORAL_TRANSFER),
                 transferCoral()
             );
         }
