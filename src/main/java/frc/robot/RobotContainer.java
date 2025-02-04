@@ -28,6 +28,7 @@ import frc.robot.subsystems.SuperstructureVisualizer;
 import frc.robot.subsystems.Superstructure.SuperstructureCommandFactory;
 import frc.robot.Constants.Akit;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.WristevatorConstants.TrajectoryTests;
 import frc.robot.Constants.BeamBreakConstants;
 import frc.robot.subsystems.Superstructure;
 
@@ -199,7 +200,8 @@ public class RobotContainer {
         );
 
         // Point to reef
-        m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
+        //m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
+        m_driverController.a().whileTrue(m_superstructure.CommandBuilder.followWristevatorTrajectory(TrajectoryTests.testTraj1));
 
         // Apply single clutch
         m_driverController.rightBumper().whileTrue(teleopDriveCommand.applySingleClutch());

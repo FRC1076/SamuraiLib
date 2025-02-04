@@ -22,6 +22,12 @@ public class FollowTrajectoryCommand extends Command {
     }
 
     @Override
+    public void initialize() {
+        targetStateIndex = 0;
+        controller.setSetpoint(trajectory.get(targetStateIndex));
+    }
+
+    @Override
     public void execute() {
         WristevatorState currentState = m_Wristevator.getCurrentState();
         if (controller.atSetpoint(currentState)) {
@@ -29,6 +35,7 @@ public class FollowTrajectoryCommand extends Command {
             controller.setSetpoint(trajectory.get(targetStateIndex));
         }
         m_Wristevator.applySpeeds(controller.calculate(currentState));
+        System.out.println(controller.calculate(currentState));
     }
 
     @Override

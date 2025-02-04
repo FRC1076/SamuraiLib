@@ -9,6 +9,9 @@ import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.grabber.GrabberSubsystem;
 import frc.robot.subsystems.index.IndexSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
+import frc.robot.subsystems.wristevator.Wristevator;
+import frc.robot.subsystems.wristevator.Wristevator.WristevatorState;
+
 import static frc.robot.Constants.IndexConstants.kIndexVoltage;
 
 import lib.extendedcommands.CommandUtils;
@@ -16,6 +19,7 @@ import lib.extendedcommands.SelectWithFallbackCommand;
 
 import java.util.function.BooleanSupplier;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -104,6 +108,7 @@ public class Superstructure {
     private final GrabberSubsystem m_grabber;
     private final IndexSubsystem m_index;
     private final WristSubsystem m_wrist;
+    private final Wristevator wristevator;
 
     public final SuperstructureCommandFactory CommandBuilder;
 
@@ -123,6 +128,7 @@ public class Superstructure {
         m_grabber = grabber;
         m_index = index;
         m_wrist = wrist;
+        wristevator = new Wristevator(elevator, wrist);
         
         CommandUtils.makePeriodic(() -> {
             Logger.processInputs("Superstructure", superState);
@@ -162,17 +168,10 @@ public class Superstructure {
      * @return generic transition command from one state to another 
      */
     private Command applyWristevatorPreset(WristevatorPreset position) {
-        Command wristPreMoveCommand = Commands.either(
-            m_wrist.applyAngle(Rotation2d.fromDegrees(65)),
-            m_wrist.applyAngle(Rotation2d.kCCW_90deg),
-            () -> superState.getGrabberPossession() == GrabberPossession.ALGAE
-        );
         
         return Commands.sequence(
             Commands.runOnce(() -> superState.setWristevatorPreset(position)),
-            wristPreMoveCommand,
-            m_elevator.applyPosition(position.elevatorHeightMeters),
-            m_wrist.applyAngle(position.wristAngle)
+            wristevator.CommandBuilder.applyPresetSequential(position,() -> superState.getGrabberPossession() == GrabberPossession.ALGAE ? Rotation2d.fromDegrees(65) : Rotation2d.kCCW_90deg)
         );
     }
 
@@ -258,6 +257,10 @@ public class Superstructure {
                                         superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
                                         .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE));
             grabberActionCommands.put(WristevatorPreset.NET, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
+        }
+
+        public Command followWristevatorTrajectory(List<WristevatorState> trajectory) {
+            return superstructure.wristevator.CommandBuilder.followTrajectory(trajectory);
         }
 
         /**

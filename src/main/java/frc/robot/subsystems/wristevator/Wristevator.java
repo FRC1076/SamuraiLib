@@ -13,6 +13,9 @@ import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.subsystems.wristevator.control.WristevatorController;
 import frc.robot.subsystems.wristevator.control.WristevatorPIDController;
 import frc.robot.subsystems.wristevator.control.WristevatorController.WristevatorSpeeds;
+import frc.robot.commands.wristevator.FollowTrajectoryCommand;
+
+import java.util.List;
 
 public class Wristevator {
 
@@ -25,22 +28,25 @@ public class Wristevator {
 
     public final ElevatorSubsystem m_elevator;
     public final WristSubsystem m_wrist;
-    private final WristevatorController m_controller;
+    public final WristevatorCommandFactory CommandBuilder;
 
     public Wristevator(ElevatorSubsystem elevator, WristSubsystem wrist) {
         m_elevator = elevator;
         m_wrist = wrist;
-        m_controller = new WristevatorPIDController(
-            Control.wrist_kP,
-            Control.wrist_kI,
-            Control.wrist_kD,
-            Control.elevator_kP,
-            Control.elevator_kI,
-            Control.elevator_kD,
-            Control.wristVelMOE,
-            Control.wristPosMOE,
-            Control.elvtrVelMOE,
-            Control.elvtrPosMOE
+        CommandBuilder = new WristevatorCommandFactory(
+            this,
+            new WristevatorPIDController(
+                Control.wrist_kP,
+                Control.wrist_kI,
+                Control.wrist_kD,
+                Control.elevator_kP,
+                Control.elevator_kI,
+                Control.elevator_kD,
+                Control.wristVelMOE,
+                Control.wristPosMOE,
+                Control.elvtrVelMOE,
+                Control.elvtrPosMOE
+            )
         );
     }
 
@@ -63,27 +69,55 @@ public class Wristevator {
         );
     }
 
-    /** Allows the user to define a deploy safe height, so that the wrist can begin deploying as quickly as possible */
-    public Command applyPresetDynamic(WristevatorPreset state, Supplier<Rotation2d> safeAngle, BooleanSupplier goingUp, double wristDeploySafeHeightMeters) {
-        return Commands.either(
-            Commands.parallel(
-                m_elevator.applyPosition(state.elevatorHeightMeters),
-                Commands.waitUntil(() -> m_elevator.getPositionMeters() >= wristDeploySafeHeightMeters)
-                    .andThen(m_wrist.applyAngle(state.wristAngle))
-            ).beforeStarting(m_wrist.applyAngle(safeAngle.get())
-                .onlyIf(() -> m_elevator.getPositionMeters() < wristDeploySafeHeightMeters)
-            ),
-            Commands.sequence(
+    public static class WristevatorCommandFactory {
+        private final Wristevator wristevator;
+        private final WristevatorController controller;
+        private WristevatorCommandFactory(Wristevator wristevator, WristevatorController controller) {
+            this.wristevator = wristevator;
+            this.controller = controller;
+        }
+
+        public Command applyPresetSequential(WristevatorPreset state, Supplier<Rotation2d> safeAngle) {
+            return Commands.sequence(
+                wristevator.m_wrist.applyAngle(safeAngle.get()),
+                wristevator.m_elevator.applyPosition(state.elevatorHeightMeters),
+                wristevator.m_wrist.applyAngle(state.wristAngle)
+            );
+        }
+
+        /** Allows the user to define a deploy safe height, so that the wrist can begin deploying as quickly as possible */
+        public Command applyPresetDynamic(WristevatorPreset state, Supplier<Rotation2d> safeAngle, BooleanSupplier goingUp, double wristDeploySafeHeightMeters) {
+            return Commands.either(
                 Commands.parallel(
-                    m_elevator.applyPosition(wristDeploySafeHeightMeters),
-                    m_wrist.applyAngle(safeAngle.get())
-                ).onlyIf(() -> m_elevator.getPositionMeters() > wristDeploySafeHeightMeters),
-                Commands.parallel(
-                    m_elevator.applyPosition(state.elevatorHeightMeters),
-                    m_wrist.applyAngle(state.wristAngle)
-                )
-            ),
-            goingUp
-        );
+                    wristevator.m_elevator.applyPosition(state.elevatorHeightMeters),
+                    Commands.waitUntil(() -> wristevator.m_elevator.getPositionMeters() >= wristDeploySafeHeightMeters)
+                        .andThen(wristevator.m_wrist.applyAngle(state.wristAngle))
+                ).beforeStarting(wristevator.m_wrist.applyAngle(safeAngle.get())
+                    .onlyIf(() -> wristevator.m_elevator.getPositionMeters() < wristDeploySafeHeightMeters)
+                ),
+                Commands.sequence(
+                    Commands.parallel(
+                        wristevator.m_elevator.applyPosition(wristDeploySafeHeightMeters),
+                        wristevator.m_wrist.applyAngle(safeAngle.get())
+                    ).onlyIf(() -> wristevator.m_elevator.getPositionMeters() > wristDeploySafeHeightMeters),
+                    Commands.parallel(
+                        wristevator.m_elevator.applyPosition(state.elevatorHeightMeters),
+                        wristevator.m_wrist.applyAngle(state.wristAngle)
+                    )
+                ),
+                goingUp
+            );
+        }
+
+        public Command followTrajectory(List<WristevatorState> trajectory) {
+            return new FollowTrajectoryCommand(
+                wristevator,
+                controller,
+                trajectory
+            );
+        }
+
     }
+
+    
 }
