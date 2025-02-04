@@ -163,7 +163,7 @@ public class Superstructure {
      */
     private Command applyWristevatorState(WristevatorState position) {
         Command wristPreMoveCommand = Commands.either(
-            m_wrist.applyAngle(Rotation2d.fromDegrees(65)),
+            m_wrist.applyAngle(Rotation2d.fromDegrees(65)), // TODO: Move this 65 out of this file and into a constants somehow
             m_wrist.applyAngle(Rotation2d.kCCW_90deg),
             () -> superState.getGrabberPossession() == GrabberPossession.ALGAE
         );
@@ -246,7 +246,7 @@ public class Superstructure {
             grabberActionCommands.put(WristevatorState.L1, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
             grabberActionCommands.put(WristevatorState.L2, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE));
             grabberActionCommands.put(WristevatorState.L3, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE)); 
-            grabberActionCommands.put(WristevatorState.L4, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE)); //TODO: Are there any risks if we have a coral, try to score it, and then hit the button again? The grabber will think it has an algae
+            grabberActionCommands.put(WristevatorState.L4, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE)); // TODO: Are there any risks if we have a coral, try to score it, and then hit the button again? The grabber will think it has an algae
             grabberActionCommands.put(WristevatorState.GROUND_INTAKE,
                                         superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
                                         .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE));

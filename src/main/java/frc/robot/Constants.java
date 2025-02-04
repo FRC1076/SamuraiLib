@@ -68,9 +68,27 @@ public final class Constants {
 
         // Grabber Possession State
         public enum GrabberPossession {
-            EMPTY(0, 0.6),
-            CORAL(0, 0.6),
-            ALGAE(0, 0.6);
+            EMPTY(
+                Akit.currentMode == 0
+                    ? WristConstants.Control.kG 
+                    : WristSimConstants.Control.kG,
+                Akit.currentMode == 0
+                    ? ElevatorConstants.Control.kG 
+                    : ElevatorSimConstants.Control.kG),
+            CORAL(
+                Akit.currentMode == 0
+                    ? WristConstants.Control.kG 
+                    : WristSimConstants.Control.kG,
+                Akit.currentMode == 0
+                    ? ElevatorConstants.Control.kG 
+                    : ElevatorSimConstants.Control.kG),
+            ALGAE(
+                Akit.currentMode == 0
+                    ? WristConstants.Control.kG 
+                    : WristSimConstants.Control.kG,
+                Akit.currentMode == 0
+                    ? ElevatorConstants.Control.kG 
+                    : ElevatorSimConstants.Control.kG);
 
             public final double wrist_kG;
             public final double elevator_kG;
