@@ -362,7 +362,7 @@ public class Superstructure {
         /** 
          * Transfers a coral from the funnel to the indexer 
          */
-        private Command indexCoral() {
+        public Command indexCoral() {
             return Commands.sequence(
                 superstructure.applyIndexState(IndexState.CORAL_INTAKE),
                 Commands.waitUntil(m_indexBeamBreak),
@@ -397,13 +397,16 @@ public class Superstructure {
          * @param safeSignal a supplier indicating whether or not is safe to transfer the coral from the indexer to the grabber
          * @return a command sequence
          */
-        public Command intakeCoral(BooleanSupplier safeSignal){
+        public Command intakeCoral(){ // (BooleanSupplier safeSignal)
             return Commands.sequence(
+                /* 
                 superstructure.applyWristevatorState(WristevatorState.TRAVEL),
                 indexCoral(),
                 Commands.waitUntil(safeSignal),
+                */
                 superstructure.applyWristevatorState(WristevatorState.CORAL_TRANSFER),
-                transferCoral()
+                transferCoral(),
+                indexCoral()
             );
         }
 
