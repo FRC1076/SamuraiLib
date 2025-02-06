@@ -54,6 +54,8 @@ public class WristIOSim implements WristIO {
 
     private SimControlMode mode = SimControlMode.DUTY_CYCLE;
 
+    private double feedforwardVolts = 0;
+
     public WristIOSim() {
         m_wristGearbox = DCMotor.getNEO(2);
 
@@ -112,19 +114,13 @@ public class WristIOSim implements WristIO {
                 break;
             case VELOCITY:
                 m_leadMotorSim.setAppliedOutput(
-                    (m_velocityFeedbackController.calculate(m_encoderSim.getVelocity()))
-                    + m_FFController.calculateWithVelocities(
-                        m_encoderSim.getPosition(),
-                        m_encoderSim.getVelocity(),
-                        m_velocityFeedbackController.getSetpoint()
-                    )
+                    (m_velocityFeedbackController.calculate(m_encoderSim.getVelocity()) + feedforwardVolts)
                     / m_leadMotorSim.getBusVoltage()
                 );
                 break;
             case POSITION:
                 m_leadMotorSim.setAppliedOutput(
-                    (m_positionFeedbackController.calculate(m_encoderSim.getPosition())
-                    + m_FFController.calculate(m_positionFeedbackController.getSetpoint(), 0))
+                    (m_positionFeedbackController.calculate(m_encoderSim.getPosition()) + feedforwardVolts)
                     / m_leadMotorSim.getBusVoltage()
                 );
                 break;
@@ -147,14 +143,10 @@ public class WristIOSim implements WristIO {
     @Override
     public void setVelocity(double velocityRadsPerSec) {
         m_velocityFeedbackController.setSetpoint(velocityRadsPerSec);
-        m_leadMotorSim.setAppliedOutput(
-            (m_velocityFeedbackController.calculate(m_encoderSim.getVelocity()))
-            + m_FFController.calculateWithVelocities(
-                m_encoderSim.getPosition(),
-                m_encoderSim.getVelocity(),
-                velocityRadsPerSec
-            )
-            / m_leadMotorSim.getBusVoltage()
+        feedforwardVolts = m_FFController.calculateWithVelocities(
+            m_encoderSim.getPosition(),
+            m_encoderSim.getVelocity(),
+            velocityRadsPerSec
         );
         mode = SimControlMode.VELOCITY;
     }
@@ -168,11 +160,7 @@ public class WristIOSim implements WristIO {
     @Override
     public void setPosition(double positionRadians) {
         m_positionFeedbackController.setSetpoint(positionRadians);
-        m_leadMotorSim.setAppliedOutput(
-            (m_positionFeedbackController.calculate(m_encoderSim.getPosition(), positionRadians)
-            + m_FFController.calculate(positionRadians, 0))
-            / m_leadMotorSim.getBusVoltage()
-        );
+        feedforwardVolts = m_FFController.calculate(positionRadians, 0);
         mode = SimControlMode.POSITION;
     }
 

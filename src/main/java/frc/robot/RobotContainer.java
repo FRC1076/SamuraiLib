@@ -28,6 +28,7 @@ import frc.robot.subsystems.SuperstructureVisualizer;
 import frc.robot.subsystems.Superstructure.SuperstructureCommandFactory;
 import frc.robot.Constants.Akit;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.WristevatorConstants;
 import frc.robot.Constants.WristevatorConstants.TrajectoryTests;
 import frc.robot.Constants.BeamBreakConstants;
 import frc.robot.subsystems.Superstructure;
@@ -314,6 +315,6 @@ public class RobotContainer {
    */
     public Command getAutonomousCommand() {
         //return AutoBuilder.buildAuto("J4_K4_L4_A4");
-        return m_autoChooser.getSelected();
+        return m_superstructure.CommandBuilder.followWristevatorTrajectory(WristevatorConstants.TrajectoryTests.testTraj1);
     }
 }

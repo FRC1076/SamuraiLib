@@ -6,6 +6,8 @@ import lib.control.MutableArmFeedforward;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
+import java.util.OptionalDouble;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;

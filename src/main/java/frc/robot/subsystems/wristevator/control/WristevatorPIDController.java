@@ -41,8 +41,8 @@ public class WristevatorPIDController implements WristevatorController {
     @Override
     public WristevatorSpeeds calculate(WristevatorState measurement) {
         return new WristevatorSpeeds(
-            elevatorController.calculate(setpoint.elevatorHeightMeters(),measurement.elevatorHeightMeters()) + setpoint.elevatorVelMetPerSec() - measurement.elevatorVelMetPerSec(),
-            wristController.calculate(setpoint.wristAngle().getRadians(),measurement.wristAngle().getRadians()) + setpoint.wristVelRadPerSec() - measurement.wristVelRadPerSec()
+            elevatorController.calculate(setpoint.elevatorHeightMeters(),measurement.elevatorHeightMeters()) + setpoint.elevatorVelMetPerSec(),
+            wristController.calculate(setpoint.wristAngle().getRadians(),measurement.wristAngle().getRadians()) + setpoint.wristVelRadPerSec()
         );
     }
 

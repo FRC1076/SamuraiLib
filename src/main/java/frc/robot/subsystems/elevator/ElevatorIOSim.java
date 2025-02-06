@@ -50,6 +50,8 @@ public class ElevatorIOSim implements ElevatorIO {
 
     private SimControlMode mode = SimControlMode.DUTY_CYCLE;
 
+    private double feedforwardVolts = 0.0;
+
     private ElevatorFeedforward m_FFController = new ElevatorFeedforward(
         ElevatorSimConstants.Control.kS, 
         ElevatorSimConstants.Control.kG,
@@ -129,20 +131,15 @@ public class ElevatorIOSim implements ElevatorIO {
     @Override
     public void setPosition(double positionMeters) {
         m_positionFeedbackController.setSetpoint(positionMeters);
+        feedforwardVolts = m_FFController.getKg();
         mode = SimControlMode.POSITION;
-        // With the setpoint value we run PID control like normal
-        double pidOutput = m_positionFeedbackController.calculate(m_encoderSim.getPosition(), positionMeters);
-        double feedforwardOutput = m_FFController.getKg();
-        m_leadMotorSim.setAppliedOutput((pidOutput + feedforwardOutput)/m_leadMotorSim.getBusVoltage());
     }
 
     @Override
     public void setVelocity(double velocityMetersPerSecond) {
         m_velocityFeedbackController.setSetpoint(velocityMetersPerSecond);
+        feedforwardVolts = m_FFController.calculate(velocityMetersPerSecond - m_encoderSim.getVelocity());
         mode = SimControlMode.VELOCITY;
-        double feedback = m_velocityFeedbackController.calculate(m_encoderSim.getVelocity(),velocityMetersPerSecond);
-        double feedforward = m_FFController.calculateWithVelocities(m_encoderSim.getVelocity(), velocityMetersPerSecond);
-        m_leadMotorSim.setAppliedOutput((feedback + feedforward));
     }
 
     @Override
@@ -163,6 +160,22 @@ public class ElevatorIOSim implements ElevatorIO {
 
     @Override
     public void simulationPeriodic() {
+        switch (mode){
+            case DUTY_CYCLE:
+                break;
+            case VELOCITY:
+                m_leadMotorSim.setAppliedOutput(
+                    (m_velocityFeedbackController.calculate(m_encoderSim.getVelocity()) + feedforwardVolts)
+                    / m_leadMotorSim.getBusVoltage()
+                );
+                break;
+            case POSITION:
+                m_leadMotorSim.setAppliedOutput(
+                    (m_positionFeedbackController.calculate(m_encoderSim.getPosition()) + feedforwardVolts)
+                    / m_leadMotorSim.getBusVoltage()
+                );
+                break;
+        }
         // In this method, we update our simulation of what our elevator is doing
         // First, we set our "inputs" (voltages)
         m_elevatorSim.setInput(m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage());

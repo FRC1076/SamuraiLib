@@ -334,7 +334,7 @@ public final class Constants {
 
         public static final class Control {
             // PID constants
-            public static final double kP = 0.0;
+            public static final double kP = 0.1;
             public static final double kI = 0.0;
             public static final double kD = 0.0;
 
@@ -355,7 +355,7 @@ public final class Constants {
         public static final double kMaxAngleRads = 0.75 * Math.PI;
 
         public static class Control {
-            public static final double kP = 18;
+            public static final double kP = 1.8;
             public static final double kI = 0;
             public static final double kD = 0;
 
@@ -403,7 +403,7 @@ public final class Constants {
         public static class TrajectoryTests {
             public static final List<WristevatorState> testTraj1 = new ArrayList<>();
             static {
-                testTraj1.add(new WristevatorState(0.1, Rotation2d.fromDegrees(0), 0, 0));
+                testTraj1.add(new WristevatorState(0.1, Rotation2d.kZero, 0, 0));
                 testTraj1.add(new WristevatorState(0.5, Rotation2d.fromDegrees(45), 0.5, 0));
                 testTraj1.add(new WristevatorState(1, Rotation2d.fromDegrees(90), 0, 0));
             }
