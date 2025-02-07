@@ -70,9 +70,9 @@ public final class Constants {
 
         //Grabber Possession State
         public enum GrabberPossession {
-            EMPTY(0,0.6),
-            CORAL(0,0.6),
-            ALGAE(0,0.6);
+            EMPTY(0,2.8605),
+            CORAL(0,2.8605),
+            ALGAE(0,2.8605);
 
             public final double wrist_kG;
             public final double elevator_kG;
@@ -264,20 +264,24 @@ public final class Constants {
         public static final double kPositionConversionFactor = (11/60.0) * 22 * 0.00635; //Gear ratio & chain pitch
         public static class Electrical {
             public static final double kVoltageCompensation = 12;
-            public static final double kCurrentLimit = 40;
+            public static final double kCurrentLimit = 60;
         }
 
 
         public static class Control {
             //PID Constants - STILL SET TO WAPUR ELEVATOR VALUES
-            public static final double kP = 8;
-            public static final double kI = 0.0;
-            public static final double kD = 0.0;
+            public static final double kVelP = 0.9;
+            public static final double kVelI = 0;
+            public static final double kVelD = 0;
+            
+            public static final double kPosP = 0.8;
+            public static final double kPosI = 0.0;
+            public static final double kPosD = 0.0;
 
             //Feedforward Constants - STILL SET TO WAPUR ELEVATOR VALUES
             public static final double kS = 0; //Static gain (voltage)
-            public static final double kG = 0.6; //Gravity gain (voltage)
-            public static final double kV = 12; // velocity game
+            public static final double kG = 2.8605; //Gravity gain (voltage)
+            public static final double kV = 0; // velocity game
             public static final double kA = 0; //Acceleration Gain
         }
     }
@@ -333,10 +337,15 @@ public final class Constants {
         public static final double kVelocityConversionFactor = (2*Math.PI) / 60.0; // rpm to radians/second
 
         public static final class Control {
+
+            public static final double kVelP = 0.5;
+            public static final double kVelI = 0;
+            public static final double kVelD = 0;
+
             // PID constants
-            public static final double kP = 0.1;
-            public static final double kI = 0.0;
-            public static final double kD = 0.0;
+            public static final double kPosP = 0.4;
+            public static final double kPosI = 0.0;
+            public static final double kPosD = 0.0;
 
             // feed forward constants
             public static final double kS = 0.0; // static gain in volts
@@ -354,7 +363,7 @@ public final class Constants {
         public static final double kMinAngleRads = -0.75 * Math.PI;
         public static final double kMaxAngleRads = 0.75 * Math.PI;
 
-        public static class Control {
+        public static class SimControl {
             public static final double kP = 1.8;
             public static final double kI = 0;
             public static final double kD = 0;

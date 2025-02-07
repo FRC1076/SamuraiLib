@@ -14,6 +14,7 @@ import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.drive.TunerConstants;
 import frc.robot.subsystems.elevator.ElevatorIOHardware;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorIOSimRev;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.grabber.GrabberIOHardware;
 import frc.robot.subsystems.grabber.GrabberIOSim;
@@ -114,7 +115,7 @@ public class RobotContainer {
             m_index = new IndexSubsystem(new IndexIOHardware());
         } else if (Akit.currentMode == 1) {
             m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
-            m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
+            m_elevator = new ElevatorSubsystem(new ElevatorIOSimRev());
             m_wrist = new WristSubsystem(new WristIOSim());
             m_grabber = new GrabberSubsystem(new GrabberIOSim());
             m_index = new IndexSubsystem(new IndexIOSim());

@@ -1,13 +1,7 @@
 package frc.robot.subsystems.elevator;
 
 import frc.robot.Constants.ElevatorConstants;
-import static frc.robot.Constants.ElevatorConstants.Control.kA;
-import static frc.robot.Constants.ElevatorConstants.Control.kD;
-import static frc.robot.Constants.ElevatorConstants.Control.kI;
-import static frc.robot.Constants.ElevatorConstants.Control.kP;
-import static frc.robot.Constants.ElevatorConstants.Control.kS;
-import static frc.robot.Constants.ElevatorConstants.Control.kV;
-import static frc.robot.Constants.ElevatorConstants.Control.kG;
+import static frc.robot.Constants.ElevatorConstants.Control.*;
 import static frc.robot.Constants.ElevatorConstants.kMotorPort0;
 import static frc.robot.Constants.ElevatorConstants.kMotorPort1;
 import static frc.robot.Constants.ElevatorConstants.kPositionConversionFactor;
@@ -54,7 +48,8 @@ public class ElevatorIOHardware implements ElevatorIO {
             .smartCurrentLimit((int) kCurrentLimit)
             .voltageCompensation(kVoltageCompensation);
         m_leadMotorConfig.closedLoop
-            .pid(kP, kI, kD);
+            .pid(kPosP, kPosI, kPosD, ClosedLoopSlot.kSlot0)
+            .pid(kVelP, kVelI, kVelD, ClosedLoopSlot.kSlot1);
         m_leadMotorConfig.encoder
             .positionConversionFactor(kPositionConversionFactor)
             .velocityConversionFactor(kVelocityConversionFactor)

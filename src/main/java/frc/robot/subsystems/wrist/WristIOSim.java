@@ -1,12 +1,13 @@
 package frc.robot.subsystems.wrist;
 
-import com.revrobotics.sim.SparkRelativeEncoderSim;
-
-import java.util.OptionalDouble;
-
 import com.revrobotics.sim.SparkMaxSim;
+import com.revrobotics.sim.SparkRelativeEncoderSim;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -17,15 +18,9 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Constants.WristConstants;
 import frc.robot.Constants.WristSimConstants;
+import frc.robot.Constants.WristConstants.Control;
 
 public class WristIOSim implements WristIO {
-
-    private static enum SimControlMode {
-        DUTY_CYCLE,
-        VELOCITY,
-        POSITION
-    }
-    
     private final DCMotor m_wristGearbox;
 
     private SparkMax m_leadMotor;
@@ -40,21 +35,15 @@ public class WristIOSim implements WristIO {
     private final SparkRelativeEncoderSim m_encoderSim;
 
     private ArmFeedforward m_FFController = new ArmFeedforward(
-        WristSimConstants.Control.kS,
-        WristSimConstants.Control.kG,
-        WristSimConstants.Control.kV,
-        WristSimConstants.Control.kA
+        WristSimConstants.SimControl.kS,
+        WristSimConstants.SimControl.kG,
+        WristSimConstants.SimControl.kV,
+        WristSimConstants.SimControl.kA
     );
 
     private final SingleJointedArmSim m_wristSim;
 
-    private final PIDController m_positionFeedbackController;
-
-    private final PIDController m_velocityFeedbackController;
-
-    private SimControlMode mode = SimControlMode.DUTY_CYCLE;
-
-    private double feedforwardVolts = 0;
+    private final SparkClosedLoopController m_feedbackController;
 
     public WristIOSim() {
         m_wristGearbox = DCMotor.getNEO(2);
@@ -69,6 +58,21 @@ public class WristIOSim implements WristIO {
         m_leadMotorConfig
             .inverted(WristConstants.kLeadMotorInverted)
             .idleMode(IdleMode.kBrake);
+
+        m_leadMotorConfig.closedLoop
+            .pid(
+                Control.kPosP,
+                Control.kPosI,
+                Control.kPosD,
+                ClosedLoopSlot.kSlot0
+            )
+            .pid(
+                Control.kVelP,
+                Control.kVelI,
+                Control.kVelD,
+                ClosedLoopSlot.kSlot1
+            )
+            .p(1,ClosedLoopSlot.kSlot2);
             
         m_leadMotorConfig.encoder
             .positionConversionFactor(WristConstants.kPositionConversionFactor)
@@ -92,76 +96,68 @@ public class WristIOSim implements WristIO {
             WristSimConstants.kMinAngleRads,
             WristSimConstants.kMaxAngleRads,
             true,
-            0,
-            //WristSimConstants.kWristEncoderDistPerPulse,
-            0.0,
-            0.0
+            0
         );
 
         m_leadMotorSim = new SparkMaxSim(m_leadMotor, m_wristGearbox);
         m_followMotorSim = new SparkMaxSim(m_followMotor, m_wristGearbox);
         m_encoderSim = m_leadMotorSim.getRelativeEncoderSim();
 
-        m_positionFeedbackController = new PIDController(WristSimConstants.Control.kP, WristSimConstants.Control.kI, WristSimConstants.Control.kD);
-        m_velocityFeedbackController = new PIDController(WristConstants.Control.kP,WristConstants.Control.kI,WristConstants.Control.kD);
+        m_feedbackController = m_leadMotor.getClosedLoopController();
     }
 
     @Override
     public void simulationPeriodic() {
-
-        switch (mode){
-            case DUTY_CYCLE:
-                break;
-            case VELOCITY:
-                m_leadMotorSim.setAppliedOutput(
-                    (m_velocityFeedbackController.calculate(m_encoderSim.getVelocity()) + feedforwardVolts)
-                    / m_leadMotorSim.getBusVoltage()
-                );
-                break;
-            case POSITION:
-                m_leadMotorSim.setAppliedOutput(
-                    (m_positionFeedbackController.calculate(m_encoderSim.getPosition()) + feedforwardVolts)
-                    / m_leadMotorSim.getBusVoltage()
-                );
-                break;
-        }
 
         m_wristSim.setInput(m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage());
         //System.out.println("Wrist Output: " + m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage());
 
         m_wristSim.update(0.020);
 
-        m_encoderSim.setPosition(m_wristSim.getAngleRads());
-    }
-
-    @Override
-    public void setVoltage(double voltage) {
-        m_leadMotorSim.setAppliedOutput(voltage/m_leadMotorSim.getBusVoltage());
-        mode = SimControlMode.DUTY_CYCLE;
+        m_leadMotorSim.iterate(m_wristSim.getVelocityRadPerSec(), 12.0, 0.02);
+        m_followMotorSim.iterate(m_wristSim.getVelocityRadPerSec(), 12.0, 0.02);
     }
 
     @Override
     public void setVelocity(double velocityRadsPerSec) {
-        m_velocityFeedbackController.setSetpoint(velocityRadsPerSec);
-        feedforwardVolts = m_FFController.calculateWithVelocities(
-            m_encoderSim.getPosition(),
-            m_encoderSim.getVelocity(),
-            velocityRadsPerSec
+        m_feedbackController.setReference(
+            velocityRadsPerSec,
+            ControlType.kVelocity,
+            ClosedLoopSlot.kSlot1,
+            m_FFController.calculate(m_encoderSim.getPosition(), velocityRadsPerSec),
+            ArbFFUnits.kVoltage
         );
-        mode = SimControlMode.VELOCITY;
     }
 
     @Override
-    public void setVoltageCharacterization(double voltage){
-        setVoltage(voltage);
-        mode = SimControlMode.DUTY_CYCLE;
+    public void setPosition(double positionRads) {
+        m_feedbackController.setReference(
+            positionRads,
+            ControlType.kPosition,
+            ClosedLoopSlot.kSlot0,
+            m_FFController.calculate(m_encoderSim.getPosition(),0),
+            ArbFFUnits.kVoltage
+        );
     }
 
     @Override
-    public void setPosition(double positionRadians) {
-        m_positionFeedbackController.setSetpoint(positionRadians);
-        feedforwardVolts = m_FFController.calculate(positionRadians, 0);
-        mode = SimControlMode.POSITION;
+    public void setVoltage(double voltage) {
+        m_feedbackController.setReference(
+            voltage,
+            ControlType.kVoltage,
+            ClosedLoopSlot.kSlot2,
+            m_FFController.calculate(m_encoderSim.getPosition(), 0),
+            ArbFFUnits.kVoltage
+        );
+    }
+
+    @Override
+    public void setVoltageCharacterization(double voltage) {
+        m_feedbackController.setReference(
+            voltage,
+            ControlType.kVoltage,
+            ClosedLoopSlot.kSlot2
+        );
     }
 
     @Override

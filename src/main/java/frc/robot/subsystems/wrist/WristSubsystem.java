@@ -53,7 +53,7 @@ public class WristSubsystem extends SubsystemBase {
 
     /** Returns the angle of the wrist in degrees */
     public Rotation2d getAngle(){
-        System.out.println(inputs.angle);
+        //System.out.println(inputs.angle);
         return inputs.angle;
     }
 

@@ -55,9 +55,16 @@ public class WristIOHardware implements WristIO {
         m_leadMotorConfig.closedLoop
             .feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder)
             .pid(
-                WristConstants.Control.kP,
-                WristConstants.Control.kI,
-                WristConstants.Control.kD
+                WristConstants.Control.kPosP,
+                WristConstants.Control.kPosI,
+                WristConstants.Control.kPosD,
+                ClosedLoopSlot.kSlot0
+            )
+            .pid(
+                WristConstants.Control.kVelP,
+                WristConstants.Control.kVelI,
+                WristConstants.Control.kVelD,
+                ClosedLoopSlot.kSlot1
             );
 
         m_leadMotorConfig.alternateEncoder
@@ -90,12 +97,8 @@ public class WristIOHardware implements WristIO {
         m_closedLoopController.setReference(
             velocityRadsPerSec,
             ControlType.kVelocity,
-            ClosedLoopSlot.kSlot0,
-            FFController.calculateWithVelocities(
-                m_alternateEncoder.getPosition(),
-                m_alternateEncoder.getVelocity(),
-                velocityRadsPerSec
-            ),
+            ClosedLoopSlot.kSlot1,
+            FFController.calculate(m_alternateEncoder.getPosition(),velocityRadsPerSec),
             ArbFFUnits.kVoltage
         );
     }
