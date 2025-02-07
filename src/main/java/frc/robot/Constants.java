@@ -203,12 +203,12 @@ public final class Constants {
             public final Pose2d leftBranch;
             public final Pose2d rightBranch;
             public final Pose2d AprilTag;
-            public final int AprilTagID;
+            public final int aprilTagID;
 
             //AT stands for AprilTag
-            private ReefFace(int AprilTagID, double AT_x, double AT_y, double AT_theta, Double leftBranchFudgeTransform, Double rightBranchFudgeTransform) {
-                this.AprilTagID = AprilTagID;
-                this.AprilTag = new Pose2d(AT_x, AT_y, Rotation2d.fromDegrees(AT_theta));
+            private ReefFace(int aprilTagID, double aprilTagX, double aprilTagY, double aprilTagTheta, Double leftBranchFudgeTransform, Double rightBranchFudgeTransform) {
+                this.aprilTagID = aprilTagID;
+                this.AprilTag = new Pose2d(aprilTagX, aprilTagY, Rotation2d.fromDegrees(aprilTagTheta));
                 this.leftBranchFudgeTransform = leftBranchFudgeTransform;
                 this.rightBranchFudgeTransform = rightBranchFudgeTransform;
 
