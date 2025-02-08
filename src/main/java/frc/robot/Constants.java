@@ -432,6 +432,29 @@ public final class Constants {
         public static final int grabberBeamBreakPort = 2;
     }
 
+    public static class LEDConstants {
+        // Digital input-output pins on the RIO
+        public static final int kDIOPort1 = 7;
+        public static final int kDIOPort2 = 8;
+        public static final int kDIOPort3 = 9;
+
+        public static enum LEDStates {
+            EMPTY(false, false, false),
+            CORAL_INDEX(true, false, false),
+            CORAL_GRABBER(false, true, false),
+            ALGAE(true, true, false);
+
+            public final boolean onesPlace;
+            public final boolean twosPlace;
+            public final boolean foursPlace;
+            private LEDStates(boolean onesPlace, boolean twosPlace, boolean foursPlace) {
+                this.onesPlace = onesPlace;
+                this.twosPlace = twosPlace;
+                this.foursPlace = foursPlace;
+            } 
+        }
+    }
+
     private Constants() {
         throw new NotImplementedException();
     }

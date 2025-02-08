@@ -224,6 +224,7 @@ public class Superstructure {
         m_wrist.setKg(grabberPossession.wrist_kG);
         superState.setIndexPossession(indexPossession);
         superState.setGrabberPossession(grabberPossession);
+        // TODO: add LED and elastic code here
     }
 
     /** Contains all the command factories for the superstructure */
