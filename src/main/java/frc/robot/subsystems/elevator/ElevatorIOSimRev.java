@@ -27,12 +27,6 @@ import com.revrobotics.sim.SparkRelativeEncoderSim;
 
 public class ElevatorIOSimRev implements ElevatorIO {
 
-    private static enum SimControlMode {
-        DUTY_CYCLE,
-        VELOCITY,
-        POSITION
-    }
-
     // This gearbox represents a gearbox containing 4 Vex 775pro motors.
     private final DCMotor m_elevatorGearbox = DCMotor.getNEO(2);
 
