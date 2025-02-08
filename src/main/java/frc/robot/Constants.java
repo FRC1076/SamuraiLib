@@ -338,7 +338,7 @@ public final class Constants {
 
         public static final class Control {
 
-            public static final double kVelP = 0.5;
+            public static final double kVelP = 0.2;
             public static final double kVelI = 0;
             public static final double kVelD = 0;
 
@@ -395,17 +395,17 @@ public final class Constants {
     public static class WristevatorConstants {
         public static class Control {
             //POSITION CONTROL
-            public static final double wrist_kP = 1;
-            public static final double wrist_kI = 1;
-            public static final double wrist_kD = 1;
+            public static final double wrist_kP = 6;
+            public static final double wrist_kI = 0;
+            public static final double wrist_kD = 0;
             
-            public static final double elevator_kP = 1;
-            public static final double elevator_kI = 1;
-            public static final double elevator_kD = 1;
+            public static final double elevator_kP = 1.3;
+            public static final double elevator_kI = 0;
+            public static final double elevator_kD = 0;
 
-            public static final double wristVelMOE = 0.1;
+            public static final double wristVelMOE = 0.7;
             public static final double wristPosMOE = 0.1;
-            public static final double elvtrVelMOE = 0.1;
+            public static final double elvtrVelMOE = 7;
             public static final double elvtrPosMOE = 0.1;
         }
 
@@ -413,8 +413,8 @@ public final class Constants {
             public static final List<WristevatorState> testTraj1 = new ArrayList<>();
             static {
                 testTraj1.add(new WristevatorState(0.1, Rotation2d.kZero, 0, 0));
-                testTraj1.add(new WristevatorState(0.5, Rotation2d.fromDegrees(45), 0.5, 0));
-                testTraj1.add(new WristevatorState(1, Rotation2d.fromDegrees(90), 0, 0));
+                testTraj1.add(new WristevatorState(1, Rotation2d.fromDegrees(90), 0.5, 0));
+                testTraj1.add(new WristevatorState(1.8, Rotation2d.fromDegrees(-60), 0, 0));
             }
         }
     }

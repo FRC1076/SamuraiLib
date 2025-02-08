@@ -12,6 +12,7 @@ public class FollowTrajectoryCommand extends Command {
     private final List<WristevatorState> trajectory;
     private final WristevatorController controller;
     private int targetStateIndex;
+    private boolean isFinished;
     
 
     public FollowTrajectoryCommand(Wristevator wristevator, WristevatorController controller, List<WristevatorState> trajectory) {
@@ -23,6 +24,7 @@ public class FollowTrajectoryCommand extends Command {
 
     @Override
     public void initialize() {
+        isFinished = false;
         targetStateIndex = 0;
         controller.setSetpoint(trajectory.get(targetStateIndex));
     }
@@ -30,8 +32,12 @@ public class FollowTrajectoryCommand extends Command {
     @Override
     public void execute() {
         WristevatorState currentState = m_Wristevator.getCurrentState();
-        //System.out.println(currentState);
+        System.out.println(targetStateIndex);
         if (controller.atSetpoint(currentState)) {
+            if (targetStateIndex ==  trajectory.size()-1) {
+                isFinished = true;
+                return;
+            }
             targetStateIndex++;
             controller.setSetpoint(trajectory.get(targetStateIndex));
         }
@@ -40,6 +46,6 @@ public class FollowTrajectoryCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return controller.atSetpoint(m_Wristevator.getCurrentState()) && targetStateIndex == trajectory.size() - 1;
+        return isFinished;
     }
 }

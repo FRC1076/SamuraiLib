@@ -105,11 +105,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @param controlSupplier Supplier that returns the desired voltage of the elevator
      */
     public Command applyManualControl(DoubleSupplier controlSupplier) {
-        return run(() -> {
-            double a = controlSupplier.getAsDouble() * ElevatorConstants.maxOperatorControlVolts + io.getFFkG();
-            System.out.println(a);
-            setVoltage(a);
-        });
+        return run(() -> setVoltage(controlSupplier.getAsDouble() * ElevatorConstants.maxOperatorControlVolts + io.getFFkG()));
     }
 
     public Command elevatorSysIdQuasistatic(SysIdRoutine.Direction direction) {

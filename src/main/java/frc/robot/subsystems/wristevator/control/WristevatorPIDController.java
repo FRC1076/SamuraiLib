@@ -40,10 +40,12 @@ public class WristevatorPIDController implements WristevatorController {
     }
     @Override
     public WristevatorSpeeds calculate(WristevatorState measurement) {
-        return new WristevatorSpeeds(
-            elevatorController.calculate(setpoint.elevatorHeightMeters(),measurement.elevatorHeightMeters()) + setpoint.elevatorVelMetPerSec(),
-            wristController.calculate(setpoint.wristAngle().getRadians(),measurement.wristAngle().getRadians()) + setpoint.wristVelRadPerSec()
+        var speeds = new WristevatorSpeeds(
+            elevatorController.calculate(measurement.elevatorHeightMeters(),setpoint.elevatorHeightMeters()) + setpoint.elevatorVelMetPerSec(),
+            wristController.calculate(measurement.wristAngle().getRadians(),setpoint.wristAngle().getRadians()) + setpoint.wristVelRadPerSec()
         );
+        System.out.println(speeds);
+        return speeds;
     }
 
     @Override
@@ -51,7 +53,7 @@ public class WristevatorPIDController implements WristevatorController {
         return (Math.abs(setpoint.elevatorHeightMeters() - measurement.elevatorHeightMeters()) < elvtrPosMOE)
                     && (Math.abs(setpoint.elevatorVelMetPerSec() - measurement.elevatorVelMetPerSec()) < elvtrVelMOE)
                     && (Math.abs(setpoint.wristAngle().getRadians() - measurement.wristAngle().getRadians()) < wristPosMOE)
-                    && (Math.abs(setpoint.wristVelRadPerSec() - measurement.wristVelRadPerSec()) < wristPosMOE);
+                    && (Math.abs(setpoint.wristVelRadPerSec() - measurement.wristVelRadPerSec()) < wristVelMOE);
 
     }
 
