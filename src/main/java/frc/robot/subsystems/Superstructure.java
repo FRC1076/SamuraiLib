@@ -8,6 +8,7 @@ import frc.robot.Constants.SuperstructureConstants.IndexState;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.grabber.GrabberSubsystem;
 import frc.robot.subsystems.index.IndexSubsystem;
+import frc.robot.subsystems.led.LED;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import static frc.robot.Constants.IndexConstants.kIndexVoltage;
 
@@ -115,6 +116,8 @@ public class Superstructure {
         GrabberSubsystem grabber,
         IndexSubsystem index,
         WristSubsystem wrist,
+        Elastic elastic,
+        LED led,
         BooleanSupplier indexBeamBreak, //returns true when beam broken
         BooleanSupplier transferBeamBreak, //returns true when beam broken
         BooleanSupplier grabberBeamBreak //returns true when beam broken
@@ -225,6 +228,7 @@ public class Superstructure {
         superState.setIndexPossession(indexPossession);
         superState.setGrabberPossession(grabberPossession);
         // TODO: add LED and elastic code here
+
     }
 
     /** Contains all the command factories for the superstructure */

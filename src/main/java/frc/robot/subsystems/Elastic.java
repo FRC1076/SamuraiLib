@@ -39,6 +39,12 @@ public class Elastic {
         SmartDashboard.putString(key, value);
     }
 
+    // TODO: public void putIndexState(string or boolean?)
+
+    // TODO: public void putWristevatorState(string?)
+
+    // TODO: public void putGrabberState(string?)
+
     public void updateInterface() {
         
     }
