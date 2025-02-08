@@ -13,8 +13,12 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
 import com.revrobotics.sim.SparkMaxSim;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.sim.SparkRelativeEncoderSim;
@@ -22,12 +26,6 @@ import com.revrobotics.sim.SparkRelativeEncoderSim;
 
 
 public class ElevatorIOSim implements ElevatorIO {
-
-    private static enum SimControlMode {
-        DUTY_CYCLE,
-        VELOCITY,
-        POSITION
-    }
 
     // This gearbox represents a gearbox containing 4 Vex 775pro motors.
     private final DCMotor m_elevatorGearbox = DCMotor.getNEO(2);
@@ -43,20 +41,15 @@ public class ElevatorIOSim implements ElevatorIO {
     
     private final SparkRelativeEncoderSim m_encoderSim;
 
-    private final PIDController m_positionFeedbackController;
-    private final PIDController m_velocityFeedbackController;
-
     private final ElevatorSim m_elevatorSim;
 
-    private SimControlMode mode = SimControlMode.DUTY_CYCLE;
-
-    private double feedforwardVolts = 0.0;
+    private final SparkClosedLoopController m_feedbackController;
 
     private ElevatorFeedforward m_FFController = new ElevatorFeedforward(
-        ElevatorSimConstants.Control.kS, 
-        ElevatorSimConstants.Control.kG,
-        ElevatorSimConstants.Control.kV, 
-        ElevatorSimConstants.Control.kA
+        ElevatorConstants.Control.kS, 
+        ElevatorConstants.Control.kG,
+        ElevatorConstants.Control.kV, 
+        ElevatorConstants.Control.kA
     );
 
     public ElevatorIOSim() {
@@ -89,10 +82,18 @@ public class ElevatorIOSim implements ElevatorIO {
             .voltageCompensation(kVoltageCompensation);
         m_leadMotorConfig.closedLoop
             .pid(
-                ElevatorSimConstants.Control.kP,
-                ElevatorSimConstants.Control.kI,
-                ElevatorSimConstants.Control.kD
-            );
+                ElevatorConstants.Control.kPosP,
+                ElevatorConstants.Control.kPosI,
+                ElevatorConstants.Control.kPosD,
+                ClosedLoopSlot.kSlot0
+            )
+            .pid(
+                ElevatorConstants.Control.kVelP,
+                ElevatorConstants.Control.kVelI,
+                ElevatorConstants.Control.kVelD,
+                ClosedLoopSlot.kSlot1
+            )
+            .p(1,ClosedLoopSlot.kSlot2);
         m_leadMotorConfig.encoder
             .positionConversionFactor(kPositionConversionFactor)
             .velocityConversionFactor(kVelocityConversionFactor)
@@ -115,37 +116,37 @@ public class ElevatorIOSim implements ElevatorIO {
         m_followMotorSim = new SparkMaxSim(m_followMotor, m_elevatorGearbox);
         m_encoderSim = m_leadMotorSim.getRelativeEncoderSim();
 
-        m_positionFeedbackController = new PIDController(
-            ElevatorSimConstants.Control.kP,
-            ElevatorSimConstants.Control.kI,
-            ElevatorSimConstants.Control.kD
-        );
-
-        m_velocityFeedbackController = new PIDController(
-            ElevatorConstants.Control.kVelP, 
-            ElevatorConstants.Control.kVelI,
-            ElevatorConstants.Control.kVelD
-        );
+        m_feedbackController = m_leadMotor.getClosedLoopController();
     }
 
     @Override
     public void setPosition(double positionMeters) {
-        m_positionFeedbackController.setSetpoint(positionMeters);
-        feedforwardVolts = m_FFController.getKg();
-        mode = SimControlMode.POSITION;
+        m_feedbackController.setReference(
+            positionMeters,
+            ControlType.kPosition,
+            ClosedLoopSlot.kSlot0,
+            m_FFController.getKg(),
+            ArbFFUnits.kVoltage
+        );
     }
 
     @Override
     public void setVelocity(double velocityMetersPerSecond) {
-        m_velocityFeedbackController.setSetpoint(velocityMetersPerSecond);
-        feedforwardVolts = m_FFController.calculate(velocityMetersPerSecond - m_encoderSim.getVelocity());
-        mode = SimControlMode.VELOCITY;
+        m_feedbackController.setReference(
+            velocityMetersPerSecond, 
+            ControlType.kVelocity,
+            ClosedLoopSlot.kSlot1,
+            m_FFController.calculate(velocityMetersPerSecond),
+            ArbFFUnits.kVoltage
+        );
     }
 
     @Override
     public void setVoltage(double voltage) {
-        m_leadMotorSim.setAppliedOutput(
-            voltage/m_leadMotorSim.getBusVoltage()
+        m_feedbackController.setReference(
+            voltage,
+            ControlType.kVoltage,
+            ClosedLoopSlot.kSlot2
         );
     }
 
@@ -160,22 +161,7 @@ public class ElevatorIOSim implements ElevatorIO {
 
     @Override
     public void simulationPeriodic() {
-        switch (mode){
-            case DUTY_CYCLE:
-                break;
-            case VELOCITY:
-                m_leadMotorSim.setAppliedOutput(
-                    (m_velocityFeedbackController.calculate(m_encoderSim.getVelocity()) + feedforwardVolts)
-                    / m_leadMotorSim.getBusVoltage()
-                );
-                break;
-            case POSITION:
-                m_leadMotorSim.setAppliedOutput(
-                    (m_positionFeedbackController.calculate(m_encoderSim.getPosition()) + feedforwardVolts)
-                    / m_leadMotorSim.getBusVoltage()
-                );
-                break;
-        }
+
         // In this method, we update our simulation of what our elevator is doing
         // First, we set our "inputs" (voltages)
         m_elevatorSim.setInput(m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage());
@@ -183,9 +169,7 @@ public class ElevatorIOSim implements ElevatorIO {
         // Next, we update it. The standard loop time is 20ms.
         m_elevatorSim.update(0.020);
 
-        // Finally, we set our simulated encoder's readings and simulated battery voltage
-        m_encoderSim.setPosition(m_elevatorSim.getPositionMeters());
-
-        // Update elevator visualization with position
+        m_leadMotorSim.iterate(m_elevatorSim.getVelocityMetersPerSecond(),12,0.02);
+        m_followMotorSim.iterate(m_elevatorSim.getVelocityMetersPerSecond(), 12, 0.02);
     }
 }
