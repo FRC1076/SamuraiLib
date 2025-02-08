@@ -29,6 +29,40 @@ import org.apache.commons.lang3.NotImplementedException;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    /** Contains starting position and team */
+    public static class GameConstants {
+
+        public static TeamColors kTeamColor = TeamColors.kTeamColorBlue;
+        public static StartPositions kStartPosition = StartPositions.kStartA;
+
+        public enum TeamColors {
+            kTeamColorBlue("BLUE"),
+            kTeamColorRed("RED");
+
+            public final String color;
+
+            private TeamColors(String color) {
+                this.color = color;
+            }
+        }
+
+        public enum StartPositions {
+            kStartA(0.0, 0.0, 0.0, "kStartA");
+
+            public final Pose2d position;
+            public final String name;
+
+            /** 
+             * @param x x coordinate in meters
+             * @param y y coordinate in meters
+             * @param rotation rotation in radians
+             */
+            private StartPositions(double x, double y, double rotation, String name) {
+                this.position = new Pose2d(x, y, new Rotation2d(rotation));
+                this.name = name;
+            }
+        }
+    }
 
     public static class OIConstants {
         public static final int kDriverControllerPort = 0;

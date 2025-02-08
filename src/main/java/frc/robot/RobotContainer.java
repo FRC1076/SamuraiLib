@@ -80,6 +80,9 @@ public class RobotContainer {
 
     private final CommandXboxController m_operatorController =
         new CommandXboxController(OIConstants.kOperatorControllerPort);
+
+    private final CommandXboxController m_beamBreakController = 
+        new CommandXboxController(2);
     
     private final SendableChooser<Command> m_autoChooser;
 
@@ -97,9 +100,9 @@ public class RobotContainer {
     */
     
     
-        m_indexBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.indexBeamBreakPort)::get);
-        m_transferBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.transferBeamBreakPort)::get);
-        m_grabberBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.grabberBeamBreakPort)::get);
+        m_indexBeamBreak = m_beamBreakController.a();
+        m_transferBeamBreak = m_beamBreakController.x();
+        m_grabberBeamBreak = m_beamBreakController.y();
         m_interruptElevator = new Trigger(() -> m_operatorController.getLeftY() != 0);
         m_interruptGrabber = new Trigger(() -> m_operatorController.getRightY() != 0);
 
@@ -307,6 +310,8 @@ public class RobotContainer {
     }
 
     private void configureBeamBreakTriggers() {
+
+
         m_indexBeamBreak.or(
             m_transferBeamBreak.or(
                 m_grabberBeamBreak
