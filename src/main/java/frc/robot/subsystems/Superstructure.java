@@ -105,6 +105,8 @@ public class Superstructure {
     private final GrabberSubsystem m_grabber;
     private final IndexSubsystem m_index;
     private final WristSubsystem m_wrist;
+    private final Elastic m_elastic;
+    private final LED m_led;
 
     public final SuperstructureCommandFactory CommandBuilder;
 
@@ -126,6 +128,8 @@ public class Superstructure {
         m_grabber = grabber;
         m_index = index;
         m_wrist = wrist;
+        m_elastic = elastic;
+        m_led = led;
         
         CommandUtils.makePeriodic(() -> {
             Logger.processInputs("Superstructure", superState);
@@ -227,7 +231,10 @@ public class Superstructure {
         m_wrist.setKg(grabberPossession.wrist_kG);
         superState.setIndexPossession(indexPossession);
         superState.setGrabberPossession(grabberPossession);
-        // TODO: add LED and elastic code here
+        
+        m_elastic.putIndexPossession(indexPossession);
+        m_elastic.putGrabberPossession(grabberPossession);
+        // TODO: add LED code here
 
     }
 

@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.GameConstants;
 import frc.robot.Constants.GameConstants.StartPositions;
 import frc.robot.Constants.GameConstants.TeamColors;
+import frc.robot.Constants.SuperstructureConstants.GrabberPossession;
+import frc.robot.Constants.SuperstructureConstants.IndexPossession;
 
 //TODO: Either make this a singleton class or make putX methods static
 public class Elastic {
@@ -39,11 +41,13 @@ public class Elastic {
         SmartDashboard.putString(key, value);
     }
 
-    // TODO: public void putIndexState(string or boolean?)
+    public void putIndexPossession(IndexPossession indexPossession) {
+        SmartDashboard.putString("indexPossession", indexPossession.name);
+    }
 
-    // TODO: public void putWristevatorState(string?)
-
-    // TODO: public void putGrabberState(string?)
+    public void putGrabberPossession(GrabberPossession grabberPossession) {
+        SmartDashboard.putString("grabberPossession", grabberPossession.name);
+    }
 
     public void updateInterface() {
         

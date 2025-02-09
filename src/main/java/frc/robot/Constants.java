@@ -108,35 +108,46 @@ public final class Constants {
                     : WristSimConstants.Control.kG,
                 Akit.currentMode == 0
                     ? ElevatorConstants.Control.kG 
-                    : ElevatorSimConstants.Control.kG),
+                    : ElevatorSimConstants.Control.kG
+                "EMPTY"),
             CORAL(
                 Akit.currentMode == 0
                     ? WristConstants.Control.kG 
                     : WristSimConstants.Control.kG,
                 Akit.currentMode == 0
                     ? ElevatorConstants.Control.kG 
-                    : ElevatorSimConstants.Control.kG),
+                    : ElevatorSimConstants.Control.kG
+                "CORAL"),
             ALGAE(
                 Akit.currentMode == 0
                     ? WristConstants.Control.kG 
                     : WristSimConstants.Control.kG,
                 Akit.currentMode == 0
                     ? ElevatorConstants.Control.kG 
-                    : ElevatorSimConstants.Control.kG);
+                    : ElevatorSimConstants.Control.kG
+                "ALGAE");
 
             public final double wrist_kG;
             public final double elevator_kG;
+            public final String name;
 
-            private GrabberPossession(double wrist_kG, double elevator_kG) {
+            private GrabberPossession(double wrist_kG, double elevator_kG, String name) {
                 this.wrist_kG = wrist_kG;
                 this.elevator_kG = elevator_kG;
+                this.name = name;
             }
         }
 
         // Index Possession State
         public enum IndexPossession {
-            EMPTY,
-            CORAL
+            EMPTY("EMPTY"),
+            CORAL("CORAL");
+
+            public final String name;
+
+            private IndexPossession(String name) {
+                this.name = name;
+            }
         }
 
         // Grabber State
