@@ -7,7 +7,7 @@ import frc.robot.Constants.LEDConstants.LEDStates;
 /** This is an interface so you can define what functionality you want
  * without defining how it actually happens.
  */
-public interface LEDIO {
+public interface LEDBase {
     /** 
      * Set the state of the LEDs.
      * <p>

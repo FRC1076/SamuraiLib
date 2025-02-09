@@ -455,6 +455,7 @@ public final class Constants {
             CORAL_GRABBER(false, true, false),
             ALGAE(true, true, false);
 
+            // TODO: switch from boolean (byte) to a bit
             public final boolean onesPlace;
             public final boolean twosPlace;
             public final boolean foursPlace;

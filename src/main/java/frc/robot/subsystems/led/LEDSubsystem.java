@@ -10,14 +10,14 @@ import frc.robot.Constants.LEDConstants.LEDStates;
  * <p>
  * All of the methods in this file will call the corresponding method in the chosen IO layer.
  */
-public class LED {
-    private final LEDIO io;
+public class LEDSubsystem {
+    private final LEDBase io;
 
     /** Create the LEDs with one of the IO layers.
      * 
      * @param io The chosen IO layer.
      */
-    public LED(LEDIO io) {
+    public LEDSubsystem(LEDBase io) {
         this.io = io;
     }
 

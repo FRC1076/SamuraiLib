@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.DigitalOutput;
 
 // TODO: name things better
 /** This is a class that actually does (implements) the stuff in LEDIO.java */
-public class LEDIODigitalPins implements LEDIO {
+public class LEDIODigitalPins implements LEDBase {
     /* Declare an object for each pin */
     private final DigitalOutput m_pin1;
     private final DigitalOutput m_pin2;
