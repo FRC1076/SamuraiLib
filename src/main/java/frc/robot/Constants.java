@@ -9,9 +9,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.wristevator.Wristevator.WristevatorState;
 
@@ -415,6 +419,35 @@ public final class Constants {
                 testTraj1.add(new WristevatorState(0.1, Rotation2d.kZero, 0, 0));
                 testTraj1.add(new WristevatorState(0.5, Rotation2d.fromDegrees(-90), 0.2, 0));
                 testTraj1.add(new WristevatorState(1.8, Rotation2d.fromDegrees(-60), 0, 0));
+            }
+        }
+    }
+
+    public static class VisionConstants {
+        public static class PVConstants {
+            public static enum CamConfig {
+                FL_ELEVATOR_CAM("FL_ELEVATOR_CAM",7.286,2.794,15.482,11.385,17.961,40),
+                FR_ELEVATOR_CAM("FR_ELEVATOR_CAM",0,0,0,0,0,0)
+
+                public final String name;
+                public final Transform3d offset;
+
+                //Rotations are represented as quaternions, as they are invariant between coordinate systems and reference frames
+                private CamConfig(String name, double xInches, double yInches, double zInches, double rollDegrees, double pitchDegrees, double yawDegrees) {
+                    this.name = name;
+                    this.offset = new Transform3d(
+                        new Translation3d(
+                            Units.inchesToMeters(xInches),
+                            Units.inchesToMeters(yInches),
+                            Units.inchesToMeters(zInches)
+                        ), 
+                        new Rotation3d(
+                            Units.degreesToRadians(rollDegrees),
+                            Units.degreesToRadians(pitchDegrees),
+                            Units.degreesToRadians(yawDegrees)
+                        )
+                    );
+                }
             }
         }
     }
