@@ -12,7 +12,7 @@ import lib.vision.Limelight.LLPoseEstimate;
 public class LL_Localizer implements CameraLocalizer {
     private static final Matrix<N3,N1> maxStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
     private final Limelight camera;
-    private final Transform3d offset;
+    private final Transform3d camToBotOffset;
     private final Matrix<N3,N1> defaultSingleStdDevs;
     private final Matrix<N3,N1> defaultMultiStdDevs;
 
@@ -23,7 +23,7 @@ public class LL_Localizer implements CameraLocalizer {
         Matrix<N3,N1> defaultMultiStdDevs
     ) {
         this.camera = camera;
-        this.offset = offset;
+        this.camToBotOffset = offset.inverse();
         this.defaultSingleStdDevs = defaultSingleStdDevs;
         this.defaultMultiStdDevs = defaultMultiStdDevs;
     }
@@ -31,7 +31,7 @@ public class LL_Localizer implements CameraLocalizer {
     public Optional<CommonPoseEstimate> getPoseEstimate() {
         return camera.getPoseEstimateMT2().map(
             (poseEstimate) -> new CommonPoseEstimate(
-                poseEstimate.pose().transformBy(offset).toPose2d(),
+                poseEstimate.pose().transformBy(camToBotOffset).toPose2d(),
                 poseEstimate.timestampSeconds(),
                 calculateStdDevs(poseEstimate)
             )

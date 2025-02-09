@@ -8,6 +8,7 @@ import frc.robot.utils.Localization;
 import static frc.robot.Constants.DriveConstants.PathPlannerConstants.robotOffset;
 
 import lib.utils.GeometryUtils;
+import lib.vision.VisionLocalizationSystem;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -44,11 +45,13 @@ public class DriveSubsystem extends SubsystemBase {
     private final ModuleIOInputsAutoLogged frontRightInputs = new ModuleIOInputsAutoLogged();
     private final ModuleIOInputsAutoLogged rearLeftInputs = new ModuleIOInputsAutoLogged();
     private final ModuleIOInputsAutoLogged rearRightInputs = new ModuleIOInputsAutoLogged();
+    private final VisionLocalizationSystem vision;
     private Boolean hasSetAlliance = false; // Wait until the driverstation had an alliance before setting it
     public final DriveCommandFactory CommandBuilder;
 
-    public DriveSubsystem(DriveIO io) {
+    public DriveSubsystem(DriveIO io, VisionLocalizationSystem vision) {
         this.io = io;
+        this.vision = vision;
         try {
             AutoBuilder.configure(
                 this::getPose,
@@ -69,6 +72,7 @@ public class DriveSubsystem extends SubsystemBase {
             DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
         }
         CommandBuilder = new DriveCommandFactory(this);
+        this.vision.registerMeasurementConsumer(io::addVisionMeasurement);
         
     }
 

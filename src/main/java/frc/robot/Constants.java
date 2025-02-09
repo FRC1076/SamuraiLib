@@ -7,11 +7,18 @@ package frc.robot;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -424,6 +431,9 @@ public final class Constants {
     }
 
     public static class VisionConstants {
+        public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+        public static final Matrix<N3,N1> kDefaultSingleTagStdDevs = VecBuilder.fill(1,1,1); //Placeholders
+        public static final Matrix<N3,N1> kDefaultMultiTagStdDevs = VecBuilder.fill(0.7,0.7,0.7); //Placeholders
         public static class PVConstants {
             public static enum CamConfig {
                 FL_ELEVATOR_CAM("FL_ELEVATOR_CAM",7.286,2.794,15.482,11.385,17.961,40),

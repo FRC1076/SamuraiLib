@@ -24,17 +24,30 @@ import frc.robot.subsystems.index.IndexSubsystem;
 import frc.robot.subsystems.wrist.WristIOHardware;
 import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristSubsystem;
+import lib.vision.PV_Localizer;
+import lib.vision.VisionLocalizationSystem;
 import frc.robot.subsystems.SuperstructureVisualizer;
 import frc.robot.subsystems.Superstructure.SuperstructureCommandFactory;
 import frc.robot.Constants.Akit;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.WristevatorConstants;
+import frc.robot.Constants.VisionConstants.PVConstants.CamConfig;
 import frc.robot.Constants.WristevatorConstants.TrajectoryTests;
 import frc.robot.Constants.BeamBreakConstants;
 import frc.robot.subsystems.Superstructure;
+import static frc.robot.Constants.VisionConstants.fieldLayout;
+import static frc.robot.Constants.VisionConstants.kDefaultSingleTagStdDevs;
+import static frc.robot.Constants.VisionConstants.kDefaultMultiTagStdDevs;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.SimCameraProperties;
+import org.photonvision.simulation.VisionSystemSim;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -74,6 +87,7 @@ public class RobotContainer {
     private final Trigger m_interruptGrabber;
     private final Superstructure m_superstructure;
     private final SuperstructureVisualizer superVis;
+    private final VisionLocalizationSystem m_vision;
 
 
     // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -86,6 +100,8 @@ public class RobotContainer {
     private final SendableChooser<Command> m_autoChooser;
 
     private final TeleopDriveCommand teleopDriveCommand;
+
+    private final VisionSystemSim visionSim;
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
@@ -104,16 +120,41 @@ public class RobotContainer {
         m_grabberBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.grabberBeamBreakPort)::get);
         m_interruptElevator = new Trigger(() -> m_operatorController.getLeftY() != 0);
         m_interruptGrabber = new Trigger(() -> m_operatorController.getRightY() != 0);
-
+        m_vision = new VisionLocalizationSystem();
 
         if (Akit.currentMode == 0) {
-            m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()));
+            visionSim = null;
+            for (CamConfig config : CamConfig.values()) {
+                PhotonCamera cam = new PhotonCamera(config.name);
+                PhotonPoseEstimator estimator = new PhotonPoseEstimator(
+                    fieldLayout,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    config.offset
+                );
+                m_vision.addCamera(new PV_Localizer(cam, estimator, kDefaultSingleTagStdDevs, kDefaultMultiTagStdDevs));
+            }
+            m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()),m_vision);
             m_elevator = new ElevatorSubsystem(new ElevatorIOHardware());
             m_wrist = new WristSubsystem(new WristIOHardware());
             m_grabber = new GrabberSubsystem(new GrabberIOHardware());
             m_index = new IndexSubsystem(new IndexIOHardware());
         } else if (Akit.currentMode == 1) {
-            m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
+            visionSim = new VisionSystemSim("sim");
+            visionSim.addAprilTags(Constants.VisionConstants.fieldLayout);
+            for (CamConfig config : CamConfig.values()) {
+                PhotonCamera cam = new PhotonCamera(config.name);
+                PhotonPoseEstimator estimator = new PhotonPoseEstimator(
+                    fieldLayout,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    config.offset
+                );
+                m_vision.addCamera(new PV_Localizer(cam, estimator, kDefaultSingleTagStdDevs, kDefaultMultiTagStdDevs));
+                visionSim.addCamera(
+                    new PhotonCameraSim(cam),
+                    config.offset
+                );
+            }
+            m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()),m_vision);
             m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
             m_wrist = new WristSubsystem(new WristIOSim());
             m_grabber = new GrabberSubsystem(new GrabberIOSim());
