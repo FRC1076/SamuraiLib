@@ -8,7 +8,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 
 /** A generic interface for handling all camera objects */
-public interface LocalizationCamera {
+public interface CameraLocalizer {
 
     public static record CommonPoseEstimate(
         Pose2d pose,
@@ -17,4 +17,5 @@ public interface LocalizationCamera {
     ) {}
 
     public abstract Optional<CommonPoseEstimate> getPoseEstimate();
+    
 }

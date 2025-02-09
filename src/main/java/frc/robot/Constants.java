@@ -427,7 +427,7 @@ public final class Constants {
         public static class PVConstants {
             public static enum CamConfig {
                 FL_ELEVATOR_CAM("FL_ELEVATOR_CAM",7.286,2.794,15.482,11.385,17.961,40),
-                FR_ELEVATOR_CAM("FR_ELEVATOR_CAM",0,0,0,0,0,0);
+                FR_ELEVATOR_CAM("FR_ELEVATOR_CAM",0,0,0,0,0,0); //Placeholder
 
                 public final String name;
                 public final Transform3d offset;

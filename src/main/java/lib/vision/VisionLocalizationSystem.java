@@ -12,14 +12,14 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.util.function.BooleanConsumer;
 import lib.functional.TriConsumer;
-import lib.vision.LocalizationCamera.CommonPoseEstimate;
+import lib.vision.CameraLocalizer.CommonPoseEstimate;
 
 
 
-public class ApriltagLocalizer {
+public class VisionLocalizationSystem {
 
     private class CamStruct {
-        public final LocalizationCamera camera;
+        public final CameraLocalizer camera;
         public boolean cameraActive; //Signals whether or not the camera reading should be added to vision measurements
 
         // sets whether or not the camera is active
@@ -27,7 +27,7 @@ public class ApriltagLocalizer {
             cameraActive = active;
         }
 
-        public CamStruct(LocalizationCamera camera) {
+        public CamStruct(CameraLocalizer camera) {
             this.camera = camera;
         }
     }
@@ -52,7 +52,7 @@ public class ApriltagLocalizer {
      * @return
      * A BooleanConsumer that can set whether or not the ApriltagLocalizer will consider the measurements from this camera in its pose estimates
      */
-    public BooleanConsumer addCamera(LocalizationCamera camera) {
+    public BooleanConsumer addCamera(CameraLocalizer camera) {
         CamStruct camStruct = new CamStruct(camera);
         cameras.add(camStruct);
         return camStruct::setActive;

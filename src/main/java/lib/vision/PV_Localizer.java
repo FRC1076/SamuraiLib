@@ -19,14 +19,14 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import lib.functional.TriFunction;
 
-public class PhotonLocalizationCamera implements LocalizationCamera {
+public class PV_Localizer implements CameraLocalizer {
     private static final Matrix<N3,N1> maxStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
     private final PhotonCamera camera;
     private final PhotonPoseEstimator poseEstimator;
     private final Matrix<N3,N1> defaultSingleStdDevs;
     private final Matrix<N3,N1> defaultMultiStdDevs;
 
-    public PhotonLocalizationCamera(
+    public PV_Localizer(
         PhotonCamera camera, 
         PhotonPoseEstimator estimator,
         Matrix<N3,N1> defaultSingleStdDevs,
@@ -38,7 +38,7 @@ public class PhotonLocalizationCamera implements LocalizationCamera {
         this.defaultMultiStdDevs = defaultMultiStdDevs;
     }
 
-    public PhotonLocalizationCamera withCameraOffset(Transform3d offset){
+    public PV_Localizer withCameraOffset(Transform3d offset){
         setCameraOffset(offset);
         return this;
     }
@@ -54,14 +54,14 @@ public class PhotonLocalizationCamera implements LocalizationCamera {
         var targets = est.targetsUsed;
         for (var tgt : targets) {
             var tagPose = poseEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
-                if (tagPose.isEmpty()) {continue;}
-                numTargets++;
-                avgDist +=
-                    tagPose
-                        .get()
-                        .toPose2d()
-                        .getTranslation()
-                        .getDistance(est.estimatedPose.toPose2d().getTranslation());
+            if (tagPose.isEmpty()) {continue;}
+            numTargets++;
+            avgDist +=
+                tagPose
+                    .get()
+                    .toPose2d()
+                    .getTranslation()
+                    .getDistance(est.estimatedPose.toPose2d().getTranslation());
         }
         if (numTargets == 0) {
             return maxStdDevs; //No targets detected, resort to maximum std devs
