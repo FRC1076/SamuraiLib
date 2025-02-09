@@ -81,7 +81,7 @@ public final class Localization {
 
     private static ReefFace getReefFromAprilTagID(int AprilTagID){
         for (ReefFace face: ReefFace.values()) {
-            if (face.AprilTagID == AprilTagID) {
+            if (face.aprilTagID == AprilTagID) {
                 return face;
             }
         }
