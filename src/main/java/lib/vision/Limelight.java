@@ -99,6 +99,10 @@ public class Limelight {
         return Optional.of(new LLPoseEstimate(pose,adjustedTimestamp,latency,tagCount,tagSpan,avgTagDist,avgTagArea,fiducials,true));
     }
 
+    public String getName() {
+        return NTName;
+    }
+
     private DoubleArrayEntry getLLDoubleArrayEntry(String key) {
         return LLNetworkTable.getDoubleArrayTopic(key).getEntry(new double[]{});
     }
