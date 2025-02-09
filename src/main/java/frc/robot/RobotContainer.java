@@ -24,6 +24,7 @@ import frc.robot.subsystems.index.IndexSubsystem;
 import frc.robot.subsystems.wrist.WristIOHardware;
 import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristSubsystem;
+import lib.extendedcommands.CommandUtils;
 import lib.vision.PV_Localizer;
 import lib.vision.VisionLocalizationSystem;
 import frc.robot.subsystems.SuperstructureVisualizer;
@@ -159,6 +160,7 @@ public class RobotContainer {
             m_wrist = new WristSubsystem(new WristIOSim());
             m_grabber = new GrabberSubsystem(new GrabberIOSim());
             m_index = new IndexSubsystem(new IndexIOSim());
+            CommandUtils.makePeriodic(() -> visionSim.update(m_drive.getPose()));
         }
 
         m_superstructure = new Superstructure(
