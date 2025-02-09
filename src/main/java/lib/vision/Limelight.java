@@ -6,7 +6,9 @@ import java.util.Optional;
 import java.util.Queue;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.networktables.DoubleArrayEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -25,7 +27,7 @@ public class Limelight {
     ) {}
 
     public static record LLPoseEstimate(
-        Pose2d pose,
+        Pose3d pose,
         double timestampSeconds,
         double latency,
         int tagCount,
@@ -87,7 +89,7 @@ public class Limelight {
         if (fiducials.size() == 0) {
             return Optional.empty(); //Returns empty optional if no fiducials are detected
         }
-        Pose2d pose = new Pose2d(poseArray[0],poseArray[1],Rotation2d.fromDegrees(poseArray[5]));
+        Pose3d pose = new Pose3d(poseArray[0],poseArray[1],poseArray[2],new Rotation3d(poseArray[3],poseArray[4],poseArray[5]));
         double latency = poseArray[6];
         int tagCount = (int)poseArray[7];
         double tagSpan = poseArray[8];

@@ -34,7 +34,7 @@ public class LL_Localizer implements CameraLocalizer {
     public Optional<CommonPoseEstimate> getPoseEstimate() {
         return camera.getPoseEstimateMT2().map(
             (poseEstimate) -> new CommonPoseEstimate(
-                poseEstimate.pose(),
+                poseEstimate.pose().transformBy(offset).toPose2d(),
                 poseEstimate.timestampSeconds(),
                 calculateStdDevs(poseEstimate)
             )
