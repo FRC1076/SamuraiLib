@@ -399,9 +399,9 @@ public final class Constants {
             public static final double wrist_kI = 0;
             public static final double wrist_kD = 0;
             
-            public static final double elevator_kP = 1.3;
-            public static final double elevator_kI = 0;
-            public static final double elevator_kD = 0;
+            public static final double elevator_kP = 1;
+            public static final double elevator_kI = 0.3;
+            public static final double elevator_kD = 0.1;
 
             public static final double wristVelMOE = 0.7;
             public static final double wristPosMOE = 0.1;
@@ -413,7 +413,7 @@ public final class Constants {
             public static final List<WristevatorState> testTraj1 = new ArrayList<>();
             static {
                 testTraj1.add(new WristevatorState(0.1, Rotation2d.kZero, 0, 0));
-                testTraj1.add(new WristevatorState(1, Rotation2d.fromDegrees(90), 0.5, 0));
+                testTraj1.add(new WristevatorState(0.5, Rotation2d.fromDegrees(-90), 0.2, 0));
                 testTraj1.add(new WristevatorState(1.8, Rotation2d.fromDegrees(-60), 0, 0));
             }
         }
