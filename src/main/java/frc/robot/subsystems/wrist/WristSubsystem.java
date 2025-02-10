@@ -42,6 +42,7 @@ public class WristSubsystem extends SubsystemBase {
         io.setVoltageCharacterization(volts);
     }
 
+    /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS */
     /** Sets the desired rotation of the wrist */
     public void setPosition(Rotation2d position) {
         io.setPosition(position.getRadians());

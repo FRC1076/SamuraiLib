@@ -52,6 +52,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     /** Set desired position of the elevator
      * @param positionMeters Desired position of the elevator in meters
      */
+    /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS (where else?) */
     public void setPosition(double positionMeters) {
         io.setPosition(positionMeters);
     }

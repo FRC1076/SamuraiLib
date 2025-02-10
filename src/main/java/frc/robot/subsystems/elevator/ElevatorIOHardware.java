@@ -88,6 +88,7 @@ public class ElevatorIOHardware implements ElevatorIO {
         m_leadMotor.setVoltage(volts);
     }
 
+    /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS */
     /** Set desired position of the elevator
      * @param positionMeters The desired position of the elevator in meters
      */
