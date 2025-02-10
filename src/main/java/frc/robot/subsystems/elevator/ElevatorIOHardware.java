@@ -95,7 +95,7 @@ public class ElevatorIOHardware implements ElevatorIO {
     @Override
     public void setPosition(double positionMeters){
         m_closedLoopController.setReference(
-            positionMeters,
+            positionMeters, // clamp(positionMeters, ElevatorConstants.minPositionMeters, ElevatorConstants.maxPositionMeters),
             ControlType.kPosition,
             ClosedLoopSlot.kSlot0,
             FFcontroller.getKg(),

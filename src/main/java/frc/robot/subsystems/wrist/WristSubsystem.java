@@ -45,6 +45,7 @@ public class WristSubsystem extends SubsystemBase {
     /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS */
     /** Sets the desired rotation of the wrist */
     public void setPosition(Rotation2d position) {
+        // io.setPosition(clamp(position.getRadians(), WristConstants.minPositionRadians, WristConstants.maxPositionRadians));
         io.setPosition(position.getRadians());
     }
 

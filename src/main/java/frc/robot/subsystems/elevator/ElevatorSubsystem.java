@@ -54,6 +54,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS (where else?) */
     public void setPosition(double positionMeters) {
+        // io.setposition(clamp(positionMeters, ElevatorConstants.minPositionMeters, ElevatorConstants.maxPositionMeters));
         io.setPosition(positionMeters);
     }
 

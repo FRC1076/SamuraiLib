@@ -93,7 +93,7 @@ public class WristIOHardware implements WristIO {
     @Override
     public void setPosition(double positionRadians){
         m_closedLoopController.setReference(
-            positionRadians,
+            positionRadians, // clamp(positionRadians, WristConstants.minPositionRadians, WristConstants.maxPositionRadians),
             ControlType.kPosition,
             ClosedLoopSlot.kSlot0,
             FFController.calculate(positionRadians, 0), // these values might be wrong
