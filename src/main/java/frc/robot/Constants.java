@@ -289,8 +289,8 @@ public final class Constants {
     }
 
     public static class ElevatorConstants {
-        public static final int kMotorPort0 = -1;
-        public static final int kMotorPort1 = -1;
+        public static final int kMotorPort0 = 31; // Left motor consistent with drivetrain left side
+        public static final int kMotorPort1 = 32; // Right motor consistent with drivetrain right side
         
         public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(0.5);
         public static final double maxOperatorControlVolts = 6.0;
@@ -360,15 +360,15 @@ public final class Constants {
     }
 
     public static final class GrabberConstants {
-        public static final int kLeftMotorPort = -1;
-        public static final int kRightMotorPort = -1;
+        public static final int kLeftMotorPort = 61;
+        public static final int kRightMotorPort = 62;
         
         public static final double kCurrentLimit = 40.0; 
     }
 
     public static class WristConstants {
-        public static final int kLeadMotorPort = -2;
-        public static final int kFollowMotorPort = -3;
+        public static final int kLeadMotorPort = 41; // Left motor consistent with drivetrain left side
+        public static final int kFollowMotorPort = 42; // Right motor consistent with drivetrain right side
 
         public static final double wristAngleToleranceRadians = Units.degreesToRadians(1);
         public static final double maxOperatorControlVolts = 6.0;
@@ -416,8 +416,8 @@ public final class Constants {
     }
 
     public static class IndexConstants {
-        public static final int kLeadMotorPort = -10;
-        public static final int kFollowMotorPort = -10;
+        public static final int kLeadMotorPort = 51;
+        public static final int kFollowMotorPort = 52;
 
         public static final double kCurrentLimit = 40.0;
         public static final double kIndexVoltage = 6.0;
