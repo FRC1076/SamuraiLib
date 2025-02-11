@@ -313,7 +313,7 @@ public final class Constants {
         public static final double kPositionConversionFactor = (11/60.0) * 22 * 0.00635; //Gear ratio & chain pitch
         public static class Electrical {
             public static final double kVoltageCompensation = 12;
-            public static final double kCurrentLimit = 40;
+            public static final double kCurrentLimit = 80;
         }
 
 
@@ -363,7 +363,7 @@ public final class Constants {
         public static final int kLeftMotorPort = 61;
         public static final int kRightMotorPort = 62;
         
-        public static final double kCurrentLimit = 40.0; 
+        public static final double kCurrentLimit = 80.0; 
     }
 
     public static class WristConstants {
@@ -419,7 +419,7 @@ public final class Constants {
         public static final int kLeadMotorPort = 51;
         public static final int kFollowMotorPort = 52;
 
-        public static final double kCurrentLimit = 40.0;
+        public static final double kCurrentLimit = 20.0;
         public static final double kIndexVoltage = 6.0;
 
         public static final boolean kLeadMotorInverted = false;
