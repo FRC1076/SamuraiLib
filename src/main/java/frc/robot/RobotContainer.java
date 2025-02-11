@@ -109,10 +109,10 @@ public class RobotContainer {
 
         if (Akit.currentMode == 0) {
             m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()));
-            m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
-            m_wrist = new WristSubsystem(new WristIOSim());
-            m_grabber = new GrabberSubsystem(new GrabberIOSim());
-            m_index = new IndexSubsystem(new IndexIOSim());
+            m_elevator = new ElevatorSubsystem(new ElevatorIOHardware());
+            m_wrist = new WristSubsystem(new WristIOHardware());
+            m_grabber = new GrabberSubsystem(new GrabberIOHardware());
+            m_index = new IndexSubsystem(new IndexIOHardware());
         } else if (Akit.currentMode == 1) {
             m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
             m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
@@ -192,14 +192,14 @@ public class RobotContainer {
     }
 
     private void configureDriverBindings() {
-
+        /*
         m_driverController.leftTrigger().whileTrue(
             m_drive.CommandBuilder.directDriveToNearestLeftBranch()
         );
 
         m_driverController.rightTrigger().whileTrue(
             m_drive.CommandBuilder.directDriveToNearestRightBranch()
-        );
+        );*/
 
         // Point to reef
         m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());

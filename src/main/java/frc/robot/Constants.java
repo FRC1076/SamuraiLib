@@ -293,7 +293,7 @@ public final class Constants {
         public static final int kMotorPort1 = 32; // Right motor consistent with drivetrain right side
         
         public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(0.5);
-        public static final double maxOperatorControlVolts = 6.0;
+        public static final double maxOperatorControlVolts = 3;
 
         public static final boolean leadMotorInverted = false;
         public static final boolean followMotorInverted = false;
@@ -325,8 +325,8 @@ public final class Constants {
 
             // Feedforward constants - STILL SET TO WAPUR ELEVATOR VALUES
             public static final double kS = 0.0; //Static gain (voltage)
-            public static final double kG = 0.6; //Gravity gain (voltage)
-            public static final double kV = 12.0; // velocity game
+            public static final double kG = 0.0; // 0.6 //Gravity gain (voltage)
+            public static final double kV = 0.0; // 12.0 // velocity game
             public static final double kA = 0.0; //Acceleration Gain
         }
     }
@@ -371,10 +371,10 @@ public final class Constants {
         public static final int kFollowMotorPort = 42; // Right motor consistent with drivetrain right side
 
         public static final double wristAngleToleranceRadians = Units.degreesToRadians(1);
-        public static final double maxOperatorControlVolts = 6.0;
+        public static final double maxOperatorControlVolts = 3.0;
 
         public static final boolean kLeadMotorInverted = false;
-        public static final boolean kFollowMotorInverted = false;
+        public static final boolean kFollowMotorInverted = true;
 
         // Source: https://docs.revrobotics.com/brushless/spark-max/encoders/alternate-encoder
         public static final int kCountsPerRevolution = 8192;
@@ -389,7 +389,7 @@ public final class Constants {
 
             // Feedforward constants
             public static final double kS = 0.0; // static gain in volts
-            public static final double kG = 0.0; // gravity gain in volts
+            public static final double kG = 0.57 * 3; // gravity gain in volts
             public static final double kV = 0.0; // velocity gain in volts per radian per second
             public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
         }
@@ -423,7 +423,7 @@ public final class Constants {
         public static final double kIndexVoltage = 6.0;
 
         public static final boolean kLeadMotorInverted = false;
-        public static final boolean kFollowMotorInverted = false;
+        public static final boolean kFollowMotorInverted = true;
     }
 
     public static class BeamBreakConstants{
