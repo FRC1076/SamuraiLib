@@ -109,10 +109,10 @@ public class RobotContainer {
 
         if (Akit.currentMode == 0) {
             m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()));
-            m_elevator = new ElevatorSubsystem(new ElevatorIOHardware());
-            m_wrist = new WristSubsystem(new WristIOHardware());
-            m_grabber = new GrabberSubsystem(new GrabberIOHardware());
-            m_index = new IndexSubsystem(new IndexIOHardware());
+            m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
+            m_wrist = new WristSubsystem(new WristIOSim());
+            m_grabber = new GrabberSubsystem(new GrabberIOSim());
+            m_index = new IndexSubsystem(new IndexIOSim());
         } else if (Akit.currentMode == 1) {
             m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
             m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
