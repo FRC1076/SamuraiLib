@@ -3,6 +3,7 @@ package frc.robot.subsystems.wrist;
 import frc.robot.Constants.WristConstants;
 
 import lib.control.MutableArmFeedforward;
+import lib.utils.MathHelpers;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -92,7 +93,7 @@ public class WristIOHardware implements WristIO {
     @Override
     public void setPosition(double positionRadians){
         m_closedLoopController.setReference(
-            positionRadians, // clamp(positionRadians, WristConstants.minPositionRadians, WristConstants.maxPositionRadians),
+            MathHelpers.clamp(positionRadians, WristConstants.kMinWristAngleRadians, WristConstants.kMaxWristAngleRadians),
             ControlType.kPosition,
             ClosedLoopSlot.kSlot0,
             FFController.calculate(positionRadians, 0), // these values might be wrong

@@ -293,7 +293,9 @@ public final class Constants {
         public static final int kMotorPort1 = 32; // Right motor consistent with drivetrain right side
         
         public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(0.5);
-        public static final double maxOperatorControlVolts = 3;
+        public static final double kMinElevatorHeightMeters = Units.inchesToMeters(12); // TODO: UPDATE
+        public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(72); // TODO: UPDATE
+        public static final double maxOperatorControlVolts = 6;
 
         public static final boolean leadMotorInverted = false;
         public static final boolean followMotorInverted = false;
@@ -313,7 +315,7 @@ public final class Constants {
         public static final double kPositionConversionFactor = (11/60.0) * 22 * 0.00635; //Gear ratio & chain pitch
         public static class Electrical {
             public static final double kVoltageCompensation = 12;
-            public static final double kCurrentLimit = 80;
+            public static final double kCurrentLimit = 40;
         }
 
 
@@ -363,7 +365,7 @@ public final class Constants {
         public static final int kLeftMotorPort = 61;
         public static final int kRightMotorPort = 62;
         
-        public static final double kCurrentLimit = 80.0; 
+        public static final double kCurrentLimit = 40; 
     }
 
     public static class WristConstants {
@@ -371,7 +373,10 @@ public final class Constants {
         public static final int kFollowMotorPort = 42; // Right motor consistent with drivetrain right side
 
         public static final double wristAngleToleranceRadians = Units.degreesToRadians(1);
-        public static final double maxOperatorControlVolts = 3.0;
+        public static final double kMinWristAngleRadians = Units.degreesToRadians(-90); // TODO: UPDATE
+        public static final double kMaxWristAngleRadians = Units.degreesToRadians(90); // TODO: UPDATE
+
+        public static final double maxOperatorControlVolts = 6;
 
         public static final boolean kLeadMotorInverted = false;
         public static final boolean kFollowMotorInverted = true;

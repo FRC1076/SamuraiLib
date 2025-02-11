@@ -15,6 +15,7 @@ import static frc.robot.Constants.ElevatorConstants.kVelocityConversionFactor;
 import static frc.robot.Constants.ElevatorConstants.Electrical.*;
 
 import lib.control.MutableElevatorFeedforward; // We use our own library! (We're literally 254 fr fr)
+import lib.utils.MathHelpers;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -94,7 +95,7 @@ public class ElevatorIOHardware implements ElevatorIO {
     @Override
     public void setPosition(double positionMeters){
         m_closedLoopController.setReference(
-            positionMeters, // clamp(positionMeters, ElevatorConstants.minPositionMeters, ElevatorConstants.maxPositionMeters),
+            MathHelpers.clamp(positionMeters, ElevatorConstants.kMinElevatorHeightMeters, ElevatorConstants.kMaxElevatorHeightMeters),
             ControlType.kPosition,
             ClosedLoopSlot.kSlot0,
             FFcontroller.getKg(),

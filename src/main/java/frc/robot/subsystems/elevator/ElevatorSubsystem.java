@@ -3,6 +3,8 @@ package frc.robot.subsystems.elevator;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
 
+import lib.utils.MathHelpers;
+
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.units.measure.Distance;
@@ -54,14 +56,21 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS (where else?) */
     public void setPosition(double positionMeters) {
-        // io.setposition(clamp(positionMeters, ElevatorConstants.minPositionMeters, ElevatorConstants.maxPositionMeters));
-        io.setPosition(positionMeters);
+        io.setPosition(MathHelpers.clamp(positionMeters, ElevatorConstants.kMaxElevatorHeightMeters, ElevatorConstants.kMaxElevatorHeightMeters));
+        //io.setPosition(positionMeters);
     }
 
     /** Set voltage of the elevator motors
      * @param volts Desired voltage of the elevator
      */
     public void setVoltage(double volts) {
+        if(this.getPositionMeters() > ElevatorConstants.kMaxElevatorHeightMeters + ElevatorConstants.elevatorPositionToleranceMeters && volts > 0) {
+            volts = 0; //TODO: make this kG instead of 0?
+        }
+        else if(this.getPositionMeters() < ElevatorConstants.kMinElevatorHeightMeters - ElevatorConstants.elevatorPositionToleranceMeters && volts < 0) {
+            volts = 0;
+        }
+
         io.setVoltage(volts);
     }
 

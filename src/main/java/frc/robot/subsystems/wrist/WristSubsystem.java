@@ -3,6 +3,8 @@ package frc.robot.subsystems.wrist;
 import frc.robot.Constants.WristConstants;
 import static frc.robot.Constants.ElevatorConstants.Control.kG;
 
+import lib.utils.MathHelpers;
+
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -35,6 +37,13 @@ public class WristSubsystem extends SubsystemBase {
     
     /** Sets the voltage of the wrist motors*/
     public void setVoltage(double volts) {
+        if(this.getAngleRadians() > WristConstants.kMaxWristAngleRadians + WristConstants.wristAngleToleranceRadians && volts > 0) {
+            volts = 0; //TODO: make this kG instead of 0?
+        }
+        else if(this.getAngleRadians() < WristConstants.kMinWristAngleRadians - WristConstants.wristAngleToleranceRadians && volts < 0) {
+            volts = 0;
+        }
+
         io.setVoltage(volts);
     }
 
@@ -45,8 +54,8 @@ public class WristSubsystem extends SubsystemBase {
     /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS */
     /** Sets the desired rotation of the wrist */
     public void setPosition(Rotation2d position) {
-        // io.setPosition(clamp(position.getRadians(), WristConstants.minPositionRadians, WristConstants.maxPositionRadians));
-        io.setPosition(position.getRadians());
+        io.setPosition(MathHelpers.clamp(position.getRadians(), WristConstants.kMinWristAngleRadians, WristConstants.kMaxWristAngleRadians));
+        //io.setPosition(position.getRadians());
     }
 
     /** Returns the angle of the wrist in degrees */
