@@ -42,6 +42,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     @Override
     public void periodic(){
+        //System.out.println("Elevator: " + this.getPositionMeters());
         io.updateInputs(inputs);
         Logger.processInputs("Elevator",inputs);
     }
@@ -64,12 +65,13 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @param volts Desired voltage of the elevator
      */
     public void setVoltage(double volts) {
+        /*
         if(this.getPositionMeters() > ElevatorConstants.kMaxElevatorHeightMeters + ElevatorConstants.elevatorPositionToleranceMeters && volts > 0) {
             volts = 0; //TODO: make this kG instead of 0?
         }
         else if(this.getPositionMeters() < ElevatorConstants.kMinElevatorHeightMeters - ElevatorConstants.elevatorPositionToleranceMeters && volts < 0) {
             volts = 0;
-        }
+        }*/
 
         io.setVoltage(volts);
     }

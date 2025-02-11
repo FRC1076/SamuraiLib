@@ -96,6 +96,7 @@ public class WristSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        //System.out.println("Wrist Angle: " + this.getAngleRadians());
         io.updateInputs(inputs);
         Logger.processInputs("Wrist", inputs);
     }
