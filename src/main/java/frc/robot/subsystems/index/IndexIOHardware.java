@@ -27,8 +27,7 @@ public class IndexIOHardware implements IndexIO {
             .inverted(IndexConstants.kLeadMotorInverted);
         m_followMotorConfig
             .smartCurrentLimit((int) IndexConstants.kCurrentLimit)
-            .follow(m_leadMotor)
-            .inverted(IndexConstants.kFollowMotorInverted);
+            .follow(m_leadMotor, IndexConstants.kLeadMotorInverted != IndexConstants.kFollowMotorInverted);
 
         m_leadMotor.configure(m_leadMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
         m_followMotor.configure(m_followMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);

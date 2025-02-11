@@ -66,8 +66,7 @@ public class WristIOHardware implements WristIO {
             
 
         m_followMotorConfig
-            .follow(m_leadMotor)
-            .inverted(WristConstants.kFollowMotorInverted)
+            .follow(m_leadMotor, WristConstants.kFollowMotorInverted != WristConstants.kLeadMotorInverted)
             .idleMode(IdleMode.kBrake);
 
         // configure motors

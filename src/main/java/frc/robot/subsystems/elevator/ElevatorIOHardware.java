@@ -62,10 +62,9 @@ public class ElevatorIOHardware implements ElevatorIO {
             .quadratureAverageDepth(2);
 
         m_followMotorConfig
-            .inverted(ElevatorConstants.followMotorInverted)
             .smartCurrentLimit((int) kCurrentLimit)
             .voltageCompensation(kVoltageCompensation)
-            .follow(m_leadMotor);
+            .follow(m_leadMotor, ElevatorConstants.followMotorInverted != ElevatorConstants.leadMotorInverted);
         
         m_leadMotor.configure(m_leadMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
         m_followMotor.configure(m_followMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
