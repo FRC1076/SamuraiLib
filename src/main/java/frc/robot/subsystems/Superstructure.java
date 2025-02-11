@@ -9,6 +9,7 @@ import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.grabber.GrabberSubsystem;
 import frc.robot.subsystems.index.IndexSubsystem;
 import frc.robot.subsystems.led.LED;
+import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import static frc.robot.Constants.IndexConstants.kIndexVoltage;
 
@@ -106,7 +107,7 @@ public class Superstructure {
     private final IndexSubsystem m_index;
     private final WristSubsystem m_wrist;
     private final Elastic m_elastic;
-    private final LED m_led;
+    private final LEDSubsystem m_led;
 
     public final SuperstructureCommandFactory CommandBuilder;
 
@@ -119,7 +120,7 @@ public class Superstructure {
         IndexSubsystem index,
         WristSubsystem wrist,
         Elastic elastic,
-        LED led,
+        LEDSubsystem led,
         BooleanSupplier indexBeamBreak, //returns true when beam broken
         BooleanSupplier transferBeamBreak, //returns true when beam broken
         BooleanSupplier grabberBeamBreak //returns true when beam broken

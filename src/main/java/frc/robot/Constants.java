@@ -108,7 +108,7 @@ public final class Constants {
                     : WristSimConstants.Control.kG,
                 Akit.currentMode == 0
                     ? ElevatorConstants.Control.kG 
-                    : ElevatorSimConstants.Control.kG
+                    : ElevatorSimConstants.Control.kG,
                 "EMPTY"),
             CORAL(
                 Akit.currentMode == 0
@@ -116,7 +116,7 @@ public final class Constants {
                     : WristSimConstants.Control.kG,
                 Akit.currentMode == 0
                     ? ElevatorConstants.Control.kG 
-                    : ElevatorSimConstants.Control.kG
+                    : ElevatorSimConstants.Control.kG,
                 "CORAL"),
             ALGAE(
                 Akit.currentMode == 0
@@ -124,7 +124,7 @@ public final class Constants {
                     : WristSimConstants.Control.kG,
                 Akit.currentMode == 0
                     ? ElevatorConstants.Control.kG 
-                    : ElevatorSimConstants.Control.kG
+                    : ElevatorSimConstants.Control.kG,
                 "ALGAE");
 
             public final double wrist_kG;
