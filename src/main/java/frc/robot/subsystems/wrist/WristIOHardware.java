@@ -3,6 +3,7 @@ package frc.robot.subsystems.wrist;
 import frc.robot.Constants.WristConstants;
 
 import lib.control.MutableArmFeedforward;
+import lib.utils.MathHelpers;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -66,8 +67,7 @@ public class WristIOHardware implements WristIO {
             
 
         m_followMotorConfig
-            .follow(m_leadMotor)
-            .inverted(WristConstants.kFollowMotorInverted)
+            .follow(m_leadMotor, WristConstants.kFollowMotorInverted != WristConstants.kLeadMotorInverted)
             .idleMode(IdleMode.kBrake);
 
         // configure motors
@@ -89,10 +89,11 @@ public class WristIOHardware implements WristIO {
         m_leadMotor.setVoltage(volts);
     }
 
+    /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS */
     @Override
     public void setPosition(double positionRadians){
         m_closedLoopController.setReference(
-            positionRadians,
+            MathHelpers.clamp(positionRadians, WristConstants.kMinWristAngleRadians, WristConstants.kMaxWristAngleRadians),
             ControlType.kPosition,
             ClosedLoopSlot.kSlot0,
             FFController.calculate(positionRadians, 0), // these values might be wrong

@@ -22,9 +22,9 @@ import frc.robot.subsystems.grabber.GrabberSubsystem;
 import frc.robot.subsystems.index.IndexIOHardware;
 import frc.robot.subsystems.index.IndexIOSim;
 import frc.robot.subsystems.index.IndexSubsystem;
-import frc.robot.subsystems.led.LED;
 import frc.robot.subsystems.led.LEDIODigitalPins;
 import frc.robot.subsystems.led.LEDIOSim;
+import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.wrist.WristIOHardware;
 import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristSubsystem;
@@ -77,7 +77,7 @@ public class RobotContainer {
     private final Superstructure m_superstructure;
     private final SuperstructureVisualizer superVis;
     private final Elastic m_elastic;
-    private final LED m_LEDs;
+    private final LEDSubsystem m_LEDs;
 
 
     // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -120,7 +120,7 @@ public class RobotContainer {
             m_grabber = new GrabberSubsystem(new GrabberIOHardware());
             m_index = new IndexSubsystem(new IndexIOHardware());
             m_elastic = new Elastic();
-            m_LEDs = new LED(new LEDIODigitalPins()); // TODO: change this based on physical robot
+            m_LEDs = new LEDSubsystem(new LEDIODigitalPins()); // TODO: change this based on physical robot
         } else if (Akit.currentMode == 1) {
             m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
             m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
@@ -128,7 +128,7 @@ public class RobotContainer {
             m_grabber = new GrabberSubsystem(new GrabberIOSim());
             m_index = new IndexSubsystem(new IndexIOSim());
             m_elastic = new Elastic();
-            m_LEDs = new LED(new LEDIOSim());
+            m_LEDs = new LEDSubsystem(new LEDIOSim());
         }
 
         m_superstructure = new Superstructure(
@@ -204,14 +204,14 @@ public class RobotContainer {
     }
 
     private void configureDriverBindings() {
-
+        /*
         m_driverController.leftTrigger().whileTrue(
             m_drive.CommandBuilder.directDriveToNearestLeftBranch()
         );
 
         m_driverController.rightTrigger().whileTrue(
             m_drive.CommandBuilder.directDriveToNearestRightBranch()
-        );
+        );*/
 
         // Point to reef
         m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());

@@ -15,6 +15,7 @@ import static frc.robot.Constants.ElevatorConstants.kVelocityConversionFactor;
 import static frc.robot.Constants.ElevatorConstants.Electrical.*;
 
 import lib.control.MutableElevatorFeedforward; // We use our own library! (We're literally 254 fr fr)
+import lib.utils.MathHelpers;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -62,10 +63,9 @@ public class ElevatorIOHardware implements ElevatorIO {
             .quadratureAverageDepth(2);
 
         m_followMotorConfig
-            .inverted(ElevatorConstants.followMotorInverted)
             .smartCurrentLimit((int) kCurrentLimit)
             .voltageCompensation(kVoltageCompensation)
-            .follow(m_leadMotor);
+            .follow(m_leadMotor, ElevatorConstants.followMotorInverted != ElevatorConstants.leadMotorInverted);
         
         m_leadMotor.configure(m_leadMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
         m_followMotor.configure(m_followMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -88,13 +88,14 @@ public class ElevatorIOHardware implements ElevatorIO {
         m_leadMotor.setVoltage(volts);
     }
 
+    /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS */
     /** Set desired position of the elevator
      * @param positionMeters The desired position of the elevator in meters
      */
     @Override
     public void setPosition(double positionMeters){
         m_closedLoopController.setReference(
-            positionMeters,
+            MathHelpers.clamp(positionMeters, ElevatorConstants.kMinElevatorHeightMeters, ElevatorConstants.kMaxElevatorHeightMeters),
             ControlType.kPosition,
             ClosedLoopSlot.kSlot0,
             FFcontroller.getKg(),

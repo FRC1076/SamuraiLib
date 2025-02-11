@@ -245,6 +245,7 @@ public class Superstructure {
         private final BooleanSupplier m_indexBeamBreak;
         private final BooleanSupplier m_transferBeamBreak;
         private final BooleanSupplier m_grabberBeamBreak;
+        private final Command grabberActionSelectCommand;
         private final Map<WristevatorState, Command> grabberActionCommands = new HashMap<>(); // We use a map of grabber action commands so that we can use the SelectWithFallBackCommand factory
         private SuperstructureCommandFactory (
             Superstructure superstructure,
@@ -262,26 +263,28 @@ public class Superstructure {
             grabberActionCommands.put(WristevatorState.L4, superstructure.applyGrabberState(GrabberState.CORAL_OUTTAKE)); // TODO: Are there any risks if we have a coral, try to score it, and then hit the button again? The grabber will think it has an algae
             grabberActionCommands.put(WristevatorState.GROUND_INTAKE,
                                         superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
-                                        .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE));
+                                        /* .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE)*/);
             grabberActionCommands.put(WristevatorState.PROCESSOR, superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE));
             grabberActionCommands.put(WristevatorState.LOW_INTAKE,
                                         superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
-                                        .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE));
+                                        /* .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE)*/);
             grabberActionCommands.put(WristevatorState.HIGH_INTAKE,
                                         superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
-                                        .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE));
+                                        /* .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE)*/);
             grabberActionCommands.put(WristevatorState.NET, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
+
+            grabberActionSelectCommand = new SelectWithFallbackCommand<WristevatorState>(
+                grabberActionCommands,
+                superstructure.applyGrabberState(GrabberState.DEFAULT_OUTTAKE), // Default command to do if command can't be chosen from grabberActionCommands
+                this.superstructure.getSuperState()::getWristevatorState
+            );
         }
 
         /**
          * Returns a command that does a grabber action differently depending on robot state (scoring coral, scoring algae, intaking algae)
          */
         public Command doGrabberAction() {
-            return new SelectWithFallbackCommand<WristevatorState>(
-                grabberActionCommands,
-                superstructure.applyGrabberState(GrabberState.DEFAULT_OUTTAKE), // Default command to do if command can't be chosen from grabberActionCommands
-                this.superstructure.getSuperState()::getWristevatorState
-            );
+            return grabberActionSelectCommand;
         }
 
         /**

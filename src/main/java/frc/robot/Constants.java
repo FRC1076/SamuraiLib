@@ -72,7 +72,7 @@ public final class Constants {
     }
 
     public static class Akit {
-        public static final int currentMode = 1;
+        public static final int currentMode = 0;
     }
     
     public static class DriveConstants {
@@ -300,11 +300,13 @@ public final class Constants {
     }
 
     public static class ElevatorConstants {
-        public static final int kMotorPort0 = -1;
-        public static final int kMotorPort1 = -1;
+        public static final int kMotorPort0 = 31; // Left motor consistent with drivetrain left side
+        public static final int kMotorPort1 = 32; // Right motor consistent with drivetrain right side
         
         public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(0.5);
-        public static final double maxOperatorControlVolts = 6.0;
+        public static final double kMinElevatorHeightMeters = Units.inchesToMeters(0); // TODO: UPDATE
+        public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(72); // TODO: UPDATE
+        public static final double maxOperatorControlVolts = 3;
 
         public static final boolean leadMotorInverted = false;
         public static final boolean followMotorInverted = false;
@@ -324,7 +326,7 @@ public final class Constants {
         public static final double kPositionConversionFactor = (11/60.0) * 22 * 0.00635; //Gear ratio & chain pitch
         public static class Electrical {
             public static final double kVoltageCompensation = 12;
-            public static final double kCurrentLimit = 40;
+            public static final double kCurrentLimit = 80;
         }
 
 
@@ -336,8 +338,8 @@ public final class Constants {
 
             // Feedforward constants - STILL SET TO WAPUR ELEVATOR VALUES
             public static final double kS = 0.0; //Static gain (voltage)
-            public static final double kG = 0.6; //Gravity gain (voltage)
-            public static final double kV = 12.0; // velocity game
+            public static final double kG = 0.0; // 0.6 //Gravity gain (voltage)
+            public static final double kV = 0.0; // 12.0 // velocity game
             public static final double kA = 0.0; //Acceleration Gain
         }
     }
@@ -371,21 +373,24 @@ public final class Constants {
     }
 
     public static final class GrabberConstants {
-        public static final int kLeftMotorPort = -1;
-        public static final int kRightMotorPort = -1;
+        public static final int kLeftMotorPort = 61;
+        public static final int kRightMotorPort = 62;
         
-        public static final double kCurrentLimit = 40.0; 
+        public static final double kCurrentLimit = 40; 
     }
 
     public static class WristConstants {
-        public static final int kLeadMotorPort = -2;
-        public static final int kFollowMotorPort = -3;
+        public static final int kLeadMotorPort = 41; // Left motor consistent with drivetrain left side
+        public static final int kFollowMotorPort = 42; // Right motor consistent with drivetrain right side
 
         public static final double wristAngleToleranceRadians = Units.degreesToRadians(1);
-        public static final double maxOperatorControlVolts = 6.0;
+        public static final double kMinWristAngleRadians = Units.degreesToRadians(-45); // TODO: UPDATE
+        public static final double kMaxWristAngleRadians = Units.degreesToRadians(45); // TODO: UPDATE
+
+        public static final double maxOperatorControlVolts = 6;
 
         public static final boolean kLeadMotorInverted = false;
-        public static final boolean kFollowMotorInverted = false;
+        public static final boolean kFollowMotorInverted = true;
 
         // Source: https://docs.revrobotics.com/brushless/spark-max/encoders/alternate-encoder
         public static final int kCountsPerRevolution = 8192;
@@ -427,14 +432,14 @@ public final class Constants {
     }
 
     public static class IndexConstants {
-        public static final int kLeadMotorPort = -10;
-        public static final int kFollowMotorPort = -10;
+        public static final int kLeadMotorPort = 51;
+        public static final int kFollowMotorPort = 52;
 
-        public static final double kCurrentLimit = 40.0;
+        public static final double kCurrentLimit = 20.0;
         public static final double kIndexVoltage = 6.0;
 
         public static final boolean kLeadMotorInverted = false;
-        public static final boolean kFollowMotorInverted = false;
+        public static final boolean kFollowMotorInverted = true;
     }
 
     public static class BeamBreakConstants{
