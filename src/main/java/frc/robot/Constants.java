@@ -306,7 +306,7 @@ public final class Constants {
         public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(0.5);
         public static final double kMinElevatorHeightMeters = Units.inchesToMeters(0); // TODO: UPDATE
         public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(72); // TODO: UPDATE
-        public static final double maxOperatorControlVolts = 3;
+        public static final double maxOperatorControlVolts = 9;
 
         public static final boolean leadMotorInverted = false;
         public static final boolean followMotorInverted = false;
@@ -326,7 +326,7 @@ public final class Constants {
         public static final double kPositionConversionFactor = (11/60.0) * 22 * 0.00635; //Gear ratio & chain pitch
         public static class Electrical {
             public static final double kVoltageCompensation = 12;
-            public static final double kCurrentLimit = 80;
+            public static final double kCurrentLimit = 40;
         }
 
 
@@ -390,7 +390,7 @@ public final class Constants {
         public static final double maxOperatorControlVolts = 6;
 
         public static final boolean kLeadMotorInverted = false;
-        public static final boolean kFollowMotorInverted = true;
+        public static final boolean kFollowMotorInverted = false;
 
         // Source: https://docs.revrobotics.com/brushless/spark-max/encoders/alternate-encoder
         public static final int kCountsPerRevolution = 8192;
