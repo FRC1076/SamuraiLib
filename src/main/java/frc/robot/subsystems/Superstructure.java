@@ -11,6 +11,7 @@ import frc.robot.subsystems.index.IndexSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import frc.robot.subsystems.wristevator.Wristevator;
 import frc.robot.subsystems.wristevator.Wristevator.WristevatorState;
+import frc.robot.utils.Elastic;
 
 import static frc.robot.Constants.IndexConstants.kIndexVoltage;
 
@@ -223,6 +224,8 @@ public class Superstructure {
         m_wrist.setKg(grabberPossession.wrist_kG);
         superState.setIndexPossession(indexPossession);
         superState.setGrabberPossession(grabberPossession);
+        Elastic.getInstance().putIndexPossession(indexPossession);
+        Elastic.getInstance().putGrabberPossession(grabberPossession);
     }
 
     /** Contains all the command factories for the superstructure */
@@ -232,6 +235,7 @@ public class Superstructure {
         private final BooleanSupplier m_transferBeamBreak;
         private final BooleanSupplier m_grabberBeamBreak;
         private final Map<WristevatorPreset, Command> grabberActionCommands = new HashMap<>(); // We use a map of grabber action commands so that we can use the SelectWithFallBackCommand factory
+        private final Command grabberActionSelectCommand;
         private SuperstructureCommandFactory (
             Superstructure superstructure,
             BooleanSupplier indexBeamBreak,
@@ -257,6 +261,11 @@ public class Superstructure {
                                         superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE)
                                         .unless(() -> superState.getGrabberPossession() == GrabberPossession.ALGAE));
             grabberActionCommands.put(WristevatorPreset.NET, superstructure.applyGrabberState(GrabberState.ALGAE_OUTTAKE));
+            grabberActionSelectCommand = new SelectWithFallbackCommand<WristevatorPreset>(
+                grabberActionCommands,
+                superstructure.applyGrabberState(GrabberState.DEFAULT_OUTTAKE), // Default command to do if command can't be chosen from grabberActionCommands
+                this.superstructure.getSuperState()::getWristevatorPreset
+            );
         }
 
         public Command followWristevatorTrajectory(List<WristevatorState> trajectory) {
@@ -267,11 +276,7 @@ public class Superstructure {
          * Returns a command that does a grabber action differently depending on robot state (scoring coral, scoring algae, intaking algae)
          */
         public Command doGrabberAction() {
-            return new SelectWithFallbackCommand<WristevatorPreset>(
-                grabberActionCommands,
-                superstructure.applyGrabberState(GrabberState.DEFAULT_OUTTAKE), // Default command to do if command can't be chosen from grabberActionCommands
-                this.superstructure.getSuperState()::getWristevatorPreset
-            );
+            return grabberActionSelectCommand;
         }
 
         /**

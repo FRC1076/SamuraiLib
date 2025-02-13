@@ -24,6 +24,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.I2C;
 import frc.robot.subsystems.wristevator.Wristevator.WristevatorState;
 
 import com.pathplanner.lib.config.PIDConstants;
@@ -42,6 +43,40 @@ import org.apache.commons.lang3.NotImplementedException;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+    public static class GameConstants {
+
+        public static TeamColors kTeamColor = TeamColors.kTeamColorBlue;
+        public static StartPositions kStartPosition = StartPositions.kStartA;
+
+        public enum TeamColors {
+            kTeamColorBlue("BLUE"),
+            kTeamColorRed("RED");
+
+            public final String color;
+
+            private TeamColors(String color) {
+                this.color = color;
+            }
+        }
+
+        public enum StartPositions {
+            kStartA(0.0, 0.0, 0.0, "kStartA");
+
+            public final Pose2d position;
+            public final String name;
+
+            /** 
+             * @param x x coordinate in meters
+             * @param y y coordinate in meters
+             * @param rotation rotation in radians
+             */
+            private StartPositions(double x, double y, double rotation, String name) {
+                this.position = new Pose2d(x, y, new Rotation2d(rotation));
+                this.name = name;
+            }
+        }
+    }
 
     public static class OIConstants{
         public static final int kDriverControllerPort = 0;
@@ -81,14 +116,16 @@ public final class Constants {
 
         //Grabber Possession State
         public enum GrabberPossession {
-            EMPTY(0,2.8605),
-            CORAL(0,2.8605),
-            ALGAE(0,2.8605);
+            EMPTY("EMPTY",0,2.8605),
+            CORAL("CORAL",0,2.8605),
+            ALGAE("ALGAE",0,2.8605);
 
+            public final String name;
             public final double wrist_kG;
             public final double elevator_kG;
 
-            private GrabberPossession(double wrist_kG, double elevator_kG) {
+            private GrabberPossession(String name, double wrist_kG, double elevator_kG) {
+                this.name = name;
                 this.wrist_kG = wrist_kG;
                 this.elevator_kG = elevator_kG;
             }
@@ -96,8 +133,13 @@ public final class Constants {
 
         //Index Possession State
         public enum IndexPossession {
-            EMPTY,
-            CORAL
+            EMPTY("EMPTY"),
+            CORAL("CORAL");
+
+            public final String name;
+            private IndexPossession(String name) {
+                this.name = name;
+            }
         }
 
         //Grabber State
@@ -459,6 +501,36 @@ public final class Constants {
                     );
                 }
             }
+        }
+    }
+
+    public static class LEDConstants {
+
+        public static enum LEDState {
+            EMPTY(0),
+            CORAL_INDEX(1),
+            CORAL_GRABBER(2),
+            ALGAE(3);
+
+            public final byte id;
+
+            //ID should be an integer between -128 or +127. Passing a value outside this range could lead to unexpected behavior
+            private LEDState(int id) {
+                this.id = (byte) id;
+            }
+        }
+
+        // Constants for controlling the LEDs over the RIO's DIO pins
+        public static class DIOConstants {
+            // Digital input-output pins on the RIO
+            public static final int kDIOPort0 = 7;
+            public static final int kDIOPort1 = 8;
+            public static final int kDIOPort2 = 9;
+        }
+
+        public static class I2CConstants {
+            public static final I2C.Port port = I2C.Port.kOnboard;
+            public static final int devAddr = 0;
         }
     }
 

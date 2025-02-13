@@ -244,9 +244,8 @@ public class RobotContainer {
         );
 
         // Point to reef
-        //m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
-        m_driverController.a().whileTrue(m_superstructure.CommandBuilder.followWristevatorTrajectory(TrajectoryTests.testTraj1));
-
+        m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
+        
         // Apply single clutch
         m_driverController.rightBumper().whileTrue(teleopDriveCommand.applySingleClutch());
 
@@ -358,6 +357,7 @@ public class RobotContainer {
    */
     public Command getAutonomousCommand() {
         //return AutoBuilder.buildAuto("J4_K4_L4_A4");
-        return m_superstructure.CommandBuilder.followWristevatorTrajectory(WristevatorConstants.TrajectoryTests.testTraj1);
+        //return m_superstructure.CommandBuilder.followWristevatorTrajectory(WristevatorConstants.TrajectoryTests.testTraj1);
+        return m_autoChooser.getSelected();
     }
 }
