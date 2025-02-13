@@ -4,6 +4,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -156,5 +157,24 @@ public class DriveIOSim extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> imple
     @Override
     public void periodic(){
         updateSimState(0.02, 12);
+    }
+
+      /** Set the current limit for each drive motor. 
+     * Stator current is the amount of current that is sent to the motor.
+     * <p>
+     * <b>WARNING:</b> This method is resource intensive. Do not call it every loop.
+     * 
+     * @param currentLimit The amount of current sent to each motor.
+     */
+    @Override
+    public void setDriveStatorCurrentLimit(double currentLimit) {
+        
+        CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs()
+            .withStatorCurrentLimitEnable(true)
+            .withStatorCurrentLimit(currentLimit);
+            
+        for (var module : getModules()) {
+            module.getDriveMotor().getConfigurator().apply(currentConfigs);
+        }
     }
 }
