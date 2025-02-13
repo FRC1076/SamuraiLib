@@ -222,11 +222,16 @@ public class Superstructure {
         IndexPossession indexPossession = indexBB 
             ? IndexPossession.CORAL 
             : IndexPossession.EMPTY;
-        GrabberPossession grabberPossession = grabberBB
-            ? (transferBB
-                ? GrabberPossession.CORAL 
-                : GrabberPossession.ALGAE) 
-            : GrabberPossession.EMPTY;
+        GrabberPossession grabberPossession;
+        // TODO: as coral is shot, the robot will think we have an algae, and kG will increase. Add timeout?
+        if (transferBB) {
+            grabberPossession = GrabberPossession.CORAL;
+        } else if (grabberBB) {
+            grabberPossession = GrabberPossession.ALGAE;
+        } else {
+            grabberPossession = GrabberPossession.EMPTY;
+        }
+
         m_elevator.setKg(grabberPossession.elevator_kG);
         m_wrist.setKg(grabberPossession.wrist_kG);
         superState.setIndexPossession(indexPossession);
@@ -234,7 +239,7 @@ public class Superstructure {
         
         m_elastic.putIndexPossession(indexPossession);
         m_elastic.putGrabberPossession(grabberPossession);
-        // TODO: add LED code here
+        // TODO: call add LED code here
 
     }
 
@@ -277,6 +282,8 @@ public class Superstructure {
                 superstructure.applyGrabberState(GrabberState.DEFAULT_OUTTAKE), // Default command to do if command can't be chosen from grabberActionCommands
                 this.superstructure.getSuperState()::getWristevatorState
             );
+
+            this.updatePossessionAndKg();
         }
 
         /**

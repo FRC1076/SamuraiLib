@@ -323,12 +323,15 @@ public class RobotContainer {
 
     private void configureBeamBreakTriggers() {
 
+        m_indexBeamBreak.onChange(
+            m_superstructure.CommandBuilder.updatePossessionAndKg()
+        );
 
-        m_indexBeamBreak.or(
-            m_transferBeamBreak.or(
-                m_grabberBeamBreak
-            )
-        ).onChange(
+        m_transferBeamBreak.onChange(
+            m_superstructure.CommandBuilder.updatePossessionAndKg()
+        );
+        
+        m_grabberBeamBreak.onChange(
             m_superstructure.CommandBuilder.updatePossessionAndKg()
         );
     }
