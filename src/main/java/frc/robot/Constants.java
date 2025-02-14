@@ -25,6 +25,8 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.SerialPort;
 import frc.robot.subsystems.wristevator.Wristevator.WristevatorState;
 
 import com.pathplanner.lib.config.PIDConstants;
@@ -521,16 +523,30 @@ public final class Constants {
         }
 
         // Constants for controlling the LEDs over the RIO's DIO pins
-        public static class DIOConstants {
+        public static class ParallelConfig {
             // Digital input-output pins on the RIO
             public static final int kDIOPort0 = 7;
             public static final int kDIOPort1 = 8;
             public static final int kDIOPort2 = 9;
         }
 
-        public static class I2CConstants {
+        public static class I2CConfig {
             public static final I2C.Port port = I2C.Port.kOnboard;
             public static final int devAddr = 0;
+        }
+
+        public static class SerialConfig {
+            public static final int baudRate = 9600;
+            public static final SerialPort.Port port = SerialPort.Port.kOnboard;
+            public static final int dataBits = 8;
+            public static final SerialPort.Parity parity = SerialPort.Parity.kNone;
+            public static final SerialPort.StopBits stopBits = SerialPort.StopBits.kOne;
+        }
+
+        public static class SPIConfig {
+            public static final SPI.Mode mode = SPI.Mode.kMode0;
+            public static final SPI.Port port = SPI.Port.kOnboardCS0;
+            public static final int clockSignalHz = 500000;
         }
     }
 

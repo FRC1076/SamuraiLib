@@ -1,22 +1,21 @@
 package frc.robot.subsystems.leds;
 
 import edu.wpi.first.hal.I2CJNI;
-import frc.robot.Constants.LEDConstants.I2CConstants;
+import edu.wpi.first.wpilibj.I2C;
+import frc.robot.Constants.LEDConstants.I2CConfig;
 import frc.robot.Constants.LEDConstants.LEDState;
 
-// A driver that controls the LEDs over a Serial I2C bus
+// A driver that controls the LEDs over an I2C bus
 public class LEDI2C implements LEDDriver {
 
-    private final int port;
-    private final byte devAddr;
+    private final I2C bus;
 
     public LEDI2C() {
-        port =  I2CConstants.port.value;
-        devAddr = (byte) I2CConstants.devAddr;
+        bus = new I2C(I2CConfig.port,I2CConfig.devAddr);
     }
 
     @Override
     public void setState(LEDState state) {
-        I2CJNI.i2CWriteB(port,devAddr,new byte[] {state.id},(byte) 1);
+        bus.writeBulk(new byte[] {state.id});
     }
 }

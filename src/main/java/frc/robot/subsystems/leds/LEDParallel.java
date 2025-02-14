@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.DigitalOutput;
 import frc.robot.Constants.LEDConstants;
 import frc.robot.Constants.LEDConstants.LEDState;
 
-// LED Driver that Controls the LEDs over a Parallel DIO Bus
+// LED Driver that Controls the LEDs over a Parallel bus bitbanged from 3 GPIO pins
 public class LEDParallel implements LEDDriver {
     /* Bitmasks */
 
@@ -27,9 +27,9 @@ public class LEDParallel implements LEDDriver {
 
     /** Instantiate each digital pin, using integer constants for the channel */
     public LEDParallel() {
-        m_pin0 = new DigitalOutput(LEDConstants.DIOConstants.kDIOPort0);
-        m_pin1 = new DigitalOutput(LEDConstants.DIOConstants.kDIOPort1);
-        m_pin2 = new DigitalOutput(LEDConstants.DIOConstants.kDIOPort2);
+        m_pin0 = new DigitalOutput(LEDConstants.ParallelConfig.kDIOPort0);
+        m_pin1 = new DigitalOutput(LEDConstants.ParallelConfig.kDIOPort1);
+        m_pin2 = new DigitalOutput(LEDConstants.ParallelConfig.kDIOPort2);
     }
 
     @Override
