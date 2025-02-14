@@ -49,10 +49,11 @@ public class WristIOHardware implements WristIO {
         // create motor configurations
         m_leadMotorConfig
             .inverted(WristConstants.kLeadMotorInverted)
-            .idleMode(IdleMode.kBrake);
+            .idleMode(IdleMode.kBrake)
+            .smartCurrentLimit((int) WristConstants.kSmartCurrentLimit);
             
         m_leadMotorConfig.closedLoop
-            .feedbackSensor(FeedbackSensor.kAlternateOrExternalEncoder)
+            .feedbackSensor(FeedbackSensor.kPrimaryEncoder);
             .pid(
                 WristConstants.Control.kP,
                 WristConstants.Control.kI,
@@ -75,7 +76,7 @@ public class WristIOHardware implements WristIO {
         m_followMotor.configure(m_followMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
         m_closedLoopController = m_leadMotor.getClosedLoopController();
-        m_alternateEncoder = m_leadMotor.getAlternateEncoder();
+        m_alternateEncoder = m_leadMotor.getEncoder();
     }
 
     @Override

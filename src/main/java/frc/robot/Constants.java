@@ -29,6 +29,8 @@ import org.apache.commons.lang3.NotImplementedException;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+    
     /** Contains starting position and team */
     public static class GameConstants {
 
@@ -397,6 +399,7 @@ public final class Constants {
         public static final double kMaxWristAngleRadians = Units.degreesToRadians(45); // TODO: UPDATE
 
         public static final double maxOperatorControlVolts = 6;
+        public static final double kSmartCurrentLimit = 40.0;
 
         public static final boolean kLeadMotorInverted = false;
         public static final boolean kFollowMotorInverted = false;
