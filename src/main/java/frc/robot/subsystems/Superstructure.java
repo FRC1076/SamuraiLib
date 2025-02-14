@@ -8,6 +8,7 @@ import frc.robot.Constants.SuperstructureConstants.IndexState;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.grabber.GrabberSubsystem;
 import frc.robot.subsystems.index.IndexSubsystem;
+import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import static frc.robot.Constants.IndexConstants.kIndexVoltage;
 
@@ -104,6 +105,8 @@ public class Superstructure {
     private final GrabberSubsystem m_grabber;
     private final IndexSubsystem m_index;
     private final WristSubsystem m_wrist;
+    private final Elastic m_elastic;
+    private final LEDSubsystem m_led;
 
     public final SuperstructureCommandFactory CommandBuilder;
 
@@ -115,6 +118,8 @@ public class Superstructure {
         GrabberSubsystem grabber,
         IndexSubsystem index,
         WristSubsystem wrist,
+        Elastic elastic,
+        LEDSubsystem led,
         BooleanSupplier indexBeamBreak, //returns true when beam broken
         BooleanSupplier transferBeamBreak, //returns true when beam broken
         BooleanSupplier grabberBeamBreak //returns true when beam broken
@@ -123,6 +128,8 @@ public class Superstructure {
         m_grabber = grabber;
         m_index = index;
         m_wrist = wrist;
+        m_elastic = elastic;
+        m_led = led;
         
         CommandUtils.makePeriodic(() -> {
             Logger.processInputs("Superstructure", superState);
@@ -215,15 +222,27 @@ public class Superstructure {
         IndexPossession indexPossession = indexBB 
             ? IndexPossession.CORAL 
             : IndexPossession.EMPTY;
-        GrabberPossession grabberPossession = grabberBB
-            ? (transferBB
-                ? GrabberPossession.CORAL 
-                : GrabberPossession.ALGAE) 
-            : GrabberPossession.EMPTY;
+        GrabberPossession grabberPossession;
+        // TODO: as coral is shot, the robot will think we have an algae, and kG will increase. Add timeout?
+        if (transferBB && grabberBB) {
+            grabberPossession = GrabberPossession.CORAL;
+        } else if (transferBB) {
+            grabberPossession = GrabberPossession.TRANSFERRING;
+        } else if (grabberBB) {
+            grabberPossession = GrabberPossession.ALGAE;
+        } else {
+            grabberPossession = GrabberPossession.EMPTY;
+        }
+
         m_elevator.setKg(grabberPossession.elevator_kG);
         m_wrist.setKg(grabberPossession.wrist_kG);
         superState.setIndexPossession(indexPossession);
         superState.setGrabberPossession(grabberPossession);
+        
+        m_elastic.putIndexPossession(indexPossession);
+        m_elastic.putGrabberPossession(grabberPossession);
+        // TODO: call add LED code here
+
     }
 
     /** Contains all the command factories for the superstructure */
@@ -265,6 +284,8 @@ public class Superstructure {
                 superstructure.applyGrabberState(GrabberState.DEFAULT_OUTTAKE), // Default command to do if command can't be chosen from grabberActionCommands
                 this.superstructure.getSuperState()::getWristevatorState
             );
+
+            this.updatePossessionAndKg();
         }
 
         /**

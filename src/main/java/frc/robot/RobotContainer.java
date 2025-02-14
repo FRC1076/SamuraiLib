@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.commands.drive.DirectDriveToPoseCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
+import frc.robot.subsystems.Elastic;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.DriveIOHardware;
@@ -21,6 +22,9 @@ import frc.robot.subsystems.grabber.GrabberSubsystem;
 import frc.robot.subsystems.index.IndexIOHardware;
 import frc.robot.subsystems.index.IndexIOSim;
 import frc.robot.subsystems.index.IndexSubsystem;
+import frc.robot.subsystems.led.LEDIODigitalPins;
+import frc.robot.subsystems.led.LEDIOSim;
+import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.wrist.WristIOHardware;
 import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristSubsystem;
@@ -72,6 +76,8 @@ public class RobotContainer {
     private final Trigger m_interruptGrabber;
     private final Superstructure m_superstructure;
     private final SuperstructureVisualizer superVis;
+    private final Elastic m_elastic;
+    private final LEDSubsystem m_LEDs;
 
 
     // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -99,10 +105,10 @@ public class RobotContainer {
     Also, ignore the "comparing identical expressions" and "dead code" warnings
     */
     
-        
-        m_indexBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.indexBeamBreakPort)::get);
-        m_transferBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.transferBeamBreakPort)::get);
-        m_grabberBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.grabberBeamBreakPort)::get);
+    
+        m_indexBeamBreak = m_beamBreakController.a();
+        m_transferBeamBreak = m_beamBreakController.x();
+        m_grabberBeamBreak = m_beamBreakController.y();
         m_interruptElevator = new Trigger(() -> m_operatorController.getLeftY() != 0);
         m_interruptGrabber = new Trigger(() -> m_operatorController.getRightY() != 0);
 
@@ -113,12 +119,16 @@ public class RobotContainer {
             m_wrist = new WristSubsystem(new WristIOHardware());
             m_grabber = new GrabberSubsystem(new GrabberIOHardware());
             m_index = new IndexSubsystem(new IndexIOHardware());
+            m_elastic = new Elastic();
+            m_LEDs = new LEDSubsystem(new LEDIODigitalPins()); // TODO: change this based on physical robot
         } else if (Akit.currentMode == 1) {
             m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
             m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
             m_wrist = new WristSubsystem(new WristIOSim());
             m_grabber = new GrabberSubsystem(new GrabberIOSim());
             m_index = new IndexSubsystem(new IndexIOSim());
+            m_elastic = new Elastic();
+            m_LEDs = new LEDSubsystem(new LEDIOSim());
         }
 
         m_superstructure = new Superstructure(
@@ -126,6 +136,8 @@ public class RobotContainer {
             m_grabber,
             m_index, 
             m_wrist, 
+            m_elastic,
+            m_LEDs,
             m_indexBeamBreak, 
             m_transferBeamBreak, 
             m_grabberBeamBreak
@@ -311,12 +323,15 @@ public class RobotContainer {
 
     private void configureBeamBreakTriggers() {
 
+        m_indexBeamBreak.onChange(
+            m_superstructure.CommandBuilder.updatePossessionAndKg()
+        );
 
-        m_indexBeamBreak.or(
-            m_transferBeamBreak.or(
-                m_grabberBeamBreak
-            )
-        ).onChange(
+        m_transferBeamBreak.onChange(
+            m_superstructure.CommandBuilder.updatePossessionAndKg()
+        );
+        
+        m_grabberBeamBreak.onChange(
             m_superstructure.CommandBuilder.updatePossessionAndKg()
         );
     }

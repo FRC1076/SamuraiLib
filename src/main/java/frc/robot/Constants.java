@@ -108,35 +108,55 @@ public final class Constants {
                     : WristSimConstants.Control.kG,
                 Akit.currentMode == 0
                     ? ElevatorConstants.Control.kG 
-                    : ElevatorSimConstants.Control.kG),
+                    : ElevatorSimConstants.Control.kG,
+                "EMPTY"),
             CORAL(
                 Akit.currentMode == 0
                     ? WristConstants.Control.kG 
                     : WristSimConstants.Control.kG,
                 Akit.currentMode == 0
                     ? ElevatorConstants.Control.kG 
-                    : ElevatorSimConstants.Control.kG),
+                    : ElevatorSimConstants.Control.kG,
+                "CORAL"),
             ALGAE(
                 Akit.currentMode == 0
                     ? WristConstants.Control.kG 
                     : WristSimConstants.Control.kG,
                 Akit.currentMode == 0
                     ? ElevatorConstants.Control.kG 
-                    : ElevatorSimConstants.Control.kG);
+                    : ElevatorSimConstants.Control.kG,
+                "ALGAE"),
+            TRANSFERRING(
+                Akit.currentMode == 0
+                    ? WristConstants.Control.kG
+                    : WristSimConstants.Control.kG,
+                Akit.currentMode == 0
+                    ? ElevatorConstants.Control.kG
+                    : ElevatorSimConstants.Control.kG,
+                "TRANSFERRING"
+            );
 
             public final double wrist_kG;
             public final double elevator_kG;
+            public final String name;
 
-            private GrabberPossession(double wrist_kG, double elevator_kG) {
+            private GrabberPossession(double wrist_kG, double elevator_kG, String name) {
                 this.wrist_kG = wrist_kG;
                 this.elevator_kG = elevator_kG;
+                this.name = name;
             }
         }
 
         // Index Possession State
         public enum IndexPossession {
-            EMPTY,
-            CORAL
+            EMPTY("EMPTY"),
+            CORAL("CORAL");
+
+            public final String name;
+
+            private IndexPossession(String name) {
+                this.name = name;
+            }
         }
 
         // Grabber State
@@ -295,7 +315,7 @@ public final class Constants {
         public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(0.5);
         public static final double kMinElevatorHeightMeters = Units.inchesToMeters(0); // TODO: UPDATE
         public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(72); // TODO: UPDATE
-        public static final double maxOperatorControlVolts = 3;
+        public static final double maxOperatorControlVolts = 9;
 
         public static final boolean leadMotorInverted = false;
         public static final boolean followMotorInverted = false;
@@ -315,7 +335,7 @@ public final class Constants {
         public static final double kPositionConversionFactor = (11/60.0) * 22 * 0.00635; //Gear ratio & chain pitch
         public static class Electrical {
             public static final double kVoltageCompensation = 12;
-            public static final double kCurrentLimit = 80;
+            public static final double kCurrentLimit = 40;
         }
 
 
@@ -379,7 +399,7 @@ public final class Constants {
         public static final double maxOperatorControlVolts = 6;
 
         public static final boolean kLeadMotorInverted = false;
-        public static final boolean kFollowMotorInverted = true;
+        public static final boolean kFollowMotorInverted = false;
 
         // Source: https://docs.revrobotics.com/brushless/spark-max/encoders/alternate-encoder
         public static final int kCountsPerRevolution = 8192;
@@ -435,6 +455,30 @@ public final class Constants {
         public static final int indexBeamBreakPort = 0;
         public static final int transferBeamBreakPort = 1;
         public static final int grabberBeamBreakPort = 2;
+    }
+
+    public static class LEDConstants {
+        // Digital input-output pins on the RIO
+        public static final int kDIOPort1 = 7;
+        public static final int kDIOPort2 = 8;
+        public static final int kDIOPort3 = 9;
+
+        public static enum LEDStates {
+            EMPTY(false, false, false),
+            CORAL_INDEX(true, false, false),
+            CORAL_GRABBER(false, true, false),
+            ALGAE(true, true, false);
+
+            // TODO: switch from boolean (byte) to a bit
+            public final boolean onesPlace;
+            public final boolean twosPlace;
+            public final boolean foursPlace;
+            private LEDStates(boolean onesPlace, boolean twosPlace, boolean foursPlace) {
+                this.onesPlace = onesPlace;
+                this.twosPlace = twosPlace;
+                this.foursPlace = foursPlace;
+            } 
+        }
     }
 
     private Constants() {
