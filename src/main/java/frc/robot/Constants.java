@@ -125,7 +125,16 @@ public final class Constants {
                 Akit.currentMode == 0
                     ? ElevatorConstants.Control.kG 
                     : ElevatorSimConstants.Control.kG,
-                "ALGAE");
+                "ALGAE"),
+            TRANSFERRING(
+                Akit.currentMode == 0
+                    ? WristConstants.Control.kG
+                    : WristSimConstants.Control.kG,
+                Akit.currentMode == 0
+                    ? ElevatorConstants.Control.kG
+                    : ElevatorSimConstants.Control.kG,
+                "TRANSFERRING"
+            );
 
             public final double wrist_kG;
             public final double elevator_kG;

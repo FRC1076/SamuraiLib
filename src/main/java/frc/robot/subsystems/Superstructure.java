@@ -224,8 +224,10 @@ public class Superstructure {
             : IndexPossession.EMPTY;
         GrabberPossession grabberPossession;
         // TODO: as coral is shot, the robot will think we have an algae, and kG will increase. Add timeout?
-        if (transferBB) {
+        if (transferBB && grabberBB) {
             grabberPossession = GrabberPossession.CORAL;
+        } else if (transferBB) {
+            grabberPossession = GrabberPossession.TRANSFERRING;
         } else if (grabberBB) {
             grabberPossession = GrabberPossession.ALGAE;
         } else {
