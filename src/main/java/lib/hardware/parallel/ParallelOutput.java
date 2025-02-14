@@ -25,7 +25,8 @@ public class ParallelOutput implements ParallelBase,Sendable {
         bitmasks = new long[bitWidth];
         for (int i = 0; i < bitWidth; i++) {
             SensorUtil.checkDigitalChannel(m_channels[i]);
-            m_handles[i] = DIOJNI.initializeDIOPort(m_channels[i], false);
+            m_handles[i] = DIOJNI.initializeDIOPort(HAL.getPort((byte)m_channels[i]), false);
+
             
             HAL.report(tResourceType.kResourceType_DigitalOutput,m_channels[i] + 1);
 
