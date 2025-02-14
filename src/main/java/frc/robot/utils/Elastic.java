@@ -1,6 +1,11 @@
 package frc.robot.utils;
 
 
+import java.util.HashMap;
+import java.util.Map;
+
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -10,66 +15,32 @@ import frc.robot.Constants.GameConstants.TeamColors;
 import frc.robot.Constants.SuperstructureConstants.GrabberPossession;
 import frc.robot.Constants.SuperstructureConstants.IndexPossession;
 
-//TODO: Either make this a singleton class or make putX methods static
-public class Elastic {
+public final class Elastic {
 
-    private static Elastic instance;
-    private SendableChooser<TeamColors> teamChooser;
-    private SendableChooser<StartPositions> startPositionChooser;
-
-    private Elastic() {
-        teamChooser = new SendableChooser<>();
-        teamChooser.setDefaultOption(GameConstants.kTeamColor.color, GameConstants.kTeamColor);
-        teamChooser.addOption(TeamColors.kTeamColorRed.color, TeamColors.kTeamColorRed);
-        teamChooser.addOption(TeamColors.kTeamColorBlue.color, TeamColors.kTeamColorBlue);
-
-        startPositionChooser = new SendableChooser<>();
-        startPositionChooser.setDefaultOption(GameConstants.kStartPosition.name, GameConstants.kStartPosition);
-        // startPositionChooser.addOption(StartPositions.kStartA.name, StartPositions.kStartA);
-        for(StartPositions position : StartPositions.values()) {
-            startPositionChooser.addOption(position.name, position);
-        }
-    }
-
-    public static Elastic getInstance() {
-        if (instance == null) {
-            instance = new Elastic();
-        }
-        return instance;
-    }
-
-
-    public void putNumber(String key, double value) {
+    public static void putNumber(String key, double value) {
         SmartDashboard.putNumber(key, value);
     }
 
-    public void putBoolean(String key, boolean value) {
+    public static void putBoolean(String key, boolean value) {
         SmartDashboard.putBoolean(key, value);
     }
 
-    public void putString(String key, String value) {
+    public static void putString(String key, String value) {
         SmartDashboard.putString(key, value);
     }
 
-    public void putIndexPossession(IndexPossession indexPossession) {
+    public static void putIndexPossession(IndexPossession indexPossession) {
         // System.out.println("indexPossession: " + indexPossession.name);
         SmartDashboard.putString("indexPossession", indexPossession.name);
     }
 
-    public void putGrabberPossession(GrabberPossession grabberPossession) {
+    public static void putGrabberPossession(GrabberPossession grabberPossession) {
         // System.out.println("grabberPossession: " + grabberPossession.name);
         SmartDashboard.putString("grabberPossession", grabberPossession.name);
     }
 
-    public void updateInterface() {
-        
+    public static ShuffleboardTab getTab(String title) {
+        return Shuffleboard.getTab(title);
     }
 
-    public TeamColors getSelectedTeamColor() {
-        return teamChooser.getSelected();
-    }
-
-    public StartPositions getSelectedStartPosition() {
-        return startPositionChooser.getSelected();
-    }
 }

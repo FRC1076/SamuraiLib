@@ -1,3 +1,7 @@
+// Copyright (c) FRC1076 PiHi Samurai
+// You may use, distribute, and modify this software under the terms of
+// the license found in the root directory of this project
+
 package frc.robot.subsystems;
 
 import frc.robot.Constants.SuperstructureConstants.WristevatorPreset;
@@ -224,8 +228,8 @@ public class Superstructure {
         m_wrist.setKg(grabberPossession.wrist_kG);
         superState.setIndexPossession(indexPossession);
         superState.setGrabberPossession(grabberPossession);
-        Elastic.getInstance().putIndexPossession(indexPossession);
-        Elastic.getInstance().putGrabberPossession(grabberPossession);
+        Elastic.putIndexPossession(indexPossession);
+        Elastic.putGrabberPossession(grabberPossession);
     }
 
     /** Contains all the command factories for the superstructure */

@@ -1,3 +1,7 @@
+// Copyright (c) FRC1076 PiHi Samurai
+// You may use, distribute, and modify this software under the terms of
+// the license found in the root directory of this project
+
 package frc.robot.subsystems.wristevator.control;
 
 import frc.robot.subsystems.wristevator.Wristevator.WristevatorState;

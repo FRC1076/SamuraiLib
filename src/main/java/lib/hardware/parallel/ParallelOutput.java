@@ -1,3 +1,7 @@
+// Copyright (c) FRC1076 PiHi Samurai
+// You may use, distribute, and modify this software under the terms of
+// the license found in the root directory of this project
+
 package lib.hardware.parallel;
 
 import java.util.Objects;
@@ -10,7 +14,7 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.util.sendable.SendableRegistry;
 import edu.wpi.first.wpilibj.SensorUtil;
 
-public class ParallelOutput implements ParallelBase,Sendable {
+public class ParallelOutput implements ParallelDataBus,Sendable {
     private final long[] bitmasks;
     private final int[] m_channels;
     private final int bitWidth;

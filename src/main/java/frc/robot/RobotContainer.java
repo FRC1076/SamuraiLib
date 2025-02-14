@@ -1,6 +1,6 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
+// the WPILib BSD license file in the LICENSE directory of this project.
 
 package frc.robot;
 
@@ -207,6 +207,7 @@ public class RobotContainer {
         //Build the auto chooser with PathPlanner
         m_autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData(m_autoChooser);
+
     }
 
   /**
@@ -245,7 +246,7 @@ public class RobotContainer {
 
         // Point to reef
         m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
-        
+
         // Apply single clutch
         m_driverController.rightBumper().whileTrue(teleopDriveCommand.applySingleClutch());
 
