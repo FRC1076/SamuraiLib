@@ -53,7 +53,7 @@ public class WristIOHardware implements WristIO {
             .smartCurrentLimit((int) WristConstants.kSmartCurrentLimit);
             
         m_leadMotorConfig.closedLoop
-            .feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+            .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
             .pid(
                 WristConstants.Control.kP,
                 WristConstants.Control.kI,

@@ -240,6 +240,7 @@ public class RobotContainer {
         ));
 
         // Quasistsic and Dynamic control scheme for Elevator Sysid
+        /*
         m_driverController.rightBumper().and(
           m_driverController.a()
         ).onTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kForward));
@@ -255,6 +256,7 @@ public class RobotContainer {
         m_driverController.rightBumper().and(
           m_driverController.y()
         ).onTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kReverse));
+        */
 
         //Quasistsic and Dynamic control scheme for Wrist Sysid
         // m_driverController.rightBumper().and(
