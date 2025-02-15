@@ -94,7 +94,6 @@ public class WristSubsystem extends SubsystemBase {
     }
 
     public void stop() {
-        mode = ControlMode.kVoltage;
         setVoltage(0);
     }
 
@@ -108,9 +107,9 @@ public class WristSubsystem extends SubsystemBase {
     */
     public Command applyAngle(Rotation2d angle) {
         return new FunctionalCommand(
-            () -> {},
-            () -> setPosition(angle), 
-            (interrupted) -> {}, 
+            () -> setPosition(angle),
+            () -> {}, 
+            (interrupted) -> stop(), 
             () -> Math.abs(angle.minus(getAngle()).getRadians()) < WristConstants.wristAngleToleranceRadians,
             this
         );
