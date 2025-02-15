@@ -65,11 +65,12 @@ public class WristSubsystem extends SubsystemBase {
         else if(this.getAngleRadians() < WristConstants.kMinWristAngleRadians && volts < 0) {
             volts = 0;
         }*/
-
-        io.setVoltage(volts);
+        mode = ControlMode.kVoltage;
+        io.setVoltageCharacterization(volts + FFController.calculate(getAngleRadians(),0));
     }
 
     private void setVoltageCharacterization(double volts) {
+        mode = ControlMode.kVoltage;
         io.setVoltageCharacterization(volts);
     }
 
@@ -124,6 +125,14 @@ public class WristSubsystem extends SubsystemBase {
         //System.out.println("Wrist Angle: " + this.getAngleRadians());
         io.updateInputs(inputs);
         Logger.processInputs("Wrist", inputs);
+        switch (mode) {
+            case kVoltage:
+                break;
+            case kVelocity:
+                break;
+            case kPosition:
+                io.setVoltageCharacterization(FBController.calculate(inputs.angle.getRadians()) + FFController.calculate(inputs.angle.getRadians(), 0))
+        }
 
     }
 
