@@ -333,8 +333,9 @@ public final class Constants {
 
         // https://wcproducts.com/collections/gearboxes/products/wcp-single-stage-gearbox  Inches.of(0.25).in(Meters)
         // Still set to WAPUR elevator units, need to be changed
-        public static final double kVelocityConversionFactor = (11/60.0) * 22 * 0.00635 / 60.0; //Gear ratio & chain pitch & rpm -> m/s
-        public static final double kPositionConversionFactor = (11/60.0) * 22 * 0.00635; //Gear ratio & chain pitch
+        public static final double kGearRatio = 10.909;
+        public static final double kVelocityConversionFactor = (11/60.0) * 22 * (1/kGearRatio) / 60.0; //Gear ratio & chain pitch & rpm -> m/s
+        public static final double kPositionConversionFactor = (11/60.0) * 22 * (1/kGearRatio); //Gear ratio & chain pitch
         public static class Electrical {
             public static final double kVoltageCompensation = 12;
             public static final double kCurrentLimit = 40;
