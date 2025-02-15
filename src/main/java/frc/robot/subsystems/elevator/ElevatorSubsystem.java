@@ -24,7 +24,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final SysIdRoutine m_elevatorSysIdRoutine = new SysIdRoutine(
         new SysIdRoutine.Config(
             null,        // Use default ramp rate (1 V/s)
-            Volts.of(4), // Reduce dynamic step voltage to 4 V to prevent brownout TODO: test if 4 V is enough
+            Volts.of(2.5), // Reduce dynamic step voltage to 4 V to prevent brownout TODO: test if 4 V is enough
             null,        // Use default timeout (10 s)
             // Log state with AdvantageKit
             (state) -> Logger.recordOutput("Elevator/SysIDState", state.toString())
@@ -57,7 +57,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS (where else?) */
     public void setPosition(double positionMeters) {
-        io.setPosition(MathHelpers.clamp(positionMeters, ElevatorConstants.kMaxElevatorHeightMeters, ElevatorConstants.kMaxElevatorHeightMeters));
+        io.setPosition(MathHelpers.clamp(positionMeters, ElevatorConstants.kMinElevatorHeightMeters, ElevatorConstants.kMaxElevatorHeightMeters));
         //io.setPosition(positionMeters);
     }
 
@@ -66,10 +66,10 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     public void setVoltage(double volts) {
         
-        if(this.getPositionMeters() > ElevatorConstants.kMaxElevatorHeightMeters + ElevatorConstants.elevatorPositionToleranceMeters && volts > 0) {
+        if(this.getPositionMeters() > ElevatorConstants.kMaxElevatorHeightMeters && volts > 0) {
             volts = 0; //TODO: make this kG instead of 0?
         }
-        else if(this.getPositionMeters() < ElevatorConstants.kMinElevatorHeightMeters - ElevatorConstants.elevatorPositionToleranceMeters && volts < 0) {
+        else if(this.getPositionMeters() < ElevatorConstants.kMinElevatorHeightMeters && volts < 0) {
             volts = 0;
         }
 

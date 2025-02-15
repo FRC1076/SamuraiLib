@@ -203,12 +203,12 @@ public final class Constants {
 
             CORAL_TRANSFER(0.08128,-23.5), // Same as CORAL_DIRECT_INTAKE
 
-            L1(-1, -1), // Placeholder
+            L1(0.08128,90), // Placeholder
             L2(0.71628, -35),
             L3(1.11252, -35),
             L4(1.8161, -45),
 
-            GROUND_INTAKE(-1, -1),
+            GROUND_INTAKE(0.08128,90),
             LOW_INTAKE(0.9144, -35),
             HIGH_INTAKE(1.30556, -35),
 
@@ -316,8 +316,8 @@ public final class Constants {
         
         public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(0.5);
         public static final double kMinElevatorHeightMeters = Units.inchesToMeters(0); // TODO: UPDATE
-        public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(72); // TODO: UPDATE
-        public static final double maxOperatorControlVolts = 9;
+        public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(60); // TODO: UPDATE
+        public static final double maxOperatorControlVolts = 4;
 
         public static final boolean leadMotorInverted = false;
         public static final boolean followMotorInverted = false;
@@ -334,8 +334,9 @@ public final class Constants {
         // https://wcproducts.com/collections/gearboxes/products/wcp-single-stage-gearbox  Inches.of(0.25).in(Meters)
         // Still set to WAPUR elevator units, need to be changed
         public static final double kGearRatio = 10.909;
-        public static final double kVelocityConversionFactor = (1/kGearRatio) * 22 * 0.00635 / 60.0; //Gear ratio & chain pitch & rpm -> m/s
-        public static final double kPositionConversionFactor = (1/kGearRatio) * 22 * 0.00635; //Gear ratio & chain pitch
+        public static final double kElevatorStages = 3;
+        public static final double kVelocityConversionFactor = kElevatorStages * (1/kGearRatio) * 24 * 0.00635 / 60.0; //Gear ratio & chain pitch & rpm -> m/s
+        public static final double kPositionConversionFactor = kElevatorStages * (1/kGearRatio) * 24 * 0.00635; //Gear ratio & chain pitch
         public static class Electrical {
             public static final double kVoltageCompensation = 12;
             public static final double kCurrentLimit = 40;
@@ -344,13 +345,13 @@ public final class Constants {
 
         public static class Control {
             // PID constants - STILL SET TO WAPUR ELEVATOR VALUES
-            public static final double kP = 8.0;
+            public static final double kP = 2;
             public static final double kI = 0.0;
-            public static final double kD = 0.0;
+            public static final double kD = 0.001;
 
             // Feedforward constants - STILL SET TO WAPUR ELEVATOR VALUES
             public static final double kS = 0.0; //Static gain (voltage)
-            public static final double kG = 0.0; // 0.6 //Gravity gain (voltage)
+            public static final double kG = 0.8; // 0.6 //Gravity gain (voltage)
             public static final double kV = 0.0; // 12.0 // velocity game
             public static final double kA = 0.0; //Acceleration Gain
         }
@@ -392,23 +393,23 @@ public final class Constants {
     }
 
     public static class WristConstants {
-        public static final int kLeadMotorPort = 41; // Left motor consistent with drivetrain left side
-        public static final int kFollowMotorPort = 42; // Right motor consistent with drivetrain right side
+        public static final int kLeadMotorPort = 42; // Left motor consistent with drivetrain left side
+        public static final int kFollowMotorPort = 41; // Right motor consistent with drivetrain right side
 
         public static final double wristAngleToleranceRadians = Units.degreesToRadians(1);
         public static final double kMinWristAngleRadians = Units.degreesToRadians(-45); // TODO: UPDATE
-        public static final double kMaxWristAngleRadians = Units.degreesToRadians(45); // TODO: UPDATE
+        public static final double kMaxWristAngleRadians = Units.degreesToRadians(90); // TODO: UPDATE
 
-        public static final double maxOperatorControlVolts = 6;
-        public static final double kSmartCurrentLimit = 40.0;
+        public static final double maxOperatorControlVolts = 1;
+        public static final double kSmartCurrentLimit = 60.0;
 
-        public static final boolean kLeadMotorInverted = false;
+        public static final boolean kLeadMotorInverted = true;
         public static final boolean kFollowMotorInverted = false;
 
         // Source: https://docs.revrobotics.com/brushless/spark-max/encoders/alternate-encoder
         public static final int kCountsPerRevolution = 8192;
-        public static final double kPositionConversionFactor = 2*Math.PI; // rotations to radians
-        public static final double kVelocityConversionFactor = (2*Math.PI) / 60.0; // rpm to radians/second
+        public static final double kPositionConversionFactor = (1/5.0) * 2 * Math.PI; // rotations to radians
+        public static final double kVelocityConversionFactor = (1/5.0) * (2 * Math.PI) / 60.0; // rpm to radians/second
 
         public static final class Control {
             // PID constants
@@ -418,7 +419,7 @@ public final class Constants {
 
             // Feedforward constants
             public static final double kS = 0.0; // static gain in volts
-            public static final double kG = 0.0; // gravity gain in volts
+            public static final double kG = 1.24; // gravity gain in volts
             public static final double kV = 0.0; // velocity gain in volts per radian per second
             public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
         }

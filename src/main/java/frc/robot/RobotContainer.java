@@ -280,19 +280,37 @@ public class RobotContainer {
 
     private void configureOperatorBindings() {
         // TODO: Add coral and algae intake triggers
+        //Quasistsic and Dynamic control scheme for Wrist Sysid
+        /*
+        m_operatorController.rightBumper().and(
+            m_operatorController.a()
+        ).whileTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+        m_operatorController.rightBumper().and(
+            m_operatorController.b()
+        ).whileTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+        m_operatorController.rightBumper().and(
+            m_operatorController.x()
+        ).whileTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kForward));
+        
+        m_operatorController.rightBumper().and(
+            m_operatorController.y()
+        ).whileTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kReverse));
+        */
         final SuperstructureCommandFactory superstructureCommands = m_superstructure.getCommandBuilder();
         
         // L1
-        m_operatorController.x().onTrue(superstructureCommands.preL1());
+        m_operatorController.x().whileTrue(superstructureCommands.preL1());
 
         // L2
-        m_operatorController.a().onTrue(superstructureCommands.preL2());
+        m_operatorController.a().whileTrue(superstructureCommands.preL2());
 
         // L3
-        m_operatorController.b().onTrue(superstructureCommands.preL3());
+        m_operatorController.b().whileTrue(superstructureCommands.preL3());
 
         // L4
-        m_operatorController.y().onTrue(superstructureCommands.preL4());
+        m_operatorController.y().whileTrue(superstructureCommands.preL4());
 
         // Processor
         m_operatorController.x().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.preProcessor());
@@ -320,6 +338,7 @@ public class RobotContainer {
 
         // Retract mechanisms and stop grabber
         m_operatorController.rightTrigger().onFalse(superstructureCommands.stopAndRetract());
+        
     }
 
     private void configureBeamBreakTriggers() {

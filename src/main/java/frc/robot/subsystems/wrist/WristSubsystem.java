@@ -37,12 +37,13 @@ public class WristSubsystem extends SubsystemBase {
     
     /** Sets the voltage of the wrist motors*/
     public void setVoltage(double volts) {
-        if(this.getAngleRadians() > WristConstants.kMaxWristAngleRadians + WristConstants.wristAngleToleranceRadians && volts > 0) {
+        /*
+        if(this.getAngleRadians() > WristConstants.kMaxWristAngleRadians && volts > 0) {
             volts = 0; //TODO: make this kG instead of 0?
         }
-        else if(this.getAngleRadians() < WristConstants.kMinWristAngleRadians - WristConstants.wristAngleToleranceRadians && volts < 0) {
+        else if(this.getAngleRadians() < WristConstants.kMinWristAngleRadians && volts < 0) {
             volts = 0;
-        }
+        }*/
 
         io.setVoltage(volts);
     }
