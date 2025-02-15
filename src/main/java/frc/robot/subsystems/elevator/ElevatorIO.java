@@ -15,9 +15,13 @@ public interface ElevatorIO {
         public double appliedVolts = 0;
         public double leadCurrentAmps = 0;
         public double followCurrentAmps = 0;
+        public double leadPowerWatts = 0;
+        public double followPowerWatts = 0;
+        public double totalPowerWatts = 0;
 
         public double elevatorHeightMeters = 0;
         public double velocityMetersPerSecond = 0;
+        
     }
 
     /** Used for logging */
