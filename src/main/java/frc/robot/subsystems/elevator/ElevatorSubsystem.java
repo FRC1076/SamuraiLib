@@ -2,11 +2,20 @@ package frc.robot.subsystems.elevator;
 
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
-
+import lib.control.MutableElevatorFeedforward;
 import lib.utils.MathHelpers;
+
+import static frc.robot.Constants.ElevatorConstants.Control.kA;
+import static frc.robot.Constants.ElevatorConstants.Control.kD;
+import static frc.robot.Constants.ElevatorConstants.Control.kI;
+import static frc.robot.Constants.ElevatorConstants.Control.kP;
+import static frc.robot.Constants.ElevatorConstants.Control.kS;
+import static frc.robot.Constants.ElevatorConstants.Control.kV;
+import static frc.robot.Constants.ElevatorConstants.Control.kG;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
@@ -19,8 +28,16 @@ import org.littletonrobotics.junction.Logger;
 import com.ctre.phoenix6.SignalLogger;
 
 public class ElevatorSubsystem extends SubsystemBase {
+    private static enum ControlMode {
+        kVoltage,
+        kVelocity,
+        kPosition
+    }
+    private ControlMode mode = ControlMode.kVoltage;
     private final ElevatorIO io;
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
+    private final MutableElevatorFeedforward FeedforwardController = new MutableElevatorFeedforward(kS, kG, kV, kA);
+    private final PIDController FeedbackController = new PIDController(kP,kI,kD);
     private final SysIdRoutine m_elevatorSysIdRoutine = new SysIdRoutine(
         new SysIdRoutine.Config(
             null,        // Use default ramp rate (1 V/s)
@@ -45,6 +62,15 @@ public class ElevatorSubsystem extends SubsystemBase {
         //System.out.println("Elevator: " + this.getPositionMeters());
         io.updateInputs(inputs);
         Logger.processInputs("Elevator",inputs);
+        switch (mode) {
+            case kVoltage:
+                break;
+            case kVelocity:
+                //TODO: Implement velocity control
+                break;
+            case kPosition:
+                io.setVoltage(FeedbackController.calculate(inputs.elevatorHeightMeters) + FeedforwardController.getKg());
+        }
     }
 
     @Override
@@ -57,7 +83,8 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS (where else?) */
     public void setPosition(double positionMeters) {
-        io.setPosition(MathHelpers.clamp(positionMeters, ElevatorConstants.kMinElevatorHeightMeters, ElevatorConstants.kMaxElevatorHeightMeters));
+        mode = ControlMode.kPosition;
+        FeedbackController.setSetpoint(positionMeters);
         //io.setPosition(positionMeters);
     }
 
@@ -65,7 +92,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @param volts Desired voltage of the elevator
      */
     public void setVoltage(double volts) {
-        
+        mode = ControlMode.kVoltage;
         if(this.getPositionMeters() > ElevatorConstants.kMaxElevatorHeightMeters && volts > 0) {
             volts = 0; //TODO: make this kG instead of 0?
         }
@@ -80,7 +107,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @param kg New kG value in volts
      */
     public void setKg(double kg) {
-        this.io.setFFkG(kg);
+        FeedforwardController.setKg(kg);
     }
 
     /** Returns position of the elevator, as a double */
@@ -98,8 +125,8 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     public Command applyPosition(double positionMeters) {
         return new FunctionalCommand(
-            () -> {},
             () -> setPosition(positionMeters),
+            () -> {},
             (interrupted) -> {},
             () -> Math.abs(positionMeters - getPositionMeters()) < ElevatorConstants.elevatorPositionToleranceMeters,
             this

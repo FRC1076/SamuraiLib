@@ -37,6 +37,7 @@ import frc.robot.subsystems.Superstructure;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -130,6 +131,10 @@ public class RobotContainer {
             m_LEDs = new LEDSubsystem(new LEDIOSim());
         }
 
+        BooleanSupplier operatorOverride = 
+            () -> Math.abs(m_operatorController.getLeftY()) < OIConstants.kControllerDeadband
+            || Math.abs(m_operatorController.getRightY()) < OIConstants.kControllerDeadband;
+
         m_superstructure = new Superstructure(
             m_elevator,
             m_grabber,
@@ -139,7 +144,8 @@ public class RobotContainer {
             m_LEDs,
             m_indexBeamBreak, 
             m_transferBeamBreak, 
-            m_grabberBeamBreak
+            m_grabberBeamBreak,
+            operatorOverride
         );
 
         superVis = new SuperstructureVisualizer(m_superstructure);

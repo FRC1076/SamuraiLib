@@ -107,6 +107,7 @@ public class Superstructure {
     private final WristSubsystem m_wrist;
     private final Elastic m_elastic;
     private final LEDSubsystem m_led;
+    private final BooleanSupplier m_operatorOverride;
 
     public final SuperstructureCommandFactory CommandBuilder;
 
@@ -122,7 +123,8 @@ public class Superstructure {
         LEDSubsystem led,
         BooleanSupplier indexBeamBreak, //returns true when beam broken
         BooleanSupplier transferBeamBreak, //returns true when beam broken
-        BooleanSupplier grabberBeamBreak //returns true when beam broken
+        BooleanSupplier grabberBeamBreak, //returns true when beam broken
+        BooleanSupplier operatorOverride //returns true when we want operator manual control
     ) {
         m_elevator = elevator;
         m_grabber = grabber;
@@ -130,7 +132,7 @@ public class Superstructure {
         m_wrist = wrist;
         m_elastic = elastic;
         m_led = led;
-        
+        m_operatorOverride = operatorOverride;
         CommandUtils.makePeriodic(() -> {
             Logger.processInputs("Superstructure", superState);
         });
@@ -180,7 +182,7 @@ public class Superstructure {
             //wristPreMoveCommand,
             m_elevator.applyPosition(position.elevatorHeightMeters)//,
             //m_wrist.applyAngle(position.wristAngle)
-        );
+        ).until(m_operatorOverride);
     }
 
     /**
@@ -192,7 +194,7 @@ public class Superstructure {
         return Commands.sequence(
             Commands.runOnce(() -> superState.setGrabberState(state)),
             m_grabber.applyDifferentialVolts(state.leftVoltage, state.rightVoltage) //Can do a runOnce because runVolts is sticky
-        );
+        ).until(m_operatorOverride);
     }
 
     /**
