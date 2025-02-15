@@ -107,10 +107,12 @@ public class ElevatorIOHardware implements ElevatorIO {
      * Used when the weight of the elevator changes because of game pieces
      * @param kG The new kG value in volts
      */
+    /*
      @Override
     public void setFFkG(double kG) {
         FFcontroller.setKg(kG);
     }
+    */
 
     /** Used to log elevator status */
     @Override

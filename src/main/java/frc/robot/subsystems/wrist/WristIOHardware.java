@@ -86,16 +86,19 @@ public class WristIOHardware implements WristIO {
 
     @Override
     public void setVoltage(double volts) {
-        m_leadMotor.setVoltage(volts + FFController.calculate(m_alternateEncoder.getPosition(),0));
+        m_leadMotor.setVoltage(volts);
     }
     
     /** Set voltage of the wrist motors without the feedforward */
+    /* 
     @Override
     public void setVoltageCharacterization(double volts) {
         m_leadMotor.setVoltage(volts);
     }
+        */
 
     /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS */
+    
     @Override
     public void setPosition(double positionRadians){
         m_closedLoopController.setReference(
@@ -106,6 +109,7 @@ public class WristIOHardware implements WristIO {
             ArbFFUnits.kVoltage
         );
     }
+    
 
     @Override
     public void updateInputs(WristIOInputs inputs) {
@@ -115,14 +119,17 @@ public class WristIOHardware implements WristIO {
         inputs.angle = Rotation2d.fromRadians(m_alternateEncoder.getPosition());
     }
 
+    /* 
     @Override
     public void setFFkG(double kG){
         FFController.setKg(kG);
     }
-
+    */
+    /* 
     @Override
     public double getFFkG() {
         return FFController.getKg();
     }
+    */
 
 }

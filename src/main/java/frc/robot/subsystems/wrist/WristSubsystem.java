@@ -66,12 +66,12 @@ public class WristSubsystem extends SubsystemBase {
             volts = 0;
         }*/
         mode = ControlMode.kVoltage;
-        io.setVoltageCharacterization(volts + FFController.calculate(getAngleRadians(),0));
+        io.setVoltage(volts + FFController.calculate(getAngleRadians(),0));
     }
 
     private void setVoltageCharacterization(double volts) {
         mode = ControlMode.kVoltage;
-        io.setVoltageCharacterization(volts);
+        io.setVoltage(volts);
     }
 
     /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS */
@@ -99,7 +99,7 @@ public class WristSubsystem extends SubsystemBase {
 
     /** Sets the feedforward kG value for the wrist */
     public void setKg(double kg) {
-        this.io.setFFkG(kg);
+        FFController.setKg(kg);
     }
 
     /** Returns a command that sets the wrist at the desired angle 
@@ -130,7 +130,7 @@ public class WristSubsystem extends SubsystemBase {
             case kVelocity:
                 break;
             case kPosition:
-                io.setVoltageCharacterization(FBController.calculate(inputs.angle.getRadians()) + FFController.calculate(inputs.angle.getRadians(), 0))
+                io.setVoltage(FBController.calculate(inputs.angle.getRadians()) + FFController.calculate(inputs.angle.getRadians(), 0));
         }
 
     }

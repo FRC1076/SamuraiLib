@@ -112,11 +112,6 @@ public class WristIOSim implements WristIO {
     }
 
     @Override
-    public void setVoltageCharacterization(double voltage){
-        setVoltage(voltage);
-    }
-
-    @Override
     public void setPosition(double positionRadians) {
         m_leadMotorSim.setAppliedOutput(
             (m_PIDController.calculate(m_encoderSim.getPosition(), positionRadians)

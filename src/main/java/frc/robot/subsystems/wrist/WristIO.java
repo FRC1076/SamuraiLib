@@ -19,13 +19,13 @@ public interface WristIO {
 
     public abstract void setVoltage(double volts);
 
-    public abstract void setVoltageCharacterization(double volts);
+    //public abstract void setVoltageCharacterization(double volts);
 
     public abstract void setPosition(double position);
 
-    public default void setFFkG(double kG) {}
+    //public default void setFFkG(double kG) {}
 
-    public default double getFFkG() {return WristConstants.Control.kG;}
+    //public default double getFFkG() {return WristConstants.Control.kG;}
 
     public default void simulationPeriodic() {}
 }

@@ -32,10 +32,10 @@ public interface ElevatorIO {
     public abstract void setVoltage(double volts);
 
     /** Sets the elevator controller's internal kG constant */
-    public default void setFFkG(double kG) {}
+    //public default void setFFkG(double kG) {}
 
     /** Retrieves the elevator controller's internal kG constant */
-    public default double getFFkG() {return ElevatorConstants.Control.kG;}
+    //public default double getFFkG() {return ElevatorConstants.Control.kG;}
 
     public default void simulationPeriodic() {}
 }
