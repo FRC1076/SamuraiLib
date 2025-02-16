@@ -29,4 +29,3 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 Portions of this software is modified from code released under BSD-3 compatible permissive licenses:
 
 - WPILib, Copyright 2009-2024 FIRST and other WPILib Contributors. For licensing see LICENSE/WPILib-License.md
-- Elastic, Copyright 2023-2025 Gold87 and other Elastic Contributors. For licensing see LICENSE/Elastic-License.md

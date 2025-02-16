@@ -4,6 +4,7 @@ package frc.robot.utils;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -37,6 +38,10 @@ public final class Elastic {
     public static void putGrabberPossession(GrabberPossession grabberPossession) {
         // System.out.println("grabberPossession: " + grabberPossession.name);
         SmartDashboard.putString("grabberPossession", grabberPossession.name);
+    }
+
+    public static void putData(Sendable value) {
+        SmartDashboard.putData(value);
     }
 
     public static ShuffleboardTab getTab(String title) {

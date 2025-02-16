@@ -43,7 +43,7 @@ import lib.utils.MatrixUtils;
  * while in chassis-oriented mode, the controller outputs chassis-oriented ChassisSpeeds objects
  */
 
-public class LQRHolonomicDriveController {
+public class LQRHolonomicDriveController implements HolonomicController {
 
     /**
      * A POD class for holding the weights of an LQR Holonomic Drive Controller
@@ -180,6 +180,7 @@ public class LQRHolonomicDriveController {
      * @return
      * a field-oriented ChassisSpeeds object
     */
+    @Override
     public ChassisSpeeds calculateFieldOriented(Pose2d pv, Pose2d setpoint){
         var spVec = MatrixUtils.poseToVector(setpoint);
         var pvVec = MatrixUtils.poseToVector(pv);
@@ -195,6 +196,7 @@ public class LQRHolonomicDriveController {
      * @return
      * a chassis-oriented ChassisSpeeds object
     */
+    @Override
     public ChassisSpeeds calculateChassisOriented(Pose2d pv, Pose2d setpoint){
         var spVec = MatrixUtils.poseToVector(setpoint);
         var pvVec = MatrixUtils.poseToVector(pv);

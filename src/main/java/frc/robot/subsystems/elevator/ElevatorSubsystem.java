@@ -97,10 +97,20 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     public Command applyPosition(double positionMeters) {
         return new FunctionalCommand(
-            () -> {},
             () -> setPosition(positionMeters),
+            () -> {},
             (interrupted) -> {},
             () -> Math.abs(positionMeters - getPositionMeters()) < ElevatorConstants.elevatorPositionToleranceMeters,
+            this
+        );
+    }
+
+    public Command keepPosition() {
+        return new FunctionalCommand(
+            () -> setPosition(this.getPositionMeters()),
+            () -> {}, 
+            (interrupted) -> {}, 
+            () -> false,
             this
         );
     }

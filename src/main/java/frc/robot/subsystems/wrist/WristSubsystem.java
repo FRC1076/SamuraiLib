@@ -84,10 +84,21 @@ public class WristSubsystem extends SubsystemBase {
     */
     public Command applyAngle(Rotation2d angle) {
         return new FunctionalCommand(
-            () -> {},
-            () -> setPosition(angle), 
+            () -> setPosition(angle),
+            () -> {}, 
             (interrupted) -> {}, 
             () -> Math.abs(angle.minus(getAngle()).getRadians()) < WristConstants.wristAngleToleranceRadians,
+            this
+        );
+    }
+
+    /** Returns a command that keeps the wrist at its current angle */
+    public Command keepAngle() {
+        return new FunctionalCommand(
+            () -> setPosition(getAngle()),
+            () -> {}, 
+            (interrupted) -> {}, 
+            () -> false,
             this
         );
     }
