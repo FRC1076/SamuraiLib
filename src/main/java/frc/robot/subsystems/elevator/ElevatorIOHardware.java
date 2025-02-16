@@ -1,6 +1,8 @@
 package frc.robot.subsystems.elevator;
 
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.ElevatorSimConstants;
+
 import static frc.robot.Constants.ElevatorConstants.Control.kA;
 import static frc.robot.Constants.ElevatorConstants.Control.kD;
 import static frc.robot.Constants.ElevatorConstants.Control.kI;
@@ -23,6 +25,9 @@ import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.config.SparkMaxConfig;
+
+import edu.wpi.first.math.controller.PIDController;
+
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -36,7 +41,7 @@ public class ElevatorIOHardware implements ElevatorIO {
     
     private final RelativeEncoder m_encoder;
 
-    private final SparkClosedLoopController m_closedLoopController;
+    private final PIDController m_PIDController;
 
     private final MutableElevatorFeedforward FFcontroller = new MutableElevatorFeedforward(kS, kG, kV, kA);
 
@@ -71,12 +76,17 @@ public class ElevatorIOHardware implements ElevatorIO {
         m_followMotor.configure(m_followMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
         m_encoder = m_leadMotor.getEncoder();
-        m_closedLoopController = m_leadMotor.getClosedLoopController();
 
         m_encoder.setPosition(0);
 
         m_leadMotor.setCANTimeout(0);
         m_followMotor.setCANTimeout(0);
+
+        m_PIDController = new PIDController(
+            ElevatorSimConstants.Control.kP,
+            ElevatorSimConstants.Control.kI,
+            ElevatorSimConstants.Control.kD
+        );
         
     }
 
@@ -94,13 +104,10 @@ public class ElevatorIOHardware implements ElevatorIO {
      */
     @Override
     public void setPosition(double positionMeters){
-        m_closedLoopController.setReference(
-            MathHelpers.clamp(positionMeters, ElevatorConstants.kMinElevatorHeightMeters, ElevatorConstants.kMaxElevatorHeightMeters),
-            ControlType.kPosition,
-            ClosedLoopSlot.kSlot0,
-            FFcontroller.getKg(),
-            ArbFFUnits.kVoltage
-        );
+        setVoltage(
+            m_PIDController.calculate(m_encoder.getPosition(), positionMeters) +
+            FFcontroller.calculate(m_encoder.getVelocity())
+            );
     }
 
     /** Set kG of the elevator feedforward

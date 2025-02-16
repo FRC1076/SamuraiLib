@@ -131,6 +131,10 @@ public class Superstructure {
         m_elastic = elastic;
         m_led = led;
         
+        m_elastic.putBoolean("grabberBB", indexBeamBreak.getAsBoolean());
+        m_elastic.putBoolean("transferBB", transferBeamBreak.getAsBoolean());
+        m_elastic.putBoolean("indexBB", grabberBeamBreak.getAsBoolean());
+
         CommandUtils.makePeriodic(() -> {
             Logger.processInputs("Superstructure", superState);
         });
@@ -171,15 +175,15 @@ public class Superstructure {
     private Command applyWristevatorState(WristevatorState position) {
         Command wristPreMoveCommand = Commands.either(
             m_wrist.applyAngle(Rotation2d.fromDegrees(65)), // TODO: Move this 65 out of this file and into a constants somehow
-            m_wrist.applyAngle(Rotation2d.kCCW_90deg),
+            m_wrist.applyAngle(Rotation2d.fromDegrees(80)),
             () -> superState.getGrabberPossession() == GrabberPossession.ALGAE
         );
         
         return Commands.sequence(
             Commands.runOnce(() -> superState.setWristevatorState(position)),
-            //wristPreMoveCommand,
-            m_elevator.applyPosition(position.elevatorHeightMeters)//,
-            //m_wrist.applyAngle(position.wristAngle)
+            wristPreMoveCommand,
+            m_elevator.applyPosition(position.elevatorHeightMeters),
+            m_wrist.applyAngle(position.wristAngle)
         );
     }
 
@@ -203,7 +207,7 @@ public class Superstructure {
     private Command applyIndexState(IndexState state) {
         return Commands.sequence(
             Commands.runOnce(() -> superState.setIndexerState(state)),
-            m_index.applyVolts(kIndexVoltage).onlyIf(() -> state.running) //Can do a runOnce because runVolts is sticky
+            m_index.applyVolts(state.volts)//.onlyIf(() -> state.running) //Can do a runOnce because runVolts is sticky
         );
     }
 
@@ -241,6 +245,9 @@ public class Superstructure {
         
         m_elastic.putIndexPossession(indexPossession);
         m_elastic.putGrabberPossession(grabberPossession);
+        m_elastic.putBoolean("grabberBB", grabberBB);
+        m_elastic.putBoolean("transferBB", transferBB);
+        m_elastic.putBoolean("indexBB", indexBB);
         // TODO: call add LED code here
 
     }
@@ -390,7 +397,8 @@ public class Superstructure {
             return Commands.sequence(
                 superstructure.applyIndexState(IndexState.CORAL_INTAKE),
                 Commands.waitUntil(m_indexBeamBreak),
-                superstructure.applyIndexState(IndexState.CORAL_IDLE)
+                superstructure.applyIndexState(IndexState.CORAL_IDLE),
+                Commands.run(() -> {})
             );
         }
 

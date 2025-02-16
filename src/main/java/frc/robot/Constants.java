@@ -184,13 +184,15 @@ public final class Constants {
 
         // Index State
         public enum IndexState {
-            EMPTY_IDLE(false),
-            CORAL_INTAKE(true),
-            CORAL_TRANSFER(true),
-            CORAL_IDLE(false);
+            EMPTY_IDLE(false, 0),
+            CORAL_INTAKE(true, 12),
+            CORAL_TRANSFER(true, 12),
+            CORAL_IDLE(false, 0);
             public final boolean running; // Whether or not the indexer motors are running
-            private IndexState(boolean running) {
+            public final double volts;
+            private IndexState(boolean running, double volts) {
                 this.running = running;
+                this.volts = volts;
             }
         }
 
@@ -314,7 +316,7 @@ public final class Constants {
         public static final int kMotorPort0 = 31; // Left motor consistent with drivetrain left side
         public static final int kMotorPort1 = 32; // Right motor consistent with drivetrain right side
         
-        public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(0.5);
+        public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(2);
         public static final double kMinElevatorHeightMeters = Units.inchesToMeters(0); // TODO: UPDATE
         public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(60); // TODO: UPDATE
         public static final double maxOperatorControlVolts = 4;
@@ -345,13 +347,13 @@ public final class Constants {
 
         public static class Control {
             // PID constants - STILL SET TO WAPUR ELEVATOR VALUES
-            public static final double kP = 2;
+            public static final double kP = 40;
             public static final double kI = 0.0;
-            public static final double kD = 0.001;
+            public static final double kD = 9;
 
             // Feedforward constants - STILL SET TO WAPUR ELEVATOR VALUES
             public static final double kS = 0.0; //Static gain (voltage)
-            public static final double kG = 0.8; // 0.6 //Gravity gain (voltage)
+            public static final double kG = 0.97369; // 0.6 //Gravity gain (voltage)
             public static final double kV = 0.0; // 12.0 // velocity game
             public static final double kA = 0.0; //Acceleration Gain
         }
@@ -390,15 +392,18 @@ public final class Constants {
         public static final int kRightMotorPort = 62;
         
         public static final double kCurrentLimit = 40; 
+
+        public static final boolean kLeftMotorInverted = false;
+        public static final boolean kRightMotorInverted = true;
     }
 
     public static class WristConstants {
         public static final int kLeadMotorPort = 42; // Left motor consistent with drivetrain left side
         public static final int kFollowMotorPort = 41; // Right motor consistent with drivetrain right side
 
-        public static final double wristAngleToleranceRadians = Units.degreesToRadians(1);
-        public static final double kMinWristAngleRadians = Units.degreesToRadians(-45); // TODO: UPDATE
-        public static final double kMaxWristAngleRadians = Units.degreesToRadians(90); // TODO: UPDATE
+        public static final double wristAngleToleranceRadians = Units.degreesToRadians(5);
+        public static final double kMinWristAngleRadians = Units.degreesToRadians(-135); // TODO: UPDATE
+        public static final double kMaxWristAngleRadians = Units.degreesToRadians(135); // TODO: UPDATE
 
         public static final double maxOperatorControlVolts = 1;
         public static final double kSmartCurrentLimit = 60.0;
@@ -413,13 +418,13 @@ public final class Constants {
 
         public static final class Control {
             // PID constants
-            public static final double kP = 0.0;
+            public static final double kP = 0.75;
             public static final double kI = 0.0;
-            public static final double kD = 0.0;
+            public static final double kD = 0.05;
 
             // Feedforward constants
             public static final double kS = 0.0; // static gain in volts
-            public static final double kG = 1.24; // gravity gain in volts
+            public static final double kG = 1.4462; // gravity gain in volts
             public static final double kV = 0.0; // velocity gain in volts per radian per second
             public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
         }
@@ -450,16 +455,16 @@ public final class Constants {
         public static final int kFollowMotorPort = 52;
 
         public static final double kCurrentLimit = 20.0;
-        public static final double kIndexVoltage = 6.0;
+        public static final double kIndexVoltage = 12.0;
 
         public static final boolean kLeadMotorInverted = false;
         public static final boolean kFollowMotorInverted = true;
     }
 
     public static class BeamBreakConstants{
-        public static final int indexBeamBreakPort = 4;
-        public static final int transferBeamBreakPort = 0;
-        public static final int grabberBeamBreakPort = 1;
+        public static final int indexBeamBreakPort = 0;
+        public static final int transferBeamBreakPort = 1;
+        public static final int grabberBeamBreakPort = 2;
     }
 
     public static class LEDConstants {

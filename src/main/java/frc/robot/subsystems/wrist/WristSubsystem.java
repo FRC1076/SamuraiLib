@@ -21,7 +21,7 @@ public class WristSubsystem extends SubsystemBase {
     private final WristIOInputsAutoLogged inputs = new WristIOInputsAutoLogged();
     private final SysIdRoutine sysid = new SysIdRoutine(
         new SysIdRoutine.Config(
-            null, null, null,
+            null, Volts.of(1), null,
             (state) -> Logger.recordOutput("Wrist/SysIDState", state.toString())
         ), 
         new SysIdRoutine.Mechanism(
@@ -85,7 +85,7 @@ public class WristSubsystem extends SubsystemBase {
         return new FunctionalCommand(
             () -> {},
             () -> setPosition(angle), 
-            (interrupted) -> {}, 
+            (interrupted) -> {},
             () -> Math.abs(angle.minus(getAngle()).getRadians()) < WristConstants.wristAngleToleranceRadians,
             this
         );

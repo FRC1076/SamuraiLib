@@ -104,10 +104,12 @@ public class RobotContainer {
     if constexpr
     Also, ignore the "comparing identical expressions" and "dead code" warnings
     */
-        
-        m_indexBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.indexBeamBreakPort)::get).or(m_beamBreakController.a());
-        m_transferBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.transferBeamBreakPort)::get).or(m_beamBreakController.x());
-        m_grabberBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.grabberBeamBreakPort)::get).or(m_beamBreakController.y());
+        DigitalInput indexDIO = new DigitalInput(BeamBreakConstants.indexBeamBreakPort);
+        DigitalInput transferDIO = new DigitalInput(BeamBreakConstants.transferBeamBreakPort);
+        DigitalInput grabberDIO = new DigitalInput(BeamBreakConstants.grabberBeamBreakPort);
+        m_indexBeamBreak = new Trigger(() -> {return ! indexDIO.get();});//.or(m_beamBreakController.a());
+        m_transferBeamBreak = new Trigger(() -> {return ! transferDIO.get();});//.or(m_beamBreakController.x());
+        m_grabberBeamBreak = new Trigger(() -> {return ! grabberDIO.get();});//.or(m_beamBreakController.y());
         m_interruptElevator = new Trigger(() -> m_operatorController.getLeftY() != 0);
         m_interruptGrabber = new Trigger(() -> m_operatorController.getRightY() != 0);
 
@@ -281,23 +283,24 @@ public class RobotContainer {
     private void configureOperatorBindings() {
         // TODO: Add coral and algae intake triggers
         //Quasistsic and Dynamic control scheme for Wrist Sysid
-        /*
+        
         m_operatorController.rightBumper().and(
             m_operatorController.a()
-        ).whileTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        ).whileTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
         m_operatorController.rightBumper().and(
             m_operatorController.b()
-        ).whileTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        ).whileTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
         m_operatorController.rightBumper().and(
             m_operatorController.x()
-        ).whileTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kForward));
+        ).whileTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kForward));
         
         m_operatorController.rightBumper().and(
             m_operatorController.y()
-        ).whileTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kReverse));
-        */
+        ).whileTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kReverse));
+        
+        /* 
         final SuperstructureCommandFactory superstructureCommands = m_superstructure.getCommandBuilder();
         
         // L1
@@ -338,7 +341,7 @@ public class RobotContainer {
 
         // Retract mechanisms and stop grabber
         m_operatorController.rightTrigger().onFalse(superstructureCommands.stopAndRetract());
-        
+        */
     }
 
     private void configureBeamBreakTriggers() {
