@@ -25,6 +25,7 @@ import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 
 import edu.wpi.first.math.controller.PIDController;
 
@@ -41,7 +42,7 @@ public class ElevatorIOHardware implements ElevatorIO {
     
     private final RelativeEncoder m_encoder;
 
-    private final PIDController m_PIDController;
+    private final SparkClosedLoopController m_closedLoopController;
 
     private final MutableElevatorFeedforward FFcontroller = new MutableElevatorFeedforward(kS, kG, kV, kA);
 
@@ -61,6 +62,12 @@ public class ElevatorIOHardware implements ElevatorIO {
             .voltageCompensation(kVoltageCompensation);
         m_leadMotorConfig.closedLoop
             .pid(kP, kI, kD);
+        m_leadMotorConfig.closedLoop.maxMotion
+            .maxVelocity(1)
+            .maxAcceleration(0.5)
+            .allowedClosedLoopError(0)
+            .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
+
         m_leadMotorConfig.encoder
             .positionConversionFactor(kPositionConversionFactor)
             .velocityConversionFactor(kVelocityConversionFactor)
@@ -76,17 +83,12 @@ public class ElevatorIOHardware implements ElevatorIO {
         m_followMotor.configure(m_followMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
         m_encoder = m_leadMotor.getEncoder();
+        m_closedLoopController = m_leadMotor.getClosedLoopController();
 
         m_encoder.setPosition(0);
 
         m_leadMotor.setCANTimeout(0);
         m_followMotor.setCANTimeout(0);
-
-        m_PIDController = new PIDController(
-            ElevatorSimConstants.Control.kP,
-            ElevatorSimConstants.Control.kI,
-            ElevatorSimConstants.Control.kD
-        );
         
     }
 
@@ -104,10 +106,13 @@ public class ElevatorIOHardware implements ElevatorIO {
      */
     @Override
     public void setPosition(double positionMeters){
-        setVoltage(
-            m_PIDController.calculate(m_encoder.getPosition(), positionMeters) +
-            FFcontroller.calculate(m_encoder.getVelocity())
-            );
+        m_closedLoopController.setReference(
+            MathHelpers.clamp(positionMeters, ElevatorConstants.kMinElevatorHeightMeters, ElevatorConstants.kMaxElevatorHeightMeters),
+            ControlType.kMAXMotionPositionControl,
+            ClosedLoopSlot.kSlot0,
+            FFcontroller.getKg(),
+            ArbFFUnits.kVoltage
+        );
     }
 
     /** Set kG of the elevator feedforward
@@ -123,6 +128,7 @@ public class ElevatorIOHardware implements ElevatorIO {
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
         inputs.appliedVolts = m_leadMotor.getAppliedOutput() * m_leadMotor.getBusVoltage();
+        inputs.appliedOutput = m_leadMotor.getAppliedOutput();
         inputs.leadCurrentAmps = m_leadMotor.getOutputCurrent();
         inputs.followCurrentAmps = m_followMotor.getOutputCurrent();
         inputs.leadPowerWatts = inputs.leadCurrentAmps * inputs.appliedVolts;

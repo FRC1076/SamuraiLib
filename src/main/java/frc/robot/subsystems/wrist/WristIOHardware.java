@@ -1,5 +1,6 @@
 package frc.robot.subsystems.wrist;
 
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorSimConstants;
 import frc.robot.Constants.WristConstants;
 
@@ -30,6 +31,7 @@ public class WristIOHardware implements WristIO {
     private final SparkMaxConfig m_followMotorConfig;
 
     private final PIDController m_PIDController;
+    //private final SparkClosedLoopController m_closedLoopController;
 
     private final RelativeEncoder m_alternateEncoder;
 
@@ -61,6 +63,12 @@ public class WristIOHardware implements WristIO {
                 WristConstants.Control.kI,
                 WristConstants.Control.kD
             );
+        
+        /*
+        m_leadMotorConfig.closedLoop.maxMotion
+            .maxVelocity(0.5)
+            .maxAcceleration(0.25);
+        */
 
         m_leadMotorConfig.alternateEncoder
             .setSparkMaxDataPortConfig()
@@ -107,6 +115,15 @@ public class WristIOHardware implements WristIO {
     @Override
     public void setPosition(double positionRadians){
         setVoltage(m_PIDController.calculate(m_alternateEncoder.getPosition(), positionRadians));
+        /*
+        m_closedLoopController.setReference(
+            MathHelpers.clamp(positionRadians, WristConstants.kMinWristAngleRadians, WristConstants.kMaxWristAngleRadians),
+            ControlType.kMAXMotionPositionControl,
+            ClosedLoopSlot.kSlot0,
+            FFController.calculate(m_alternateEncoder.getPosition(), 0),
+            ArbFFUnits.kVoltage
+        );
+        */
     }
 
     @Override

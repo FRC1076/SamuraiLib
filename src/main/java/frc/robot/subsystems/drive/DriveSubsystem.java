@@ -77,17 +77,17 @@ public class DriveSubsystem extends SubsystemBase {
         // updateModuleInputs and processInputs are only used for logging
         io.periodic(); //currently just for calling sim
         io.updateInputs(driveInputs);
-        io.updateModuleInputs(frontLeftInputs,0);
-        io.updateModuleInputs(frontRightInputs,1);
-        io.updateModuleInputs(rearLeftInputs,2);
-        io.updateModuleInputs(rearRightInputs,3);
-        Logger.processInputs("Drive", driveInputs);
-        Logger.processInputs("Drive/FrontLeft",frontLeftInputs);
-        Logger.processInputs("Drive/FrontRight",frontRightInputs);
-        Logger.processInputs("Drive/RearLeft",rearLeftInputs);
-        Logger.processInputs("Drive/RearRight",rearRightInputs);
+        // io.updateModuleInputs(frontLeftInputs,0);
+        // io.updateModuleInputs(frontRightInputs,1);
+        // io.updateModuleInputs(rearLeftInputs,2);
+        // io.updateModuleInputs(rearRightInputs,3);
+        // Logger.processInputs("Drive", driveInputs);
+        // Logger.processInputs("Drive/FrontLeft",frontLeftInputs);
+        // Logger.processInputs("Drive/FrontRight",frontRightInputs);
+        // Logger.processInputs("Drive/RearLeft",rearLeftInputs);
+        // Logger.processInputs("Drive/RearRight",rearRightInputs);
 
-        if (DriverStation.getAlliance().isPresent() & !hasSetAlliance) {
+        if (DriverStation.getAlliance().isPresent() && !hasSetAlliance) {
             hasSetAlliance = true;
             if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
                 io.setAllianceRotation(Rotation2d.fromDegrees(180));

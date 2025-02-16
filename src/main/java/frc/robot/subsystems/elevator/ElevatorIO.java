@@ -13,6 +13,7 @@ public interface ElevatorIO {
     public static class ElevatorIOInputs {
 
         public double appliedVolts = 0;
+        public double appliedOutput = 0;
         public double leadCurrentAmps = 0;
         public double followCurrentAmps = 0;
         public double leadPowerWatts = 0;
@@ -21,6 +22,7 @@ public interface ElevatorIO {
 
         public double elevatorHeightMeters = 0;
         public double velocityMetersPerSecond = 0;
+        public double elevatorL2Setpoint = 0.71628;
         
     }
 

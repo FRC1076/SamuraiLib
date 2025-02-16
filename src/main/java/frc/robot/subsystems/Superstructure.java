@@ -178,11 +178,21 @@ public class Superstructure {
             m_wrist.applyAngle(Rotation2d.fromDegrees(80)),
             () -> superState.getGrabberPossession() == GrabberPossession.ALGAE
         );
+
+        /*
+        Command wristHoldCommand = Commands.either(
+            m_wrist.holdAngle(Rotation2d.fromDegrees(65)), // TODO: Move this 65 out of this file and into a constants somehow
+            m_wrist.holdAngle(Rotation2d.fromDegrees(80)),
+            () -> superState.getGrabberPossession() == GrabberPossession.ALGAE
+        );*/
         
         return Commands.sequence(
             Commands.runOnce(() -> superState.setWristevatorState(position)),
             wristPreMoveCommand,
+            //Commands.deadline(
             m_elevator.applyPosition(position.elevatorHeightMeters),
+                //wristHoldCommand
+            //),
             m_wrist.applyAngle(position.wristAngle)
         );
     }

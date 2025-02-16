@@ -98,8 +98,8 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     public Command applyPosition(double positionMeters) {
         return new FunctionalCommand(
-            () -> {},
             () -> setPosition(positionMeters),
+            () -> {},
             (interrupted) -> {},
             () -> Math.abs(positionMeters - getPositionMeters()) < ElevatorConstants.elevatorPositionToleranceMeters,
             this
@@ -110,7 +110,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @param controlSupplier Supplier that returns the desired voltage of the elevator
      */
     public Command applyManualControl(DoubleSupplier controlSupplier) {
-        return run(() -> setVoltage(controlSupplier.getAsDouble() * ElevatorConstants.maxOperatorControlVolts + io.getFFkG()));
+        return run(() -> {setVoltage(controlSupplier.getAsDouble() * ElevatorConstants.maxOperatorControlVolts + io.getFFkG()); System.out.println(controlSupplier.getAsDouble());});
     }
 
     public Command elevatorSysIdQuasistatic(SysIdRoutine.Direction direction) {

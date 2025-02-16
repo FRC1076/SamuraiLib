@@ -185,8 +185,8 @@ public final class Constants {
         // Index State
         public enum IndexState {
             EMPTY_IDLE(false, 0),
-            CORAL_INTAKE(true, 12),
-            CORAL_TRANSFER(true, 12),
+            CORAL_INTAKE(true, 6),
+            CORAL_TRANSFER(true, 6),
             CORAL_IDLE(false, 0);
             public final boolean running; // Whether or not the indexer motors are running
             public final double volts;
@@ -317,18 +317,12 @@ public final class Constants {
         public static final int kMotorPort1 = 32; // Right motor consistent with drivetrain right side
         
         public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(2);
-        public static final double kMinElevatorHeightMeters = Units.inchesToMeters(0); // TODO: UPDATE
+        public static final double kMinElevatorHeightMeters = Units.inchesToMeters(-1); // TODO: UPDATE
         public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(60); // TODO: UPDATE
         public static final double maxOperatorControlVolts = 4;
 
         public static final boolean leadMotorInverted = false;
         public static final boolean followMotorInverted = false;
-
-        // Heights measured in meters
-        public static final double lowHeight = 0.0;
-        public static final double autonHeight = 0.0;
-        public static final double midHeight = 0.0;
-        public static final double highHeight = 0.0;
 
         //public static final double minHeightMeters = 0;
         //public static final double maxHeightMeters = 0.85; // Temporary
@@ -339,21 +333,26 @@ public final class Constants {
         public static final double kElevatorStages = 3;
         public static final double kVelocityConversionFactor = kElevatorStages * (1/kGearRatio) * 24 * 0.00635 / 60.0; //Gear ratio & chain pitch & rpm -> m/s
         public static final double kPositionConversionFactor = kElevatorStages * (1/kGearRatio) * 24 * 0.00635; //Gear ratio & chain pitch
+
+        /*
+        public static final double kMaxVelocityMeters = 1.0;
+        public static final double kMaxAccelerationMetersSquared = 0.5;
+        */
         public static class Electrical {
-            public static final double kVoltageCompensation = 12;
+            public static final double kVoltageCompensation = 10.5;
             public static final double kCurrentLimit = 40;
         }
 
 
         public static class Control {
             // PID constants
-            public static final double kP = 55;
+            public static final double kP = 1.8;
             public static final double kI = 0.0;
-            public static final double kD = 2;
+            public static final double kD = 0.0;
 
             // Feedforward constant
             public static final double kS = 0.0; //Static gain (voltage)
-            public static final double kG = 0.97369; // 0.6 //Gravity gain (voltage)
+            public static final double kG = 1.4;//0.97369; // 0.6 //Gravity gain (voltage)
             public static final double kV = 0.0; // 12.0 // velocity game
             public static final double kA = 0.0; //Acceleration Gain
         }
