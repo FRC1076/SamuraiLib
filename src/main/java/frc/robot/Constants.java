@@ -280,6 +280,7 @@ public final class Constants {
 
         //Poses of interest
         public enum PoseOfInterest {
+
             BLU_PROCESSOR(5.973318,-0.00381,90), //Taken from April Tag coordinates
             RED_PROCESSOR(11.56081,	8.05561,	270), //Taken from April Tag coordinates
             BLU_RIGHT_STATION(Units.inchesToMeters(33.51),Units.inchesToMeters(25.80),55),
@@ -296,31 +297,33 @@ public final class Constants {
     }
 
     public static class ElevatorConstants {
-        public static final int kMotorPort0 = -1;
-        public static final int kMotorPort1 = -1;
+
+        public static final int kMotorPort0 = 31;
+        public static final int kMotorPort1 = 32;
         
-        public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(0.5);
-        public static final double maxOperatorControlVolts = 6;
+        public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(2);
+        public static final double kMinElevatorHeightMeters = Units.inchesToMeters(0); // TODO: UPDATE
+        public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(60); // TODO: UPDATE
+        public static final double maxOperatorControlVolts = 4;
+
+        
 
         public static final boolean leadMotorInverted = false;
         public static final boolean followMotorInverted = false;
-
-        //Heights measured in meters
-        public static final double lowHeight = 0;
-        public static final double autonHeight = 0;
-        public static final double midHeight = 0;
-        public static final double highHeight = 0;
 
         //public static final double minHeightMeters = 0;
         //public static final double maxHeightMeters = 0.85; //Temporary
 
         //https://wcproducts.com/collections/gearboxes/products/wcp-single-stage-gearbox  Inches.of(0.25).in(Meters)
         // still set to WAPUR elevator units, need to be changed
-        public static final double kVelocityConversionFactor = (11/60.0) * 22 * 0.00635 / 60.0; //Gear ratio & chain pitch & rpm -> m/s
-        public static final double kPositionConversionFactor = (11/60.0) * 22 * 0.00635; //Gear ratio & chain pitch
+
+        public static final double kGearRatio = 10.909;
+        public static final double kElevatorStages = 3;
+        public static final double kVelocityConversionFactor = kElevatorStages * (1/kGearRatio) * 24 * 0.00635 / 60.0; //Gear ratio & chain pitch & rpm -> m/s
+        public static final double kPositionConversionFactor = kElevatorStages * (1/kGearRatio) * 24 * 0.00635; //Gear ratio & chain pitch
         public static class Electrical {
             public static final double kVoltageCompensation = 12;
-            public static final double kCurrentLimit = 60;
+            public static final double kCurrentLimit = 40;
         }
 
 
@@ -330,13 +333,13 @@ public final class Constants {
             public static final double kVelI = 0;
             public static final double kVelD = 0;
             
-            public static final double kPosP = 0.8;
+            public static final double kPosP = 55;
             public static final double kPosI = 0.0;
-            public static final double kPosD = 0.0;
+            public static final double kPosD = 2;
 
             //Feedforward Constants - STILL SET TO WAPUR ELEVATOR VALUES
             public static final double kS = 0; //Static gain (voltage)
-            public static final double kG = 2.8605; //Gravity gain (voltage)
+            public static final double kG = 0.97369; //Gravity gain (voltage)
             public static final double kV = 0; // velocity game
             public static final double kA = 0; //Acceleration Gain
         }
@@ -347,7 +350,7 @@ public final class Constants {
         public static final int kSimMotorPort0 = 20;
         public static final int kSimMotorPort1 = 21;
         
-        public static final double kElevatorGearing = 60.0/11.0;
+        public static final double kElevatorGearing = 10.909;
         public static final double kCarriageMass = Units.lbsToKilograms(30); //kg
         public static final double kElevatorDrumRadius = Units.inchesToMeters(2.0); //taken from example, do not know what this is
         public static final double kMinElevatorHeightMeters = 0;
@@ -399,13 +402,13 @@ public final class Constants {
             public static final double kVelD = 0;
 
             // PID constants
-            public static final double kPosP = 0.4;
+            public static final double kPosP = 0.75;
             public static final double kPosI = 0.0;
-            public static final double kPosD = 0.0;
+            public static final double kPosD = 0.05;
 
             // feed forward constants
             public static final double kS = 0.0; // static gain in volts
-            public static final double kG = 0.0; // gravity gain in volts
+            public static final double kG = 1.4662; // gravity gain in volts
             public static final double kV = 0.0; // velocity gain in volts per radian per second
             public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
         }
