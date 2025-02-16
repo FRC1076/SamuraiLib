@@ -19,9 +19,13 @@ public class SamuraiXboxController extends CommandXboxController {
     private DoubleSupplier rightStickY_DB;
 
     public SamuraiXboxController(int port) {
+        this(port,kDefaultStickDeadband,kDefaultTriggerThreshold);
+    }
+
+    public SamuraiXboxController(int port, double stickDeadband, double triggerThreshold) {
         super(port);
-        stickDeadband = kDefaultStickDeadband;
-        triggerThreshold = kDefaultTriggerThreshold;
+        this.stickDeadband = stickDeadband;
+        this.triggerThreshold = triggerThreshold;
         configSticks();
     }
 
