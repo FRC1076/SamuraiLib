@@ -316,7 +316,7 @@ public final class Constants {
         public static final int kMotorPort0 = 31; // Left motor consistent with drivetrain left side
         public static final int kMotorPort1 = 32; // Right motor consistent with drivetrain right side
         
-        public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(2);
+        public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(1);
         public static final double kMinElevatorHeightMeters = Units.inchesToMeters(-1); // TODO: UPDATE
         public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(60); // TODO: UPDATE
         public static final double maxOperatorControlVolts = 4;
@@ -340,19 +340,19 @@ public final class Constants {
         */
         public static class Electrical {
             public static final double kVoltageCompensation = 10.5;
-            public static final double kCurrentLimit = 40;
+            public static final double kCurrentLimit = 60;
         }
 
 
         public static class Control {
             // PID constants
-            public static final double kP = 1.8;
+            public static final double kP = 15;
             public static final double kI = 0.0;
             public static final double kD = 0.0;
 
             // Feedforward constant
             public static final double kS = 0.0; //Static gain (voltage)
-            public static final double kG = 1.4;//0.97369; // 0.6 //Gravity gain (voltage)
+            public static final double kG = 1.2;//0.97369; // 0.6 //Gravity gain (voltage)
             public static final double kV = 0.0; // 12.0 // velocity game
             public static final double kA = 0.0; //Acceleration Gain
         }
@@ -417,13 +417,13 @@ public final class Constants {
 
         public static final class Control {
             // PID constants
-            public static final double kP = 0.75;
+            public static final double kP = 2;
             public static final double kI = 0.0;
             public static final double kD = 0.05;
 
             // Feedforward constants
             public static final double kS = 0.0; // static gain in volts
-            public static final double kG = 1.4462; // gravity gain in volts
+            public static final double kG = 1.2; // gravity gain in volts
             public static final double kV = 0.0; // velocity gain in volts per radian per second
             public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
         }

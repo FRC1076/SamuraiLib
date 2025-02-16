@@ -8,7 +8,8 @@ import lib.control.MutableArmFeedforward;
 import lib.utils.MathHelpers;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.ClosedLoopSlot;
@@ -30,7 +31,7 @@ public class WristIOHardware implements WristIO {
     private final SparkMaxConfig m_leadMotorConfig;
     private final SparkMaxConfig m_followMotorConfig;
 
-    private final PIDController m_PIDController;
+    private final ProfiledPIDController m_profiledPIDController;
     //private final SparkClosedLoopController m_closedLoopController;
 
     private final RelativeEncoder m_alternateEncoder;
@@ -93,10 +94,14 @@ public class WristIOHardware implements WristIO {
         m_alternateEncoder = m_leadMotor.getEncoder();
         m_alternateEncoder.setPosition(Rotation2d.kCCW_90deg.getRadians());
 
-        m_PIDController = new PIDController(
+        m_profiledPIDController = new ProfiledPIDController(
             WristConstants.Control.kP,
             WristConstants.Control.kI,
-            WristConstants.Control.kD
+            WristConstants.Control.kD,
+            new TrapezoidProfile.Constraints(
+                2,
+                2
+            )
         );
     }
 
@@ -114,7 +119,9 @@ public class WristIOHardware implements WristIO {
     /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS */
     @Override
     public void setPosition(double positionRadians){
-        setVoltage(m_PIDController.calculate(m_alternateEncoder.getPosition(), positionRadians));
+        setVoltage(
+            m_profiledPIDController.calculate(m_alternateEncoder.getPosition(), positionRadians)
+        );
         /*
         m_closedLoopController.setReference(
             MathHelpers.clamp(positionRadians, WristConstants.kMinWristAngleRadians, WristConstants.kMaxWristAngleRadians),
@@ -124,6 +131,11 @@ public class WristIOHardware implements WristIO {
             ArbFFUnits.kVoltage
         );
         */
+    }
+
+    @Override
+    public void resetController(){
+        m_profiledPIDController.reset(m_alternateEncoder.getPosition());
     }
 
     @Override

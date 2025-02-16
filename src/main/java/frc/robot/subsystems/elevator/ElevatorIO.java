@@ -40,4 +40,6 @@ public interface ElevatorIO {
     public default double getFFkG() {return ElevatorConstants.Control.kG;}
 
     public default void simulationPeriodic() {}
+
+    public default void resetController() {}
 }

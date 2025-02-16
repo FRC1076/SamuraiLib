@@ -30,4 +30,6 @@ public interface WristIO {
     public default double getFFkG() {return WristConstants.Control.kG;}
 
     public default void simulationPeriodic() {}
+
+    public default void resetController() {}
 }

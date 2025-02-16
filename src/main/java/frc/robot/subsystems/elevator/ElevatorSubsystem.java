@@ -66,12 +66,14 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     public void setVoltage(double volts) {
         
+        
         if(this.getPositionMeters() > ElevatorConstants.kMaxElevatorHeightMeters && volts > 0) {
             volts = 0; //TODO: make this kG instead of 0?
         }
         else if(this.getPositionMeters() < ElevatorConstants.kMinElevatorHeightMeters && volts < 0) {
             volts = 0;
         }
+        
 
         io.setVoltage(volts);
     }
@@ -98,8 +100,8 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     public Command applyPosition(double positionMeters) {
         return new FunctionalCommand(
-            () -> setPosition(positionMeters),
-            () -> {},
+            () -> {io.resetController();},
+            () -> {setPosition(positionMeters);},
             (interrupted) -> {},
             () -> Math.abs(positionMeters - getPositionMeters()) < ElevatorConstants.elevatorPositionToleranceMeters,
             this

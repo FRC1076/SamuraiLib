@@ -10,6 +10,7 @@ import static frc.robot.Constants.ElevatorConstants.Control.kP;
 import static frc.robot.Constants.ElevatorConstants.Control.kS;
 import static frc.robot.Constants.ElevatorConstants.Control.kV;
 import static frc.robot.Constants.ElevatorConstants.Control.kG;
+import static edu.wpi.first.units.Units.Kilo;
 import static frc.robot.Constants.ElevatorConstants.kMotorPort0;
 import static frc.robot.Constants.ElevatorConstants.kMotorPort1;
 import static frc.robot.Constants.ElevatorConstants.kPositionConversionFactor;
@@ -27,7 +28,9 @@ import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -41,8 +44,8 @@ public class ElevatorIOHardware implements ElevatorIO {
     private final SparkMaxConfig m_followMotorConfig;
     
     private final RelativeEncoder m_encoder;
-
-    private final SparkClosedLoopController m_closedLoopController;
+    private final ProfiledPIDController m_profiledPIDController;
+    //private final SparkClosedLoopController m_closedLoopController;
 
     private final MutableElevatorFeedforward FFcontroller = new MutableElevatorFeedforward(kS, kG, kV, kA);
 
@@ -83,12 +86,19 @@ public class ElevatorIOHardware implements ElevatorIO {
         m_followMotor.configure(m_followMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
         m_encoder = m_leadMotor.getEncoder();
-        m_closedLoopController = m_leadMotor.getClosedLoopController();
+        //m_closedLoopController = m_leadMotor.getClosedLoopController();
 
         m_encoder.setPosition(0);
 
         m_leadMotor.setCANTimeout(0);
         m_followMotor.setCANTimeout(0);
+
+        m_profiledPIDController = new ProfiledPIDController(
+            kP,
+            kI,
+            kD,
+            new Constraints(1, 3)
+        );
         
     }
 
@@ -106,6 +116,11 @@ public class ElevatorIOHardware implements ElevatorIO {
      */
     @Override
     public void setPosition(double positionMeters){
+        setVoltage(
+            m_profiledPIDController.calculate(m_encoder.getPosition(), positionMeters)
+            + FFcontroller.getKg()
+        );
+        /*
         m_closedLoopController.setReference(
             MathHelpers.clamp(positionMeters, ElevatorConstants.kMinElevatorHeightMeters, ElevatorConstants.kMaxElevatorHeightMeters),
             ControlType.kMAXMotionPositionControl,
@@ -113,6 +128,12 @@ public class ElevatorIOHardware implements ElevatorIO {
             FFcontroller.getKg(),
             ArbFFUnits.kVoltage
         );
+        */
+    }
+
+    @Override
+    public void resetController(){
+        m_profiledPIDController.reset(m_encoder.getPosition());
     }
 
     /** Set kG of the elevator feedforward
