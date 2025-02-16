@@ -77,7 +77,6 @@ public class DriveSubsystem extends SubsystemBase {
         }
         CommandBuilder = new DriveCommandFactory(this);
         this.vision.registerMeasurementConsumer(io::addVisionMeasurement);
-        
     }
 
     @Override

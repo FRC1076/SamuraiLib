@@ -87,8 +87,9 @@ public final class Constants {
         public static final double kControllerTriggerThreshold = 0.7;
     }
 
-    public static class Akit {
-        public static final int currentMode = 1;
+    public static class SystemConstants {
+        public static final int currentMode = 1; //0 = real, 1 = sim
+        public static final boolean cameraSimRendering = true; // Warning: very resource intensive
     }
     
     public static class DriveConstants {

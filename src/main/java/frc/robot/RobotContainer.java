@@ -29,7 +29,7 @@ import lib.vision.PV_Localizer;
 import lib.vision.VisionLocalizationSystem;
 import frc.robot.subsystems.SuperstructureVisualizer;
 import frc.robot.subsystems.Superstructure.SuperstructureCommandFactory;
-import frc.robot.Constants.Akit;
+import frc.robot.Constants.SystemConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.WristevatorConstants;
 import frc.robot.Constants.VisionConstants.PVConstants.CamConfig;
@@ -123,7 +123,7 @@ public class RobotContainer {
         m_interruptGrabber = new Trigger(() -> m_operatorController.getRightY() != 0);
         m_vision = new VisionLocalizationSystem();
 
-        if (Akit.currentMode == 0) {
+        if (SystemConstants.currentMode == 0) {
             visionSim = null;
             for (CamConfig config : CamConfig.values()) {
                 PhotonCamera cam = new PhotonCamera(config.name);
@@ -139,9 +139,10 @@ public class RobotContainer {
             m_wrist = new WristSubsystem(new WristIOHardware());
             m_grabber = new GrabberSubsystem(new GrabberIOHardware());
             m_index = new IndexSubsystem(new IndexIOHardware());
-        } else if (Akit.currentMode == 1) {
+        } else if (SystemConstants.currentMode == 1) {
             visionSim = new VisionSystemSim("sim");
             visionSim.addAprilTags(Constants.VisionConstants.fieldLayout);
+            var camProperties = new SimCameraProperties();
             for (CamConfig config : CamConfig.values()) {
                 PhotonCamera cam = new PhotonCamera(config.name);
                 PhotonPoseEstimator estimator = new PhotonPoseEstimator(
@@ -150,8 +151,12 @@ public class RobotContainer {
                     config.offset
                 );
                 m_vision.addCamera(new PV_Localizer(cam, estimator, kDefaultSingleTagStdDevs, kDefaultMultiTagStdDevs));
+                var camSim = new PhotonCameraSim(cam,camProperties);
+                if (SystemConstants.cameraSimRendering) {
+                    camSim.enableDrawWireframe(true);
+                }
                 visionSim.addCamera(
-                    new PhotonCameraSim(cam),
+                    camSim,
                     config.offset
                 );
             }

@@ -51,7 +51,7 @@ public class Robot extends LoggedRobot {
         }
 
     // Set up data receivers & replay source
-    switch (Constants.Akit.currentMode) {
+    switch (Constants.SystemConstants.currentMode) {
         case 0:
             // Running on a real robot, log to a USB stick ("/U/logs")
             Logger.addDataReceiver(new WPILOGWriter());

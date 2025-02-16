@@ -1,18 +1,11 @@
 package frc.robot.utils;
 
 
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.wpi.first.util.sendable.Sendable;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import frc.robot.Constants.GameConstants;
-import frc.robot.Constants.GameConstants.StartPositions;
-import frc.robot.Constants.GameConstants.TeamColors;
 import frc.robot.Constants.SuperstructureConstants.GrabberPossession;
 import frc.robot.Constants.SuperstructureConstants.IndexPossession;
 
