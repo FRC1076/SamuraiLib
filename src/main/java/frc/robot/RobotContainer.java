@@ -283,7 +283,8 @@ public class RobotContainer {
     private void configureOperatorBindings() {
         // TODO: Add coral and algae intake triggers
         //Quasistsic and Dynamic control scheme for Wrist Sysid
-        
+
+        /*
         m_operatorController.rightBumper().and(
             m_operatorController.a()
         ).whileTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kForward));
@@ -299,8 +300,9 @@ public class RobotContainer {
         m_operatorController.rightBumper().and(
             m_operatorController.y()
         ).whileTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kReverse));
+        */
         
-        /* 
+        
         final SuperstructureCommandFactory superstructureCommands = m_superstructure.getCommandBuilder();
         
         // L1
@@ -341,7 +343,8 @@ public class RobotContainer {
 
         // Retract mechanisms and stop grabber
         m_operatorController.rightTrigger().onFalse(superstructureCommands.stopAndRetract());
-        */
+        
+        
     }
 
     private void configureBeamBreakTriggers() {

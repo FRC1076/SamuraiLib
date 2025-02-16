@@ -346,12 +346,12 @@ public final class Constants {
 
 
         public static class Control {
-            // PID constants - STILL SET TO WAPUR ELEVATOR VALUES
-            public static final double kP = 40;
+            // PID constants
+            public static final double kP = 55;
             public static final double kI = 0.0;
-            public static final double kD = 9;
+            public static final double kD = 2;
 
-            // Feedforward constants - STILL SET TO WAPUR ELEVATOR VALUES
+            // Feedforward constant
             public static final double kS = 0.0; //Static gain (voltage)
             public static final double kG = 0.97369; // 0.6 //Gravity gain (voltage)
             public static final double kV = 0.0; // 12.0 // velocity game
