@@ -12,8 +12,6 @@ import static frc.robot.Constants.ElevatorConstants.kVelocityConversionFactor;
 import static frc.robot.Constants.ElevatorConstants.Electrical.kCurrentLimit;
 import static frc.robot.Constants.ElevatorConstants.Electrical.kVoltageCompensation;
 
-import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
