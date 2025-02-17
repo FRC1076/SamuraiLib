@@ -117,17 +117,8 @@ public class ElevatorIOHardware implements ElevatorIO {
     public void setPosition(double positionMeters){
         setVoltage(
             m_profiledPIDController.calculate(m_encoder.getPosition(), positionMeters)
-            + m_FeedforwardController.getKg()
+            + m_FeedforwardController.calculate(m_profiledPIDController.getSetpoint().velocity) //TODO: Tune kV
         );
-        /*
-        m_closedLoopController.setReference(
-            MathUtil.clamp(positionMeters, ElevatorConstants.kMinElevatorHeightMeters, ElevatorConstants.kMaxElevatorHeightMeters),
-            ControlType.kMAXMotionPositionControl,
-            ClosedLoopSlot.kSlot0,
-            FFcontroller.getKg(),
-            ArbFFUnits.kVoltage
-        );
-        */
     }
 
     @Override

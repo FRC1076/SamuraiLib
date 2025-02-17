@@ -119,8 +119,9 @@ public class WristIOHardware implements WristIO {
 
     @Override
     public void setPosition(double positionRadians){
-        setVoltage(
+        setVoltageCharacterization(
             m_profiledPIDController.calculate(m_alternateEncoder.getPosition(), positionRadians)
+            + m_FeedforwardController.calculate(m_alternateEncoder.getPosition(), m_profiledPIDController.getSetpoint().velocity)
         );
         /*
         m_closedLoopController.setReference(
