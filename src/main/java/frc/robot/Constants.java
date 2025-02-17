@@ -7,11 +7,14 @@ package frc.robot;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 
 import com.pathplanner.lib.config.PIDConstants;
@@ -30,7 +33,32 @@ import org.apache.commons.lang3.NotImplementedException;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    
+    public static class VisionConstants {
+        public static class Photonvision {
+            public static enum PhotonConfig {
 
+                ELEVATOR_LEFT_CAM("ELEVATOR_LEFT_CAM",0,0,0,0,0,0),
+                ELEVATOR_RIGHT_CAM("ELEVATOR_RIGHT_CAM",0,0,0,0,0,0);
+
+                public final String name;
+                public final Transform3d offset;
+                private PhotonConfig(String name, double xInch, double yInch, double zInch, double rollDeg, double pitchDeg, double yawDeg) {
+                    this.name = name;
+                    this.offset = new Transform3d(
+                        Units.inchesToMeters(xInch),
+                        Units.inchesToMeters(yInch),
+                        Units.inchesToMeters(zInch),
+                        new Rotation3d(
+                            Units.degreesToRadians(rollDeg),
+                            Units.degreesToRadians(pitchDeg),
+                            Units.degreesToRadians(yawDeg)
+                        )
+                    );
+                }
+            }
+        }
+    }
     
     /** Contains starting position and team */
     public static class GameConstants {

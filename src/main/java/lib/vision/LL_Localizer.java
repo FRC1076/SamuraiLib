@@ -43,7 +43,7 @@ public class LL_Localizer implements CameraLocalizer {
     }
 
     private Matrix<N3,N1> calculateStdDevs(LLPoseEstimate estimate) {
-        var stdDevs = defaultSingleStdDevs;
+        var stdDevs = defaultSingleStdDevs.copy();
         int numTargets = estimate.tagCount();
         double avgDist = estimate.avgTagDist();
         if (numTargets == 0) {

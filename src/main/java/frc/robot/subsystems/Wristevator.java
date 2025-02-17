@@ -10,7 +10,6 @@ import java.util.function.Supplier;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import frc.robot.Constants.SuperstructureConstants.WristevatorState;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
 import frc.robot.subsystems.wrist.WristSubsystem;
@@ -32,10 +31,13 @@ public class Wristevator {
     /**
      * Sequentially sets wrist to a safe angle, moves elevator to desired state, then sets wrist to desired state
      */
-    public Command applyStateSafe(WristevatorState state, Rotation2d safeAngle) {
+    public Command applyStateSafe(WristevatorState state, Supplier<Rotation2d> safeAngleSupplier) {
         return Commands.sequence(
-            m_wrist.applyAngle(safeAngle),
-            m_elevator.applyPosition(state.elevatorHeightMeters),
+            m_wrist.applyAngle(safeAngleSupplier.get()),
+            Commands.race(
+                m_elevator.applyPosition(state.elevatorHeightMeters),
+                m_wrist.holdAngle(safeAngleSupplier.get())
+            ),
             m_wrist.applyAngle(state.wristAngle)
         );
     }
