@@ -1,13 +1,11 @@
 package frc.robot.subsystems.wrist;
 
 import frc.robot.Constants.WristConstants;
-import static frc.robot.Constants.ElevatorConstants.Control.kG;
-
-import lib.utils.MathHelpers;
 
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -50,12 +48,10 @@ public class WristSubsystem extends SubsystemBase {
 
     private void setVoltageCharacterization(double volts) {
         io.setVoltageCharacterization(volts);
-    }
-
-    /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS */
+   S */
     /** Sets the desired rotation of the wrist */
     public void setPosition(Rotation2d position) {
-        io.setPosition(MathHelpers.clamp(position.getRadians(), WristConstants.kMinWristAngleRadians, WristConstants.kMaxWristAngleRadians));
+        io.setPosition(MathUtil.clamp(position.getRadians(), WristConstants.kMinWristAngleRadians, WristConstants.kMaxWristAngleRadians));
         //io.setPosition(position.getRadians());
     }
 

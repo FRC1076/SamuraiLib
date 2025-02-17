@@ -98,10 +98,7 @@ public class WristIOHardware implements WristIO {
             WristConstants.Control.kP,
             WristConstants.Control.kI,
             WristConstants.Control.kD,
-            new TrapezoidProfile.Constraints(
-                2,
-                2
-            )
+            WristConstants.Control.kProfileConstraints
         );
     }
 
@@ -116,7 +113,6 @@ public class WristIOHardware implements WristIO {
         m_leadMotor.setVoltage(volts);
     }
 
-    /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS */
     @Override
     public void setPosition(double positionRadians){
         setVoltage(
@@ -124,7 +120,7 @@ public class WristIOHardware implements WristIO {
         );
         /*
         m_closedLoopController.setReference(
-            MathHelpers.clamp(positionRadians, WristConstants.kMinWristAngleRadians, WristConstants.kMaxWristAngleRadians),
+            MathUtil.clamp(positionRadians, WristConstants.kMinWristAngleRadians, WristConstants.kMaxWristAngleRadians),
             ControlType.kMAXMotionPositionControl,
             ClosedLoopSlot.kSlot0,
             FFController.calculate(m_alternateEncoder.getPosition(), 0),

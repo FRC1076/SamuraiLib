@@ -9,6 +9,7 @@ import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.util.Units;
@@ -102,6 +103,9 @@ public final class Constants {
 
     public static class SuperstructureConstants {
 
+        public static Rotation2d algaeTravelAngle = Rotation2d.fromDegrees(65);
+        public static Rotation2d coralTravelAngle = Rotation2d.fromDegrees(85);
+
         // Grabber Possession State
         public enum GrabberPossession {
             EMPTY(
@@ -170,8 +174,8 @@ public final class Constants {
             CORAL_INTAKE(5, 5),
 
             ALGAE_OUTTAKE(6, 6),
-            CORAL_OUTTAKE(12, 12),
-            DEFAULT_OUTTAKE(12, 12);
+            CORAL_OUTTAKE(10.5, 10.5),
+            DEFAULT_OUTTAKE(10.5, 10.5);
 
             public final double leftVoltage;
             public final double rightVoltage;
@@ -355,6 +359,8 @@ public final class Constants {
             public static final double kG = 1.2;//0.97369; // 0.6 //Gravity gain (voltage)
             public static final double kV = 0.0; // 12.0 // velocity game
             public static final double kA = 0.0; //Acceleration Gain
+
+            public static final Constraints kProfileConstraints = new Constraints(1, 3);
         }
     }
 
@@ -401,8 +407,8 @@ public final class Constants {
         public static final int kFollowMotorPort = 41; // Right motor consistent with drivetrain right side
 
         public static final double wristAngleToleranceRadians = Units.degreesToRadians(5);
-        public static final double kMinWristAngleRadians = Units.degreesToRadians(-135); // TODO: UPDATE
-        public static final double kMaxWristAngleRadians = Units.degreesToRadians(135); // TODO: UPDATE
+        public static final double kMinWristAngleRadians = Units.degreesToRadians(-90);
+        public static final double kMaxWristAngleRadians = Units.degreesToRadians(90);
 
         public static final double maxOperatorControlVolts = 1;
         public static final double kSmartCurrentLimit = 60.0;
@@ -426,6 +432,8 @@ public final class Constants {
             public static final double kG = 1.2; // gravity gain in volts
             public static final double kV = 0.0; // velocity gain in volts per radian per second
             public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
+
+            public static final Constraints kProfileConstraints = new Constraints(2, 2);
         }
     }
 
@@ -478,7 +486,6 @@ public final class Constants {
             CORAL_GRABBER(false, true, false),
             ALGAE(true, true, false);
 
-            // TODO: switch from boolean (byte) to a bit
             public final boolean onesPlace;
             public final boolean twosPlace;
             public final boolean foursPlace;

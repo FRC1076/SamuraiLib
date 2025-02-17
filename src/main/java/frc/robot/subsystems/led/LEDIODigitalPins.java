@@ -7,7 +7,6 @@ import frc.robot.Constants.LEDConstants.LEDStates;
 
 import edu.wpi.first.wpilibj.DigitalOutput;
 
-// TODO: name things better
 /** This is a class that actually does (implements) the stuff in LEDIO.java */
 public class LEDIODigitalPins implements LEDBase {
     /* Declare an object for each pin */

@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import static frc.robot.Constants.SuperstructureConstants.algaeTravelAngle;
+import static frc.robot.Constants.SuperstructureConstants.coralTravelAngle;
 import frc.robot.Constants.SuperstructureConstants.WristevatorState;
 import frc.robot.Constants.SuperstructureConstants.GrabberPossession;
 import frc.robot.Constants.SuperstructureConstants.GrabberState;
@@ -174,15 +176,15 @@ public class Superstructure {
      */
     private Command applyWristevatorState(WristevatorState position) {
         Command wristPreMoveCommand = Commands.either(
-            m_wrist.applyAngle(Rotation2d.fromDegrees(65)), // TODO: Move this 65 out of this file and into a constants somehow
-            m_wrist.applyAngle(Rotation2d.fromDegrees(80)),
+            m_wrist.applyAngle(algaeTravelAngle),
+            m_wrist.applyAngle(coralTravelAngle),
             () -> superState.getGrabberPossession() == GrabberPossession.ALGAE
         );
 
         
         Command wristHoldCommand = Commands.either(
-            m_wrist.holdAngle(Rotation2d.fromDegrees(65)), // TODO: Move this 65 out of this file and into a constants somehow
-            m_wrist.holdAngle(Rotation2d.fromDegrees(80)),
+            m_wrist.holdAngle(algaeTravelAngle), 
+            m_wrist.holdAngle(coralTravelAngle),
             () -> superState.getGrabberPossession() == GrabberPossession.ALGAE
         );
         

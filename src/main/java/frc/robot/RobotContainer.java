@@ -121,7 +121,7 @@ public class RobotContainer {
             m_grabber = new GrabberSubsystem(new GrabberIOHardware());
             m_index = new IndexSubsystem(new IndexIOHardware());
             m_elastic = new Elastic();
-            m_LEDs = new LEDSubsystem(new LEDIODigitalPins()); // TODO: change this based on physical robot
+            m_LEDs = new LEDSubsystem(new LEDIODigitalPins());
         } else if (Akit.currentMode == 1) {
             m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
             m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
@@ -199,7 +199,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("preL2", superstructureCommands.preL2());
         NamedCommands.registerCommand("preL3", superstructureCommands.preL3());
         NamedCommands.registerCommand("preL4", superstructureCommands.preL4());
-        // TODO: Change this to match later
+        // TODO: Change name to match later
         NamedCommands.registerCommand("scoreGamePiece", superstructureCommands.doGrabberAction());
         NamedCommands.registerCommand("stopAndRetract", superstructureCommands.stopAndRetract());
     }
@@ -281,7 +281,7 @@ public class RobotContainer {
     }
 
     private void configureOperatorBindings() {
-        // TODO: Add coral and algae intake triggers
+
         //Quasistsic and Dynamic control scheme for Wrist Sysid
 
         /*

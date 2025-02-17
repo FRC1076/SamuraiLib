@@ -37,6 +37,7 @@ public interface ElevatorIO {
     public default void setFFkG(double kG) {}
 
     /** Retrieves the elevator controller's internal kG constant */
+    // TODO: Change to work with SIM values
     public default double getFFkG() {return ElevatorConstants.Control.kG;}
 
     public default void simulationPeriodic() {}

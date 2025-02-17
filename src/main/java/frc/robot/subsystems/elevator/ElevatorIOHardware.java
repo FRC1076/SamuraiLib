@@ -10,6 +10,8 @@ import static frc.robot.Constants.ElevatorConstants.Control.kP;
 import static frc.robot.Constants.ElevatorConstants.Control.kS;
 import static frc.robot.Constants.ElevatorConstants.Control.kV;
 import static frc.robot.Constants.ElevatorConstants.Control.kG;
+
+import static frc.robot.Constants.ElevatorConstants.Control.kProfileConstraints;
 import static edu.wpi.first.units.Units.Kilo;
 import static frc.robot.Constants.ElevatorConstants.kMotorPort0;
 import static frc.robot.Constants.ElevatorConstants.kMotorPort1;
@@ -37,14 +39,15 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
 public class ElevatorIOHardware implements ElevatorIO {
-    private final SparkMax m_leadMotor; // Leader
-    private final SparkMax m_followMotor; // Follower
+    // TODO: Figure out which motor is on which side
+    private final SparkMax m_leadMotor; 
+    private final SparkMax m_followMotor;
 
     private final SparkMaxConfig m_leadMotorConfig;
     private final SparkMaxConfig m_followMotorConfig;
     
     private final RelativeEncoder m_encoder;
-    private final ProfiledPIDController m_profiledPIDController;
+    private final ProfiledPIDController m_profiledPIDController = new ProfiledPIDController(kP, kI, kD, kProfileConstraints);
     //private final SparkClosedLoopController m_closedLoopController;
 
     private final MutableElevatorFeedforward FFcontroller = new MutableElevatorFeedforward(kS, kG, kV, kA);
@@ -92,13 +95,6 @@ public class ElevatorIOHardware implements ElevatorIO {
 
         m_leadMotor.setCANTimeout(0);
         m_followMotor.setCANTimeout(0);
-
-        m_profiledPIDController = new ProfiledPIDController(
-            kP,
-            kI,
-            kD,
-            new Constraints(1, 3)
-        );
         
     }
 
@@ -110,7 +106,6 @@ public class ElevatorIOHardware implements ElevatorIO {
         m_leadMotor.setVoltage(volts);
     }
 
-    /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS */
     /** Set desired position of the elevator
      * @param positionMeters The desired position of the elevator in meters
      */
@@ -122,7 +117,7 @@ public class ElevatorIOHardware implements ElevatorIO {
         );
         /*
         m_closedLoopController.setReference(
-            MathHelpers.clamp(positionMeters, ElevatorConstants.kMinElevatorHeightMeters, ElevatorConstants.kMaxElevatorHeightMeters),
+            MathUtil.clamp(positionMeters, ElevatorConstants.kMinElevatorHeightMeters, ElevatorConstants.kMaxElevatorHeightMeters),
             ControlType.kMAXMotionPositionControl,
             ClosedLoopSlot.kSlot0,
             FFcontroller.getKg(),
