@@ -7,9 +7,13 @@ package frc.robot;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -35,11 +39,15 @@ import org.apache.commons.lang3.NotImplementedException;
 public final class Constants {
     
     public static class VisionConstants {
+        public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
         public static class Photonvision {
+            //TODO: Update all of these values
+            public static final Vector<N3> kDefaultSingleTagStdDevs = VecBuilder.fill(1, 1, 1);
+            public static final Vector<N3> kDefaultMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 0.5);
             public static enum PhotonConfig {
-
-                ELEVATOR_LEFT_CAM("ELEVATOR_LEFT_CAM",0,0,0,0,0,0),
-                ELEVATOR_RIGHT_CAM("ELEVATOR_RIGHT_CAM",0,0,0,0,0,0);
+                //TODO: Coordinates may be negative
+                ELEVATOR_LEFT_CAM("ELEVATOR_LEFT_CAM", 2.892, 7.163, 19.162, 11.385, 17.961, 40),
+                ELEVATOR_RIGHT_CAM("ELEVATOR_RIGHT_CAM", 2.982, -7.163, 19.162, -11.385, 11.385, -40);
 
                 public final String name;
                 public final Transform3d offset;

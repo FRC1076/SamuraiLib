@@ -12,6 +12,7 @@ import frc.robot.utils.Localization;
 import static frc.robot.Constants.DriveConstants.PathPlannerConstants.robotOffset;
 
 import lib.utils.GeometryUtils;
+import lib.vision.VisionLocalizationSystem;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,9 +51,12 @@ public class DriveSubsystem extends SubsystemBase {
     private final ModuleIOInputsAutoLogged rearRightInputs = new ModuleIOInputsAutoLogged();
     private Boolean hasSetAlliance = false; // Wait until the driverstation had an alliance before setting it
     public final DriveCommandFactory CommandBuilder;
+    private final VisionLocalizationSystem vision;
 
-    public DriveSubsystem(DriveIO io) {
+    public DriveSubsystem(DriveIO io, VisionLocalizationSystem vision) {
         this.io = io;
+        this.vision = vision;
+        vision.registerMeasurementConsumer(this.io::addVisionMeasurement);
         try {
             AutoBuilder.configure(
                 this::getPose,
@@ -73,6 +77,7 @@ public class DriveSubsystem extends SubsystemBase {
             DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
         }
         CommandBuilder = new DriveCommandFactory(this);
+
         
     }
 
@@ -80,6 +85,7 @@ public class DriveSubsystem extends SubsystemBase {
     public void periodic(){
         // updateModuleInputs and processInputs are only used for logging
         io.periodic(); //currently just for calling sim
+        vision.update();
         io.updateInputs(driveInputs);
         // io.updateModuleInputs(frontLeftInputs,0);
         // io.updateModuleInputs(frontRightInputs,1);

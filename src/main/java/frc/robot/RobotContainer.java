@@ -28,15 +28,25 @@ import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.wrist.WristIOHardware;
 import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristSubsystem;
+import lib.vision.PV_Localizer;
+import lib.vision.VisionLocalizationSystem;
 import frc.robot.subsystems.SuperstructureVisualizer;
 import frc.robot.subsystems.Superstructure.SuperstructureCommandFactory;
 import frc.robot.Constants.Akit;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.VisionConstants.Photonvision.PhotonConfig;
 import frc.robot.Constants.BeamBreakConstants;
 import frc.robot.subsystems.Superstructure;
+import static frc.robot.Constants.VisionConstants.Photonvision.kDefaultSingleTagStdDevs;
+import static frc.robot.Constants.VisionConstants.Photonvision.kDefaultMultiTagStdDevs;
+import static frc.robot.Constants.VisionConstants.fieldLayout;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -92,6 +102,8 @@ public class RobotContainer {
     
     private final SendableChooser<Command> m_autoChooser;
 
+    private final VisionLocalizationSystem m_vision = new VisionLocalizationSystem();
+
     private final TeleopDriveCommand teleopDriveCommand;
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -115,6 +127,16 @@ public class RobotContainer {
 
 
         if (Akit.currentMode == 0) {
+            for (PhotonConfig config : PhotonConfig.values()){
+                PhotonCamera cam = new PhotonCamera(config.name);
+                PhotonPoseEstimator estimator = new PhotonPoseEstimator( 
+                    fieldLayout,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, 
+                    config.offset
+                );
+                estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+                m_vision.addCamera(new PV_Localizer(cam, estimator, kDefaultSingleTagStdDevs, kDefaultMultiTagStdDevs));
+            }
             m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()));
             m_elevator = new ElevatorSubsystem(new ElevatorIOHardware());
             m_wrist = new WristSubsystem(new WristIOHardware());
@@ -128,6 +150,7 @@ public class RobotContainer {
             m_wrist = new WristSubsystem(new WristIOSim());
             m_grabber = new GrabberSubsystem(new GrabberIOSim());
             m_index = new IndexSubsystem(new IndexIOSim());
+            m_vision = new VisionLocalizationSystem();
             m_elastic = new Elastic();
             m_LEDs = new LEDSubsystem(new LEDIOSim());
         }
