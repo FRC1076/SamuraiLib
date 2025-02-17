@@ -147,6 +147,7 @@ public class WristIOHardware implements WristIO {
         inputs.angle = Rotation2d.fromRadians(m_alternateEncoder.getPosition());
         inputs.angleRadians = inputs.angle.getRadians();
         inputs.velocityRadiansPerSecond = m_alternateEncoder.getVelocity();
+        inputs.wristSetpoint = m_profiledPIDController.getSetpoint().position;
     }
 
     @Override

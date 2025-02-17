@@ -27,6 +27,8 @@ public interface ElevatorIO {
         public double elevatorHeightMeters = 0;
         public double velocityMetersPerSecond = 0;
         public double elevatorL2Setpoint = 0.71628;
+
+        public double elevatorSetpoint = 0;
         
     }
 

@@ -101,7 +101,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         return new FunctionalCommand(
             () -> {io.resetController();},
             () -> {setPosition(positionMeters);},
-            (interrupted) -> {},
+            (interrupted) -> {setVoltage(io.getFFkG());},
             () -> Math.abs(positionMeters - getPositionMeters()) < ElevatorConstants.elevatorPositionToleranceMeters,
             this
         );

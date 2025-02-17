@@ -19,6 +19,7 @@ public interface WristIO {
         public Rotation2d angle = new Rotation2d();
         public double angleRadians = 0;
         public double velocityRadiansPerSecond = 0;
+        public double wristSetpoint = 0;
     }
 
     public abstract void updateInputs(WristIOInputs inputs);

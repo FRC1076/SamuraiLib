@@ -148,5 +148,6 @@ public class ElevatorIOHardware implements ElevatorIO {
 
         inputs.elevatorHeightMeters = m_encoder.getPosition();
         inputs.velocityMetersPerSecond = m_encoder.getVelocity();
+        inputs.elevatorSetpoint = m_profiledPIDController.getSetpoint().position;
     }
 }

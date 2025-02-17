@@ -318,31 +318,31 @@ public class RobotContainer {
         m_operatorController.y().whileTrue(superstructureCommands.preL4());
 
         // Processor
-        m_operatorController.x().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.preProcessor());
+        m_operatorController.x().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.preProcessor());
 
         // Low Algae Intake
-        m_operatorController.a().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.lowAlgaeIntake());
+        m_operatorController.a().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.lowAlgaeIntake());
 
         // High Algae Intake
-        m_operatorController.b().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.highAlgaeIntake());
+        m_operatorController.b().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.highAlgaeIntake());
 
         // Net
-        m_operatorController.y().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.preNet());
+        m_operatorController.y().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.preNet());
 
         // Set default command for Indexer to continuously run
         m_index.setDefaultCommand(superstructureCommands.indexCoral());
 
         // Coral Intake and transfer into Grabber
-        m_operatorController.leftTrigger().onTrue(superstructureCommands.intakeCoral());
+        m_operatorController.leftTrigger().whileTrue(superstructureCommands.intakeCoral());
 
         // Ground Algae Intake
-        m_operatorController.leftTrigger().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.groundAlgaeIntake());
+        m_operatorController.leftTrigger().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.groundAlgaeIntake());
 
         // Does Grabber action, ie. outtake coral/algae depending 
-        m_operatorController.rightTrigger().onTrue(superstructureCommands.doGrabberAction());
+        m_operatorController.rightTrigger().whileTrue(superstructureCommands.doGrabberAction());
 
         // Retract mechanisms and stop grabber
-        m_operatorController.rightTrigger().onFalse(superstructureCommands.stopAndRetract());
+        m_operatorController.rightTrigger().whileFalse(superstructureCommands.stopAndRetract());
         
         
     }

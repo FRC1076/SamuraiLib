@@ -453,8 +453,8 @@ public class Superstructure {
                 Commands.waitUntil(safeSignal),
                 */
                 superstructure.applyWristevatorState(WristevatorState.CORAL_TRANSFER),
-                transferCoral(),
-                indexCoral()
+                transferCoral()//,
+                //indexCoral()
             );
         }
 
