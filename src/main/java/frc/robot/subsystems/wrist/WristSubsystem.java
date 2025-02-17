@@ -35,20 +35,20 @@ public class WristSubsystem extends SubsystemBase {
     
     /** Sets the voltage of the wrist motors*/
     public void setVoltage(double volts) {
-        /*
-        if(this.getAngleRadians() > WristConstants.kMaxWristAngleRadians && volts > 0) {
-            volts = 0; //TODO: make this kG instead of 0?
-        }
-        else if(this.getAngleRadians() < WristConstants.kMinWristAngleRadians && volts < 0) {
+        
+        if (this.getAngleRadians() > WristConstants.kMaxWristAngleRadians && volts > 0) {
             volts = 0;
-        }*/
+        } else if (this.getAngleRadians() < WristConstants.kMinWristAngleRadians && volts < 0) {
+            volts = 0;
+        }
+
 
         io.setVoltage(volts);
     }
 
     private void setVoltageCharacterization(double volts) {
         io.setVoltageCharacterization(volts);
-   S */
+    }
     /** Sets the desired rotation of the wrist */
     public void setPosition(Rotation2d position) {
         io.setPosition(MathUtil.clamp(position.getRadians(), WristConstants.kMinWristAngleRadians, WristConstants.kMaxWristAngleRadians));
@@ -118,13 +118,11 @@ public class WristSubsystem extends SubsystemBase {
         io.simulationPeriodic();
     }
 
-    public Command wristSysIdQuasistatic(SysIdRoutine.Direction direction)
-    {
+    public Command wristSysIdQuasistatic(SysIdRoutine.Direction direction) {
         return sysid.quasistatic(direction);
     }
 
-    public Command wristSysIdDynamic(SysIdRoutine.Direction direction)
-    {
+    public Command wristSysIdDynamic(SysIdRoutine.Direction direction) {
         return sysid.dynamic(direction);
     }
 }
