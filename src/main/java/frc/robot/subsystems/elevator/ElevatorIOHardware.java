@@ -54,7 +54,7 @@ public class ElevatorIOHardware implements ElevatorIO {
     private final ProfiledPIDController m_profiledPIDController = new ProfiledPIDController(kP, kI, kD, kProfileConstraints);
     //private final SparkClosedLoopController m_closedLoopController;
 
-    private final MutableElevatorFeedforward FFcontroller = new MutableElevatorFeedforward(kS, kG, kV, kA);
+    private final MutableElevatorFeedforward m_FeedforwardController = new MutableElevatorFeedforward(kS, kG, kV, kA);
 
     public ElevatorIOHardware() {
         m_leadMotor = new SparkMax(kMotorPort0,SparkMax.MotorType.kBrushless);
@@ -117,7 +117,7 @@ public class ElevatorIOHardware implements ElevatorIO {
     public void setPosition(double positionMeters){
         setVoltage(
             m_profiledPIDController.calculate(m_encoder.getPosition(), positionMeters)
-            + FFcontroller.getKg()
+            + m_FeedforwardController.getKg()
         );
         /*
         m_closedLoopController.setReference(
@@ -141,7 +141,7 @@ public class ElevatorIOHardware implements ElevatorIO {
      */
      @Override
     public void setFFkG(double kG) {
-        FFcontroller.setKg(kG);
+        m_FeedforwardController.setKg(kG);
     }
 
     /** Used to log elevator status */

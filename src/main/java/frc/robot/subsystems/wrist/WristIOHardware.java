@@ -40,7 +40,7 @@ public class WristIOHardware implements WristIO {
 
     private final RelativeEncoder m_alternateEncoder;
 
-    private final MutableArmFeedforward FFController = new MutableArmFeedforward(
+    private final MutableArmFeedforward m_FeedforwardController = new MutableArmFeedforward(
         WristConstants.Control.kS,
         WristConstants.Control.kG,
         WristConstants.Control.kV,
@@ -108,7 +108,7 @@ public class WristIOHardware implements WristIO {
 
     @Override
     public void setVoltage(double volts) {
-        m_leadMotor.setVoltage(volts + FFController.calculate(m_alternateEncoder.getPosition(),0));
+        m_leadMotor.setVoltage(volts + m_FeedforwardController.calculate(m_alternateEncoder.getPosition(),0));
     }
     
     /** Set voltage of the wrist motors without the feedforward */
@@ -150,12 +150,12 @@ public class WristIOHardware implements WristIO {
 
     @Override
     public void setFFkG(double kG){
-        FFController.setKg(kG);
+        m_FeedforwardController.setKg(kG);
     }
 
     @Override
     public double getFFkG() {
-        return FFController.getKg();
+        return m_FeedforwardController.getKg();
     }
 
 }
