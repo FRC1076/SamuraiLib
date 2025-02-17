@@ -5,11 +5,13 @@
 package frc.robot.subsystems.wrist;
 
 import frc.robot.Constants.WristConstants;
+import lib.control.MutableArmFeedforward;
 
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -20,24 +22,45 @@ import org.littletonrobotics.junction.Logger;
 
 public class WristSubsystem extends SubsystemBase {
     private final WristIO io;
+    private final ProfiledPIDController m_profiledPIDController;
+    private final MutableArmFeedforward m_feedforwardController;
     private final WristIOInputsAutoLogged inputs = new WristIOInputsAutoLogged();
-    private final SysIdRoutine sysid = new SysIdRoutine(
-        new SysIdRoutine.Config(
-            null, Volts.of(1), null,
-            (state) -> Logger.recordOutput("Wrist/SysIDState", state.toString())
-        ), 
-        new SysIdRoutine.Mechanism(
-            (voltage) -> setVoltageCharacterization(voltage.in(Volts)),
-            null,
-            this
-        )
-    );
+    private final SysIdRoutine sysid;
+    
 
     public WristSubsystem(WristIO io) {
         this.io = io;
+
+        var controlConstants = io.getControlConstants();
+        m_profiledPIDController = new ProfiledPIDController(
+            controlConstants.kP(),
+            controlConstants.kI(),
+            controlConstants.kD(), 
+            controlConstants.kProfileConstraints()
+        );
+
+        m_feedforwardController = new MutableArmFeedforward(
+            controlConstants.kS(),
+            controlConstants.kG(),
+            controlConstants.kV(),
+            controlConstants.kA()
+        );
+
+        sysid = new SysIdRoutine(
+            new SysIdRoutine.Config(
+                null, Volts.of(1), null,
+                (state) -> Logger.recordOutput("Wrist/SysIDState", state.toString())
+            ), 
+            new SysIdRoutine.Mechanism(
+                (voltage) -> io.setVoltage(voltage.in(Volts)),
+                null,
+                this
+            )
+        );
+
     }
     
-    /** Sets the voltage of the wrist motors*/
+    /** Sets the voltage of the wrist motors, compensating for gravity*/
     public void setVoltage(double volts) {
         
         if (this.getAngleRadians() > WristConstants.kMaxWristAngleRadians && volts > 0) {
@@ -46,27 +69,24 @@ public class WristSubsystem extends SubsystemBase {
             volts = 0;
         }
 
-
-        io.setVoltage(volts);
+        io.setVoltage(volts + m_feedforwardController.calculate(inputs.angleRadians, 0));
     }
 
-    private void setVoltageCharacterization(double volts) {
-        io.setVoltageCharacterization(volts);
-    }
     /** Sets the desired rotation of the wrist */
-    public void setPosition(Rotation2d position) {
-        io.setPosition(MathUtil.clamp(position.getRadians(), WristConstants.kMinWristAngleRadians, WristConstants.kMaxWristAngleRadians));
-        //io.setPosition(position.getRadians());
-    }
-
-    /** Returns the angle of the wrist in degrees */
-    public Rotation2d getAngle(){
-        return inputs.angle;
+    public void setAngle(Rotation2d position) {
+        io.setVoltage(
+            m_profiledPIDController.calculate(inputs.angleRadians,MathUtil.clamp(position.getRadians(), WristConstants.kMinWristAngleRadians, WristConstants.kMaxWristAngleRadians))
+            + m_feedforwardController.calculate(inputs.angleRadians, m_profiledPIDController.getSetpoint().velocity)
+        );
     }
 
     /** Returns the angle of the wrist in radians */
     public double getAngleRadians() {
-        return getAngle().getRadians();
+        return inputs.angleRadians;
+    }
+
+    public Rotation2d getAngle() {
+        return Rotation2d.fromRadians(inputs.angleRadians);
     }
 
     public void stop() {
@@ -75,7 +95,7 @@ public class WristSubsystem extends SubsystemBase {
 
     /** Sets the feedforward kG value for the wrist */
     public void setKg(double kg) {
-        this.io.setFFkG(kg);
+        m_feedforwardController.setKg(kg);
     }
 
     /** Returns a command that sets the wrist at the desired angle 
@@ -84,8 +104,8 @@ public class WristSubsystem extends SubsystemBase {
     */
     public Command applyAngle(Rotation2d angle) {
         return new FunctionalCommand(
-            () -> {io.resetController();},
-            () -> setPosition(angle), 
+            () -> m_profiledPIDController.reset(getAngleRadians()),
+            () -> setAngle(angle), 
             (interrupted) -> {},
             () -> Math.abs(angle.minus(getAngle()).getRadians()) < WristConstants.wristAngleToleranceRadians,
             this
@@ -98,8 +118,8 @@ public class WristSubsystem extends SubsystemBase {
     */
     public Command holdAngle(Rotation2d angle){
         return new FunctionalCommand(
-            () -> {io.resetController();},
-            () -> setPosition(angle), 
+            () -> m_profiledPIDController.reset(getAngleRadians()),
+            () -> setAngle(angle), 
             (interrupted) -> {},
             () -> {return false;},
             this

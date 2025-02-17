@@ -11,15 +11,19 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Constants.WristConstants;
 import frc.robot.Constants.WristSimConstants;
+import static frc.robot.Constants.WristSimConstants.Control.*;
 
 public class WristIOSim implements WristIO {
+
+    private static final WristControlConstants simControlConstants = new WristControlConstants(
+        kP, kI, kD, kProfileConstraints,
+        kS, kG, kV, kA
+    );
+
     private final DCMotor m_wristGearbox;
 
     private SparkMax m_leadMotor;
@@ -33,16 +37,7 @@ public class WristIOSim implements WristIO {
 
     private final SparkRelativeEncoderSim m_encoderSim;
 
-    private ArmFeedforward m_FFController = new ArmFeedforward(
-        WristSimConstants.Control.kS,
-        WristSimConstants.Control.kG,
-        WristSimConstants.Control.kV,
-        WristSimConstants.Control.kA
-    );
-
     private final SingleJointedArmSim m_wristSim;
-
-    private final PIDController m_PIDController;
 
     public WristIOSim() {
         m_wristGearbox = DCMotor.getNEO(2);
@@ -57,13 +52,6 @@ public class WristIOSim implements WristIO {
         m_leadMotorConfig
             .inverted(WristConstants.kLeadMotorInverted)
             .idleMode(IdleMode.kBrake);
-            
-        m_leadMotorConfig.closedLoop
-        .pid(
-            WristConstants.Control.kP,
-            WristConstants.Control.kI,
-            WristConstants.Control.kD
-        );
 
         m_leadMotorConfig.encoder
             .positionConversionFactor(WristConstants.kPositionConversionFactor)
@@ -97,13 +85,11 @@ public class WristIOSim implements WristIO {
         m_followMotorSim = new SparkMaxSim(m_followMotor, m_wristGearbox);
         m_encoderSim = m_leadMotorSim.getRelativeEncoderSim();
 
-        m_PIDController = new PIDController(WristSimConstants.Control.kP, WristSimConstants.Control.kI, WristSimConstants.Control.kD);
     }
 
     @Override
     public void simulationPeriodic() {
         m_wristSim.setInput(m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage());
-        //System.out.println("Wrist Output: " + m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage());
 
         m_wristSim.update(0.020);
 
@@ -116,17 +102,8 @@ public class WristIOSim implements WristIO {
     }
 
     @Override
-    public void setVoltageCharacterization(double voltage){
-        setVoltage(voltage);
-    }
-
-    @Override
-    public void setPosition(double positionRadians) {
-        m_leadMotorSim.setAppliedOutput(
-            (m_PIDController.calculate(m_encoderSim.getPosition(), positionRadians)
-            + m_FFController.calculate(positionRadians, 0))
-            / m_leadMotorSim.getBusVoltage()
-        );
+    public WristControlConstants getControlConstants() {
+        return simControlConstants;
     }
 
     @Override
@@ -134,6 +111,7 @@ public class WristIOSim implements WristIO {
         inputs.appliedVolts = m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage();
         inputs.leadCurrentAmps = m_leadMotorSim.getMotorCurrent();
         inputs.followCurrentAmps = m_followMotorSim.getMotorCurrent();
-        inputs.angle = Rotation2d.fromRadians(m_encoderSim.getPosition());
+        inputs.angleRadians = m_encoderSim.getPosition();
+        inputs.velocityRadiansPerSecond = m_encoderSim.getVelocity();
     }
 }

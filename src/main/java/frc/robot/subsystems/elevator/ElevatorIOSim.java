@@ -6,6 +6,7 @@ package frc.robot.subsystems.elevator;
 
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorSimConstants;
+import static frc.robot.Constants.ElevatorSimConstants.Control.*;
 import static frc.robot.Constants.ElevatorConstants.kPositionConversionFactor;
 import static frc.robot.Constants.ElevatorConstants.kVelocityConversionFactor;
 import static frc.robot.Constants.ElevatorConstants.Electrical.kCurrentLimit;
@@ -26,7 +27,12 @@ import com.revrobotics.sim.SparkRelativeEncoderSim;
 
 
 public class ElevatorIOSim implements ElevatorIO {
-    // This gearbox represents a gearbox containing 4 Vex 775pro motors.
+    
+    private static final ElevatorControlConstants simControlConstants = new ElevatorControlConstants(
+        kP, kI, kD, kProfileConstraints,
+        kS, kG, kV, kA
+    );
+    
     private final DCMotor m_elevatorGearbox = DCMotor.getNEO(2);
 
     private final SparkMax m_leadMotor;
@@ -40,16 +46,7 @@ public class ElevatorIOSim implements ElevatorIO {
     
     private final SparkRelativeEncoderSim m_encoderSim;
 
-    private final PIDController m_PIDController;
-
     private final ElevatorSim m_elevatorSim;
-
-    private ElevatorFeedforward m_FFController = new ElevatorFeedforward(
-        ElevatorSimConstants.Control.kS, 
-        ElevatorSimConstants.Control.kG,
-        ElevatorSimConstants.Control.kV, 
-        ElevatorSimConstants.Control.kA
-    );
 
     public ElevatorIOSim() {
         m_elevatorSim = new ElevatorSim(
@@ -78,12 +75,7 @@ public class ElevatorIOSim implements ElevatorIO {
             .inverted(ElevatorConstants.leadMotorInverted)
             .smartCurrentLimit((int) kCurrentLimit)
             .voltageCompensation(kVoltageCompensation);
-        m_leadMotorConfig.closedLoop
-            .pid(
-                ElevatorSimConstants.Control.kP,
-                ElevatorSimConstants.Control.kI,
-                ElevatorSimConstants.Control.kD
-            );
+
         m_leadMotorConfig.encoder
             .positionConversionFactor(kPositionConversionFactor)
             .velocityConversionFactor(kVelocityConversionFactor)
@@ -106,19 +98,6 @@ public class ElevatorIOSim implements ElevatorIO {
         m_followMotorSim = new SparkMaxSim(m_followMotor, m_elevatorGearbox);
         m_encoderSim = m_leadMotorSim.getRelativeEncoderSim();
 
-        m_PIDController = new PIDController(
-            ElevatorSimConstants.Control.kP,
-            ElevatorSimConstants.Control.kI,
-            ElevatorSimConstants.Control.kD
-        );
-    }
-
-    @Override
-    public void setPosition(double positionMeters) {
-        // With the setpoint value we run PID control like normal
-        double pidOutput = m_PIDController.calculate(m_encoderSim.getPosition(), positionMeters);
-        double feedforwardOutput = m_FFController.getKg();
-        m_leadMotorSim.setAppliedOutput((pidOutput + feedforwardOutput)/m_leadMotorSim.getBusVoltage());
     }
 
     @Override
@@ -135,6 +114,11 @@ public class ElevatorIOSim implements ElevatorIO {
         inputs.followCurrentAmps = m_followMotorSim.getMotorCurrent();
         inputs.elevatorHeightMeters = m_encoderSim.getPosition();
         inputs.velocityMetersPerSecond = m_encoderSim.getVelocity();
+    }
+
+    @Override
+    public ElevatorControlConstants getControlConstants() {
+        return simControlConstants;
     }
 
     @Override

@@ -5,7 +5,6 @@
 package frc.robot.subsystems.elevator;
 
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.ElevatorSimConstants;
 
 import static frc.robot.Constants.ElevatorConstants.Control.kA;
 import static frc.robot.Constants.ElevatorConstants.Control.kD;
@@ -14,35 +13,25 @@ import static frc.robot.Constants.ElevatorConstants.Control.kP;
 import static frc.robot.Constants.ElevatorConstants.Control.kS;
 import static frc.robot.Constants.ElevatorConstants.Control.kV;
 import static frc.robot.Constants.ElevatorConstants.Control.kG;
-
 import static frc.robot.Constants.ElevatorConstants.Control.kProfileConstraints;
-import static edu.wpi.first.units.Units.Kilo;
+
 import static frc.robot.Constants.ElevatorConstants.kMotorPort0;
 import static frc.robot.Constants.ElevatorConstants.kMotorPort1;
 import static frc.robot.Constants.ElevatorConstants.kPositionConversionFactor;
 import static frc.robot.Constants.ElevatorConstants.kVelocityConversionFactor;
 import static frc.robot.Constants.ElevatorConstants.Electrical.*;
 
-import lib.control.MutableElevatorFeedforward; // We use our own library! (We're literally 254 fr fr)
-import lib.utils.MathHelpers;
-
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.MAXMotionConfig.MAXMotionPositionMode;
-
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
-
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
 public class ElevatorIOHardware implements ElevatorIO {
+    private static final ElevatorControlConstants realControlConstants = new ElevatorControlConstants(
+        kP, kI, kD, kProfileConstraints,
+        kS, kG, kV, kA
+    );
     // TODO: Figure out which motor is on which side
     private final SparkMax m_leadMotor; 
     private final SparkMax m_followMotor;
@@ -51,10 +40,6 @@ public class ElevatorIOHardware implements ElevatorIO {
     private final SparkMaxConfig m_followMotorConfig;
     
     private final RelativeEncoder m_encoder;
-    private final ProfiledPIDController m_profiledPIDController = new ProfiledPIDController(kP, kI, kD, kProfileConstraints);
-    //private final SparkClosedLoopController m_closedLoopController;
-
-    private final MutableElevatorFeedforward m_FeedforwardController = new MutableElevatorFeedforward(kS, kG, kV, kA);
 
     public ElevatorIOHardware() {
         m_leadMotor = new SparkMax(kMotorPort0,SparkMax.MotorType.kBrushless);
@@ -70,13 +55,6 @@ public class ElevatorIOHardware implements ElevatorIO {
             .inverted(ElevatorConstants.leadMotorInverted)
             .smartCurrentLimit((int) kCurrentLimit)
             .voltageCompensation(kVoltageCompensation);
-        m_leadMotorConfig.closedLoop
-            .pid(kP, kI, kD);
-        m_leadMotorConfig.closedLoop.maxMotion
-            .maxVelocity(1)
-            .maxAcceleration(0.5)
-            .allowedClosedLoopError(0)
-            .positionMode(MAXMotionPositionMode.kMAXMotionTrapezoidal);
 
         m_leadMotorConfig.encoder
             .positionConversionFactor(kPositionConversionFactor)
@@ -93,7 +71,6 @@ public class ElevatorIOHardware implements ElevatorIO {
         m_followMotor.configure(m_followMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
         m_encoder = m_leadMotor.getEncoder();
-        //m_closedLoopController = m_leadMotor.getClosedLoopController();
 
         m_encoder.setPosition(0);
 
@@ -110,29 +87,9 @@ public class ElevatorIOHardware implements ElevatorIO {
         m_leadMotor.setVoltage(volts);
     }
 
-    /** Set desired position of the elevator
-     * @param positionMeters The desired position of the elevator in meters
-     */
     @Override
-    public void setPosition(double positionMeters){
-        setVoltage(
-            m_profiledPIDController.calculate(m_encoder.getPosition(), positionMeters)
-            + m_FeedforwardController.calculate(m_profiledPIDController.getSetpoint().velocity) //TODO: Tune kV
-        );
-    }
-
-    @Override
-    public void resetController(){
-        m_profiledPIDController.reset(m_encoder.getPosition());
-    }
-
-    /** Set kG of the elevator feedforward
-     * Used when the weight of the elevator changes because of game pieces
-     * @param kG The new kG value in volts
-     */
-     @Override
-    public void setFFkG(double kG) {
-        m_FeedforwardController.setKg(kG);
+    public ElevatorControlConstants getControlConstants() {
+        return realControlConstants;
     }
 
     /** Used to log elevator status */

@@ -389,6 +389,8 @@ public final class Constants {
             public static final double kG = 2.8605; // Gravity gain (voltage)
             public static final double kV = 0.0; // Velocity gain
             public static final double kA = 0.0; // Acceleration Gain
+
+            public static final Constraints kProfileConstraints = new Constraints(1, 3);
         }
     }
 
@@ -454,7 +456,11 @@ public final class Constants {
             public static final double kG = 0.0553; // gravity gain in volts
             public static final double kV = 0.0; // velocity gain in volts per radian per second
             public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
+
+            public static final Constraints kProfileConstraints = new Constraints(2, 2);
         }
+
+
     }
 
     public static class IndexConstants {
