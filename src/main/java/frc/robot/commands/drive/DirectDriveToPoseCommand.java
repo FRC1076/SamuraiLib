@@ -29,7 +29,7 @@ public class DirectDriveToPoseCommand extends Command {
     private final Pose2d targetPose;
     private final DriveSubsystem m_drive;
 
-    public DirectDriveToPoseCommand(DriveSubsystem drive,Pose2d targetPose) {
+    public DirectDriveToPoseCommand(DriveSubsystem drive, Pose2d targetPose) {
         this.m_drive = drive;
         this.targetPose = targetPose;
         addRequirements(drive);

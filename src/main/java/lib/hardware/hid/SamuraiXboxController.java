@@ -33,13 +33,15 @@ public class SamuraiXboxController extends CommandXboxController {
         configSticks();
     }
 
-    public SamuraiXboxController setDeadband(double deadband) {
+    /** Yes we are fancy */
+    public SamuraiXboxController withDeadband(double deadband) {
         stickDeadband = deadband;
         configSticks();
         return this;
     }
 
-    public SamuraiXboxController setTriggerThreshold(double threshold) {
+    /** Yes we are fancy */
+    public SamuraiXboxController withTriggerThreshold(double threshold) {
         triggerThreshold = threshold;
         return this;
     }

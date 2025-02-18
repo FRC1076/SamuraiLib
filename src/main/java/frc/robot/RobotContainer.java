@@ -28,6 +28,7 @@ import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.wrist.WristIOHardware;
 import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristSubsystem;
+import lib.hardware.hid.SamuraiXboxController;
 import lib.vision.PV_Localizer;
 import lib.vision.VisionLocalizationSystem;
 import frc.robot.subsystems.SuperstructureVisualizer;
@@ -49,6 +50,7 @@ import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -92,10 +94,14 @@ public class RobotContainer {
 
     // Replace with CommandPS4Controller or CommandJoystick if needed
     private final CommandXboxController m_driverController =
-        new CommandXboxController(OIConstants.kDriverControllerPort);
+        new SamuraiXboxController(OIConstants.kDriverControllerPort)
+            .withDeadband(OIConstants.kControllerDeadband)
+            .withTriggerThreshold(OIConstants.kControllerTriggerThreshold);
 
     private final CommandXboxController m_operatorController =
-        new CommandXboxController(OIConstants.kOperatorControllerPort);
+        new SamuraiXboxController(OIConstants.kOperatorControllerPort)
+            .withDeadband(OIConstants.kControllerDeadband)
+            .withTriggerThreshold(OIConstants.kControllerTriggerThreshold);
 
     private final CommandXboxController m_beamBreakController = 
         new CommandXboxController(2);
@@ -105,6 +111,8 @@ public class RobotContainer {
     private final VisionLocalizationSystem m_vision = new VisionLocalizationSystem();
 
     private final TeleopDriveCommand teleopDriveCommand;
+    
+    private final Map<String,BooleanConsumer> camEnablers = new HashMap<>();
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
@@ -135,9 +143,9 @@ public class RobotContainer {
                     config.offset
                 );
                 estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-                m_vision.addCamera(new PV_Localizer(cam, estimator, kDefaultSingleTagStdDevs, kDefaultMultiTagStdDevs));
+                camEnablers.put(config.name,m_vision.addCamera(new PV_Localizer(cam, estimator, kDefaultSingleTagStdDevs, kDefaultMultiTagStdDevs)));
             }
-            m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()));
+            m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()), m_vision);
             m_elevator = new ElevatorSubsystem(new ElevatorIOHardware());
             m_wrist = new WristSubsystem(new WristIOHardware());
             m_grabber = new GrabberSubsystem(new GrabberIOHardware());
@@ -145,12 +153,11 @@ public class RobotContainer {
             m_elastic = new Elastic();
             m_LEDs = new LEDSubsystem(new LEDIODigitalPins());
         } else if (Akit.currentMode == 1) {
-            m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
+            m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()), m_vision);
             m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
             m_wrist = new WristSubsystem(new WristIOSim());
             m_grabber = new GrabberSubsystem(new GrabberIOSim());
             m_index = new IndexSubsystem(new IndexIOSim());
-            m_vision = new VisionLocalizationSystem();
             m_elastic = new Elastic();
             m_LEDs = new LEDSubsystem(new LEDIOSim());
         }
@@ -170,9 +177,9 @@ public class RobotContainer {
         superVis = new SuperstructureVisualizer(m_superstructure);
 
         teleopDriveCommand = m_drive.CommandBuilder.teleopDrive(
-            () -> MathUtil.applyDeadband(-m_driverController.getLeftY(), OIConstants.kControllerDeadband), 
-            () -> MathUtil.applyDeadband(-m_driverController.getLeftX(), OIConstants.kControllerDeadband),
-            () -> MathUtil.applyDeadband(-m_driverController.getRightX(), OIConstants.kControllerDeadband)
+            () -> -m_driverController.getLeftY(), 
+            () -> -m_driverController.getLeftX(),
+            () -> -m_driverController.getRightX()
         );
 
         m_drive.setDefaultCommand(
@@ -180,11 +187,11 @@ public class RobotContainer {
         );
 
         m_wrist.setDefaultCommand(m_wrist.applyManualControl(
-            () -> MathUtil.applyDeadband(-m_operatorController.getRightY(), OIConstants.kControllerDeadband)
+            () -> -m_operatorController.getRightY()
         ));
 
         m_elevator.setDefaultCommand(m_elevator.applyManualControl(
-            () -> MathUtil.applyDeadband(-m_operatorController.getLeftY(), OIConstants.kControllerDeadband)
+            () -> -m_operatorController.getLeftY()
         ));
 
         configureNamedCommands();
