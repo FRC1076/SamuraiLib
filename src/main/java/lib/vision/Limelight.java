@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.networktables.DoubleArrayEntry;
 import edu.wpi.first.networktables.NetworkTable;
@@ -16,6 +17,18 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
 
 public class Limelight {
+
+    public static enum LEDState {
+        kPipeline(0),
+        kOff(1),
+        kBlink(2),
+        kOn(3);
+
+        public final int id;
+        private LEDState(int id) {
+            this.id = id;
+        }
+    }
 
     public static record LLFiducial(
         double id,
@@ -39,6 +52,7 @@ public class Limelight {
         boolean isMegaTag2
     ) {}
 
+    private final NetworkTableInstance server;
     private final String NTName;
     private final NetworkTable LLNetworkTable;
     
@@ -47,6 +61,7 @@ public class Limelight {
     }
 
     public Limelight(NetworkTableInstance server, String name) {
+        this.server = server;
         NTName = name;
         LLNetworkTable = server.getTable(name);
     }
@@ -100,8 +115,20 @@ public class Limelight {
         return Optional.of(new LLPoseEstimate(pose,adjustedTimestamp,latency,tagCount,tagSpan,avgTagDist,avgTagArea,fiducials,true));
     }
 
+    /** Sets robot orientation used by the MegaTag2 pose estimation algorithm */
+    public void setRobotOrientation(double yaw, double yawRate, double pitch, double pitchRate, double roll, double rollRate) {
+        double[] orientationData = {yaw,yawRate,pitch,pitchRate,roll,rollRate};
+        LLNetworkTable.getEntry("robot_orientation_set").setDoubleArray(orientationData);
+        server.flush();
+    }
+
     public String getName() {
         return NTName;
+    }
+
+    public void setLEDState(LEDState state) {
+        LLNetworkTable.getEntry("ledMode").setNumber(state.id);
+        server.flush();
     }
 
     private DoubleArrayEntry getLLDoubleArrayEntry(String key) {
