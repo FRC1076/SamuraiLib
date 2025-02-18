@@ -28,6 +28,7 @@ import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.wrist.WristIOHardware;
 import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristSubsystem;
+import lib.extendedcommands.CommandUtils;
 import lib.hardware.hid.SamuraiXboxController;
 import lib.vision.PV_Localizer;
 import lib.vision.VisionLocalizationSystem;
@@ -49,6 +50,8 @@ import java.util.Map;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.VisionSystemSim;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.util.function.BooleanConsumer;
@@ -112,11 +115,11 @@ public class RobotContainer {
 
     private final VisionLocalizationSystem m_vision = new VisionLocalizationSystem();
 
+    private final VisionSystemSim m_visionSim;
+
     private final PhotonCamera m_driveCamera;
 
     private final TeleopDriveCommand teleopDriveCommand;
-    
-    private final Map<String,BooleanConsumer> camEnablers = new HashMap<>();
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
@@ -140,6 +143,7 @@ public class RobotContainer {
         m_driveCamera.setDriverMode(true);
 
         if (SystemConstants.currentMode == 0) {
+            m_visionSim = null;
             for (PhotonConfig config : PhotonConfig.values()){
                 PhotonCamera cam = new PhotonCamera(config.name);
                 PhotonPoseEstimator estimator = new PhotonPoseEstimator( 
@@ -148,7 +152,7 @@ public class RobotContainer {
                     config.offset
                 );
                 estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-                camEnablers.put(config.name,m_vision.addCamera(new PV_Localizer(cam, estimator, kDefaultSingleTagStdDevs, kDefaultMultiTagStdDevs)));
+                m_vision.addCamera(new PV_Localizer(cam, estimator, kDefaultSingleTagStdDevs, kDefaultMultiTagStdDevs));
             }
             m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()), m_vision);
             m_elevator = new ElevatorSubsystem(new ElevatorIOHardware());
@@ -158,6 +162,18 @@ public class RobotContainer {
             m_elastic = new Elastic();
             m_LEDs = new LEDSubsystem(new LEDIODigitalPins());
         } else if (SystemConstants.currentMode == 1) {
+            m_visionSim = new VisionSystemSim("main");
+            for (PhotonConfig config : PhotonConfig.values()){
+                PhotonCamera cam = new PhotonCamera(config.name);
+                PhotonPoseEstimator estimator = new PhotonPoseEstimator( 
+                    fieldLayout,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, 
+                    config.offset
+                );
+                estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+                m_vision.addCamera(new PV_Localizer(cam, estimator, kDefaultSingleTagStdDevs, kDefaultMultiTagStdDevs));
+                m_visionSim.addCamera(new PhotonCameraSim(cam),config.offset);
+            }
             m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()), m_vision);
             m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
             m_wrist = new WristSubsystem(new WristIOSim());
@@ -165,6 +181,7 @@ public class RobotContainer {
             m_index = new IndexSubsystem(new IndexIOSim());
             m_elastic = new Elastic();
             m_LEDs = new LEDSubsystem(new LEDIOSim());
+            CommandUtils.makePeriodic(() -> m_visionSim.update(m_drive.getPose()));
         }
 
         m_superstructure = new Superstructure(
@@ -282,9 +299,16 @@ public class RobotContainer {
             () -> m_drive.resetHeading()
         ));
 
-        // Quasistsic and Dynamic control scheme for Elevator Sysid
-        if (SystemConstants.sysidBindings) {
         
+
+    }
+
+    private void configureOperatorBindings() {
+
+        
+        if (SystemConstants.operatorSysID) {
+            
+            // Quasistsic and Dynamic control scheme for Elevator Sysid
             m_driverController.rightBumper().and(
                 m_driverController.a()
             ).onTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kForward));
@@ -302,7 +326,7 @@ public class RobotContainer {
             ).onTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kReverse));
             
 
-        //Quasistsic and Dynamic control scheme for Wrist Sysid
+            //Quasistsic and Dynamic control scheme for Wrist Sysid
             m_driverController.rightBumper().and(
                 m_driverController.a()
             ).onTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kForward));
@@ -319,30 +343,6 @@ public class RobotContainer {
                 m_driverController.y()
             ).onTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kReverse));
         }
-
-    }
-
-    private void configureOperatorBindings() {
-
-        //Quasistsic and Dynamic control scheme for Wrist Sysid
-
-        /*
-        m_operatorController.rightBumper().and(
-            m_operatorController.a()
-        ).whileTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kForward));
-
-        m_operatorController.rightBumper().and(
-            m_operatorController.b()
-        ).whileTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-
-        m_operatorController.rightBumper().and(
-            m_operatorController.x()
-        ).whileTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kForward));
-        
-        m_operatorController.rightBumper().and(
-            m_operatorController.y()
-        ).whileTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kReverse));
-        */
         
         
         final SuperstructureCommandFactory superstructureCommands = m_superstructure.getCommandBuilder();

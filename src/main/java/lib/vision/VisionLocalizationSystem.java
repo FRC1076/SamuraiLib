@@ -4,14 +4,13 @@
 
 package lib.vision;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.util.function.BooleanConsumer;
 import lib.functional.TriConsumer;
 
 
@@ -34,7 +33,8 @@ public class VisionLocalizationSystem {
 
     //A Consumer that accepts a Pose3d and a Matrix of Standard Deviations, usually should call addVisionMeasurements() on a SwerveDrivePoseEstimator3d
     private TriConsumer<Pose2d,Double,Matrix<N3,N1>> measurementConsumer;
-    private final List<CamStruct> cameras = new ArrayList<>();
+
+    private final Map<String,CamStruct> cameras = new HashMap<>();
     
     public void registerMeasurementConsumer(TriConsumer<Pose2d,Double,Matrix<N3,N1>> consumer) {
         if (measurementConsumer == null) {
@@ -52,17 +52,22 @@ public class VisionLocalizationSystem {
      * @return
      * A BooleanConsumer that can set whether or not the ApriltagLocalizer will consider the measurements from this camera in its pose estimates
      */
-    public BooleanConsumer addCamera(CameraLocalizer camera) {
+    public void addCamera(CameraLocalizer camera) {
         CamStruct camStruct = new CamStruct(camera);
-        cameras.add(camStruct);
-        return camStruct::setActive;
+        cameras.put(camera.getName(),camStruct);
+    }
+
+    public void enableCameras(boolean enabled, String... cams) {
+        for (String camID : cams) {
+            cameras.get(camID).setActive(enabled);
+        }
     }
 
     /**
      * Fetches pose estimate from cameras and sends them to all consumers. This function should be called exactly once every main function loop
      */
     public void update() {
-        for (var camStruct : cameras) {
+        for (var camStruct : cameras.values()) {
             if (camStruct.cameraActive) {
                 camStruct.camera.getPoseEstimate().ifPresent(
                     (estimate) -> {

@@ -117,7 +117,8 @@ public final class Constants {
 
     public static class SystemConstants {
         public static final int currentMode = 0;
-        public static final boolean sysidBindings = false;
+        public static final boolean operatorSysID = false;
+        public static final boolean driverSysID = false;
     }
     
     public static class DriveConstants {

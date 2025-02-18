@@ -18,11 +18,14 @@ import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -38,6 +41,13 @@ public class DriveIOSim extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> imple
         public StatusSignal<Voltage> driveAppliedVolts;
         public StatusSignal<Current> turnStatorCurrent;
         public StatusSignal<Current> driveStatorCurrent;
+    }
+
+    @Override
+    public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds,
+            Matrix<N3, N1> visionMeasurementStdDevs) {
+        Logger.recordOutput("Drive/VisionPoseEstimate",visionRobotPoseMeters);
+        Logger.recordOutput("Drive/VisionEstimateStdDevs",visionMeasurementStdDevs);
     }
 
     private moduleSignalStruct[] moduleSignals = new moduleSignalStruct[4];

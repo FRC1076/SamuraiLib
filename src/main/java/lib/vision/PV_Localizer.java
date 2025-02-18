@@ -102,5 +102,9 @@ public class PV_Localizer implements CameraLocalizer {
             }
         );
     }
+
+    public String getName() {
+        return camera.getName();
+    }
     
 }

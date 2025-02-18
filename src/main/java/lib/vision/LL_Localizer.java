@@ -42,6 +42,10 @@ public class LL_Localizer implements CameraLocalizer {
         );
     }
 
+    public String getName() {
+        return camera.getName();
+    }
+
     private Matrix<N3,N1> calculateStdDevs(LLPoseEstimate estimate) {
         var stdDevs = defaultSingleStdDevs.copy();
         int numTargets = estimate.tagCount();

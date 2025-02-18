@@ -21,5 +21,7 @@ public interface CameraLocalizer {
     ) {}
 
     public abstract Optional<CommonPoseEstimate> getPoseEstimate();
+
+    public abstract String getName();
     
 }
