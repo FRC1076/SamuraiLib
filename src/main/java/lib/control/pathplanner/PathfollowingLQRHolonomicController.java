@@ -2,18 +2,20 @@
 // You may use, distribute, and modify this software under the terms of
 // the license found in the root directory of this project
 
-package lib.control;
+package lib.control.pathplanner;
 
 import com.pathplanner.lib.controllers.PathFollowingController;
 import com.pathplanner.lib.trajectory.PathPlannerTrajectoryState;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import lib.control.LQRHolonomicController;
+import lib.control.LQRHolonomicController.LQRHolonomicDriveControllerTolerances;
 
 /** Provides an LQR holonomic controller in the interface shape of a PathFollowingController, for compatibility with pathplanner */
-public class PathfollowingLQRHolonomicDriveController extends LQRHolonomicDriveController implements PathFollowingController {
+public class PathfollowingLQRHolonomicController extends LQRHolonomicController implements PathFollowingController {
 
-    public PathfollowingLQRHolonomicDriveController(LQRHolonomicDriveControllerTolerances tolerances, double dt) {
+    public PathfollowingLQRHolonomicController(LQRHolonomicDriveControllerTolerances tolerances, double dt) {
         super(tolerances,dt);
     }
 

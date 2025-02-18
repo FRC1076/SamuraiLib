@@ -7,9 +7,9 @@ import edu.wpi.first.util.struct.StructSerializable;
 
 /**
  * A helper class that computes feedforward outputs for a simple elevator (modeled as a motor acting
- * against the force of gravity). Modified to allow for a mutable kG constant
+ * against the force of gravity). Modified to allow for a dynamic kG constant
  */
-public class MutableElevatorFeedforward implements ProtobufSerializable, StructSerializable {
+public class DynamicElevatorFeedforward implements ProtobufSerializable, StructSerializable {
   /** The static gain, in volts. */
   private final double ks;
 
@@ -37,7 +37,7 @@ public class MutableElevatorFeedforward implements ProtobufSerializable, StructS
    * @throws IllegalArgumentException for ka &lt; zero.
    * @throws IllegalArgumentException for period &le; zero.
    */
-  public MutableElevatorFeedforward(double ks, double kg, double kv, double ka, double dtSeconds) {
+  public DynamicElevatorFeedforward(double ks, double kg, double kv, double ka, double dtSeconds) {
     this.ks = ks;
     this.kg = kg;
     this.kv = kv;
@@ -65,7 +65,7 @@ public class MutableElevatorFeedforward implements ProtobufSerializable, StructS
    * @throws IllegalArgumentException for kv &lt; zero.
    * @throws IllegalArgumentException for ka &lt; zero.
    */
-  public MutableElevatorFeedforward(double ks, double kg, double kv, double ka) {
+  public DynamicElevatorFeedforward(double ks, double kg, double kv, double ka) {
     this(ks, kg, kv, ka, 0.020);
   }
 
@@ -78,7 +78,7 @@ public class MutableElevatorFeedforward implements ProtobufSerializable, StructS
    * @param kv The velocity gain in V/(m/s).
    * @throws IllegalArgumentException for kv &lt; zero.
    */
-  public MutableElevatorFeedforward(double ks, double kg, double kv) {
+  public DynamicElevatorFeedforward(double ks, double kg, double kv) {
     this(ks, kg, kv, 0);
   }
 

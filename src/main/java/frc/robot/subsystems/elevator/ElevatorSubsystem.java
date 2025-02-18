@@ -5,7 +5,7 @@
 package frc.robot.subsystems.elevator;
 
 import frc.robot.Constants.ElevatorConstants;
-import lib.control.MutableElevatorFeedforward;
+import lib.control.DynamicElevatorFeedforward;
 
 import java.util.function.DoubleSupplier;
 
@@ -23,7 +23,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final ElevatorIO io;
     private final ElevatorIOInputsAutoLogged inputs = new ElevatorIOInputsAutoLogged();
     private final ProfiledPIDController m_profiledPIDController;
-    private final MutableElevatorFeedforward m_feedforwardController;
+    private final DynamicElevatorFeedforward m_feedforwardController;
 
     private final SysIdRoutine m_elevatorSysIdRoutine;
 
@@ -37,7 +37,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             controlConstants.kProfileConstraints()
         );
 
-        m_feedforwardController = new MutableElevatorFeedforward(
+        m_feedforwardController = new DynamicElevatorFeedforward(
             controlConstants.kS(),
             controlConstants.kG(),
             controlConstants.kV(),

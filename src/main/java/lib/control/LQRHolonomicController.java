@@ -43,7 +43,7 @@ import lib.utils.MatrixUtils;
  * while in chassis-oriented mode, the controller outputs chassis-oriented ChassisSpeeds objects
  */
 
-public class LQRHolonomicDriveController implements HolonomicController {
+public class LQRHolonomicController implements HolonomicController {
 
     /**
      * A POD class for holding the weights of an LQR Holonomic Drive Controller
@@ -70,7 +70,7 @@ public class LQRHolonomicDriveController implements HolonomicController {
      * @param r a vector representing the tolerances for effort (A lower value will cause the controller to more strongly dampen inputs)
      * @param dt discretization time step, in seconds
      */
-    public LQRHolonomicDriveController(Vector<N3> q, Vector<N3> r, double dt) {
+    public LQRHolonomicController(Vector<N3> q, Vector<N3> r, double dt) {
 
         Matrix<N3,N3> A = new Matrix<>(
             new SimpleMatrix(
@@ -124,7 +124,7 @@ public class LQRHolonomicDriveController implements HolonomicController {
      * @param dt discretization time step, in seconds
      * @param fieldOriented whether or not the controller should output field-oriented outputs
      */
-    public LQRHolonomicDriveController(double errorTolerance, double effortTolerance, double dt) {
+    public LQRHolonomicController(double errorTolerance, double effortTolerance, double dt) {
         this(
             VecBuilder.fill(errorTolerance,errorTolerance,errorTolerance),
             VecBuilder.fill(effortTolerance,effortTolerance,effortTolerance),
@@ -138,7 +138,7 @@ public class LQRHolonomicDriveController implements HolonomicController {
      * @param tolerances contains the tolerances that govern the LQR controller
      * @param dt discretization time step, in seconds
      */
-    public LQRHolonomicDriveController(LQRHolonomicDriveControllerTolerances tolerances, double dt) {
+    public LQRHolonomicController(LQRHolonomicDriveControllerTolerances tolerances, double dt) {
         this(
             VecBuilder.fill(tolerances.transErrorTolerance(),tolerances.transErrorTolerance(),tolerances.rotErrorTolerance()),
             VecBuilder.fill(tolerances.transEffortTolerance(),tolerances.transEffortTolerance(),tolerances.rotEffortTolerance()),

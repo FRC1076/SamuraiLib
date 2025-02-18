@@ -5,7 +5,7 @@
 package frc.robot.subsystems.wrist;
 
 import frc.robot.Constants.WristConstants;
-import lib.control.MutableArmFeedforward;
+import lib.control.DynamicArmFeedforward;
 
 import java.util.function.DoubleSupplier;
 
@@ -23,7 +23,7 @@ import org.littletonrobotics.junction.Logger;
 public class WristSubsystem extends SubsystemBase {
     private final WristIO io;
     private final ProfiledPIDController m_profiledPIDController;
-    private final MutableArmFeedforward m_feedforwardController;
+    private final DynamicArmFeedforward m_feedforwardController;
     private final WristIOInputsAutoLogged inputs = new WristIOInputsAutoLogged();
     private final SysIdRoutine sysid;
     
@@ -39,7 +39,7 @@ public class WristSubsystem extends SubsystemBase {
             controlConstants.kProfileConstraints()
         );
 
-        m_feedforwardController = new MutableArmFeedforward(
+        m_feedforwardController = new DynamicArmFeedforward(
             controlConstants.kS(),
             controlConstants.kG(),
             controlConstants.kV(),
