@@ -39,6 +39,7 @@ import frc.robot.Constants.VisionConstants.Photonvision.PhotonConfig;
 import frc.robot.Constants.BeamBreakConstants;
 import frc.robot.subsystems.Superstructure;
 import static frc.robot.Constants.VisionConstants.Photonvision.kDefaultSingleTagStdDevs;
+import static frc.robot.Constants.VisionConstants.Photonvision.driverCamName;
 import static frc.robot.Constants.VisionConstants.Photonvision.kDefaultMultiTagStdDevs;
 import static frc.robot.Constants.VisionConstants.fieldLayout;
 
@@ -102,13 +103,16 @@ public class RobotContainer {
         new SamuraiXboxController(OIConstants.kOperatorControllerPort)
             .withDeadband(OIConstants.kControllerDeadband)
             .withTriggerThreshold(OIConstants.kControllerTriggerThreshold);
-
+    /* 
     private final CommandXboxController m_beamBreakController = 
         new CommandXboxController(2);
+    */
     
     private final SendableChooser<Command> m_autoChooser;
 
     private final VisionLocalizationSystem m_vision = new VisionLocalizationSystem();
+
+    private final PhotonCamera m_driveCamera;
 
     private final TeleopDriveCommand teleopDriveCommand;
     
@@ -132,7 +136,8 @@ public class RobotContainer {
         m_grabberBeamBreak = new Trigger(() -> {return ! grabberDIO.get();});//.or(m_beamBreakController.y());
         //m_interruptElevator = new Trigger(() -> m_operatorController.getLeftY() != 0);
         //m_interruptGrabber = new Trigger(() -> m_operatorController.getRightY() != 0);
-
+        m_driveCamera = new PhotonCamera(driverCamName);
+        m_driveCamera.setDriverMode(true);
 
         if (Akit.currentMode == 0) {
             for (PhotonConfig config : PhotonConfig.values()){
@@ -248,10 +253,16 @@ public class RobotContainer {
         m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
 
         // Apply single clutch
-        m_driverController.rightBumper().whileTrue(teleopDriveCommand.applySingleClutch());
+        m_driverController.rightBumper().and(m_driverController.leftBumper().negate())
+            .whileTrue(teleopDriveCommand.applySingleClutch());
 
         // Apply double clutch
-        m_driverController.leftBumper().whileTrue(teleopDriveCommand.applyDoubleClutch());
+        m_driverController.leftBumper().and(m_driverController.rightBumper().negate())
+            .whileTrue(teleopDriveCommand.applyDoubleClutch());
+
+        // Apply FPV Driving TODO: Finalize bindings and FPV clutch with drive team
+        m_driverController.leftBumper().and(m_driverController.rightBumper())
+            .whileTrue(teleopDriveCommand.applyFPVDrive());
 
         m_driverController.x().and(
             m_driverController.leftBumper().and(

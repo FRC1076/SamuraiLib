@@ -41,9 +41,14 @@ public final class Constants {
     public static class VisionConstants {
         public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
         public static class Photonvision {
+
+            public static final String driverCamName = "DRIVER_CAM"; //PV name of the driver camera TODO: Add sim driver camera implementation with wireframe
+
             //TODO: Update all of these values
             public static final Vector<N3> kDefaultSingleTagStdDevs = VecBuilder.fill(1, 1, 1);
             public static final Vector<N3> kDefaultMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 0.5);
+
+            /** Contains configs for all photonvision localization cameras */
             public static enum PhotonConfig {
                 //TODO: Coordinates may be negative
                 ELEVATOR_LEFT_CAM("ELEVATOR_LEFT_CAM", 2.892, 7.163, 19.162, 11.385, 17.961, 40),
