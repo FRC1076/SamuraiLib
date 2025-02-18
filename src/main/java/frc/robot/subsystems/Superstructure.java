@@ -264,6 +264,13 @@ public class Superstructure {
         m_elastic.putBoolean("grabberBB", grabberBB);
         m_elastic.putBoolean("transferBB", transferBB);
         m_elastic.putBoolean("indexBB", indexBB);
+
+        // For debugging the beambreaks
+        //System.out.println("updatePossessionAndKg() Called");
+        //System.out.println("grabberBB: " + grabberBB);
+        //System.out.println("transferBB: " + transferBB);
+        //System.out.println("indexBB: " + indexBB);
+
         // TODO: call add LED code here
 
     }

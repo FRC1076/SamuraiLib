@@ -45,10 +45,10 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 public class DriveSubsystem extends SubsystemBase {
     private final DriveIO io;
     private final DriveIOInputsAutoLogged driveInputs = new DriveIOInputsAutoLogged();
-    private final ModuleIOInputsAutoLogged frontLeftInputs = new ModuleIOInputsAutoLogged();
-    private final ModuleIOInputsAutoLogged frontRightInputs = new ModuleIOInputsAutoLogged();
-    private final ModuleIOInputsAutoLogged rearLeftInputs = new ModuleIOInputsAutoLogged();
-    private final ModuleIOInputsAutoLogged rearRightInputs = new ModuleIOInputsAutoLogged();
+    //private final ModuleIOInputsAutoLogged frontLeftInputs = new ModuleIOInputsAutoLogged();
+    //private final ModuleIOInputsAutoLogged frontRightInputs = new ModuleIOInputsAutoLogged();
+    //private final ModuleIOInputsAutoLogged rearLeftInputs = new ModuleIOInputsAutoLogged();
+    //private final ModuleIOInputsAutoLogged rearRightInputs = new ModuleIOInputsAutoLogged();
     private Boolean hasSetAlliance = false; // Wait until the driverstation had an alliance before setting it
     public final DriveCommandFactory CommandBuilder;
     private final VisionLocalizationSystem vision;
