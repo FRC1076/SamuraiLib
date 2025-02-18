@@ -7,6 +7,9 @@ package frc.robot.commands.drive;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.Constants.FieldConstants.PointOfInterest;
 import frc.robot.Constants.FieldConstants.PoseOfInterest;
+
+import static frc.robot.Constants.DriveConstants.DriverControlConstants.FPVClutchRotationFactor;
+import static frc.robot.Constants.DriveConstants.DriverControlConstants.FPVClutchTranslationFactor;
 import static frc.robot.Constants.DriveConstants.DriverControlConstants.doubleClutchRotationFactor;
 import static frc.robot.Constants.DriveConstants.DriverControlConstants.doubleClutchTranslationFactor;
 import static frc.robot.Constants.DriveConstants.DriverControlConstants.maxRotationSpeedRadPerSec;
@@ -29,6 +32,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 import com.ctre.phoenix6.swerve.SwerveRequest.ApplyFieldSpeeds;
+import com.ctre.phoenix6.swerve.SwerveRequest.ApplyRobotSpeeds;
 import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentricFacingAngle;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
@@ -171,12 +175,10 @@ public class TeleopDriveCommand extends Command {
     public boolean requestGeneratorOverridden() {
         return requestGeneratorOverride.isPresent();
     }
-
     
     /* ######################################################################## */
     /* # Public Command Factories                                             # */
     /* ######################################################################## */
-
 
     /** Returns a command that applies an arbitrary clutch factor */
     public Command applyClutchFactor(double transClutch, double rotClutch) {
@@ -191,6 +193,18 @@ public class TeleopDriveCommand extends Command {
         return Commands.startEnd(
             () -> setRequestGenerator(reqgen), 
             () -> clearRequestGeneratorOverride()
+        );
+    }
+
+    /** Returns a command that makes the drive train drive in chassis-oriented mode, with a clutch applied, for FPV branch alignment */
+    public Command applyFPVDrive(){
+        return applyRequestGenerator(
+            (vx,vy,omega) -> {
+                vx *= FPVClutchTranslationFactor;
+                vy *= FPVClutchTranslationFactor;
+                omega *= FPVClutchRotationFactor;
+                return new ApplyRobotSpeeds().withSpeeds(new ChassisSpeeds(vx,vy,omega));
+            }
         );
     }
 

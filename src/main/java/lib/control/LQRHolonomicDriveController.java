@@ -43,7 +43,7 @@ import lib.utils.MatrixUtils;
  * while in chassis-oriented mode, the controller outputs chassis-oriented ChassisSpeeds objects
  */
 
-public class LQRHolonomicDriveController {
+public class LQRHolonomicDriveController implements HolonomicController {
 
     /**
      * A POD class for holding the weights of an LQR Holonomic Drive Controller
