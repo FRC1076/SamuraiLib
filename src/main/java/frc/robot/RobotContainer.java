@@ -330,10 +330,12 @@ public class RobotContainer {
         m_operatorController.y().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.preNet());
 
         // Set default command for Indexer to continuously run
-        m_index.setDefaultCommand(superstructureCommands.indexCoral());
+        //m_index.setDefaultCommand(superstructureCommands.indexCoral());
 
         // Coral Intake and transfer into Grabber
-        m_operatorController.leftTrigger().whileTrue(superstructureCommands.intakeCoral());
+        m_operatorController.leftTrigger()
+            .whileTrue(superstructureCommands.intakeCoral())
+            .whileFalse(superstructureCommands.stopIntake());
 
         // Ground Algae Intake
         m_operatorController.leftTrigger().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.groundAlgaeIntake());

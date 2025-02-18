@@ -86,7 +86,7 @@ public class WristSubsystem extends SubsystemBase {
         return new FunctionalCommand(
             () -> {io.resetController();},
             () -> setPosition(angle), 
-            (interrupted) -> {setVoltage(0);},
+            (interrupted) -> {holdAngle(angle);},
             () -> Math.abs(angle.minus(getAngle()).getRadians()) < WristConstants.wristAngleToleranceRadians,
             this
         );

@@ -204,17 +204,17 @@ public final class Constants {
         // Should we have an eject state with an optional elevator height? just to immediately eject if a game piece is stuck
         public enum WristevatorState {
             
-            TRAVEL(0.08128,90),
-            ALGAE_TRAVEL(0.08128, 65),
+            TRAVEL(0.08128 + 0.065,90),
+            ALGAE_TRAVEL(0.08128 + 0.065, 65),
 
-            CORAL_TRANSFER(0.08128,-23.5), // Same as CORAL_DIRECT_INTAKE
+            CORAL_TRANSFER(0.08128 + 0.065,-23.5), // Same as CORAL_DIRECT_INTAKE
 
-            L1(0.08128,90), // Placeholder
-            L2(0.71628, -35),
-            L3(1.11252, -35),
+            L1(0.08128 + 0.065,90), // Placeholder
+            L2(0.71628 + 0.3, -35),
+            L3(1.11252 + 0.2, -35),
             L4(1.8161, -45),
 
-            GROUND_INTAKE(0.08128,90),
+            GROUND_INTAKE(0.08128 + 0.065,90),
             LOW_INTAKE(0.9144, -35),
             HIGH_INTAKE(1.30556, -35),
 
@@ -322,7 +322,7 @@ public final class Constants {
         
         public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(1);
         public static final double kMinElevatorHeightMeters = Units.inchesToMeters(-1); // TODO: UPDATE
-        public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(60); // TODO: UPDATE
+        public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(70); // TODO: UPDATE
         public static final double maxOperatorControlVolts = 4;
 
         public static final boolean leadMotorInverted = false;
@@ -350,13 +350,13 @@ public final class Constants {
 
         public static class Control {
             // PID constants
-            public static final double kP = 15;
+            public static final double kP = 18;
             public static final double kI = 0.0;
             public static final double kD = 0.0;
 
             // Feedforward constant
             public static final double kS = 0.0; //Static gain (voltage)
-            public static final double kG = 1.2;//0.97369; // 0.6 //Gravity gain (voltage)
+            public static final double kG = 1;//1.2;//0.97369; // 0.6 //Gravity gain (voltage)
             public static final double kV = 0.0; // 12.0 // velocity game
             public static final double kA = 0.0; //Acceleration Gain
 
@@ -406,7 +406,7 @@ public final class Constants {
         public static final int kLeadMotorPort = 42; // Left motor consistent with drivetrain left side
         public static final int kFollowMotorPort = 41; // Right motor consistent with drivetrain right side
 
-        public static final double wristAngleToleranceRadians = Units.degreesToRadians(5);
+        public static final double wristAngleToleranceRadians = Units.degreesToRadians(4);
         public static final double kMinWristAngleRadians = Units.degreesToRadians(-90);
         public static final double kMaxWristAngleRadians = Units.degreesToRadians(90);
 
@@ -425,15 +425,15 @@ public final class Constants {
             // PID constants
             public static final double kP = 2;
             public static final double kI = 0.0;
-            public static final double kD = 0.05;
+            public static final double kD = 0;
 
             // Feedforward constants
             public static final double kS = 0.0; // static gain in volts
-            public static final double kG = 1.2; // gravity gain in volts
+            public static final double kG = 1.44; // gravity gain in volts
             public static final double kV = 0.0; // velocity gain in volts per radian per second
             public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
 
-            public static final Constraints kProfileConstraints = new Constraints(2, 2);
+            public static final Constraints kProfileConstraints = new Constraints(3, 4);
         }
     }
 
