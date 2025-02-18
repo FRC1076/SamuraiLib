@@ -33,7 +33,7 @@ import lib.vision.PV_Localizer;
 import lib.vision.VisionLocalizationSystem;
 import frc.robot.subsystems.SuperstructureVisualizer;
 import frc.robot.subsystems.Superstructure.SuperstructureCommandFactory;
-import frc.robot.Constants.Akit;
+import frc.robot.Constants.SystemConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.VisionConstants.Photonvision.PhotonConfig;
 import frc.robot.Constants.BeamBreakConstants;
@@ -139,7 +139,7 @@ public class RobotContainer {
         m_driveCamera = new PhotonCamera(driverCamName);
         m_driveCamera.setDriverMode(true);
 
-        if (Akit.currentMode == 0) {
+        if (SystemConstants.currentMode == 0) {
             for (PhotonConfig config : PhotonConfig.values()){
                 PhotonCamera cam = new PhotonCamera(config.name);
                 PhotonPoseEstimator estimator = new PhotonPoseEstimator( 
@@ -157,7 +157,7 @@ public class RobotContainer {
             m_index = new IndexSubsystem(new IndexIOHardware());
             m_elastic = new Elastic();
             m_LEDs = new LEDSubsystem(new LEDIODigitalPins());
-        } else if (Akit.currentMode == 1) {
+        } else if (SystemConstants.currentMode == 1) {
             m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()), m_vision);
             m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
             m_wrist = new WristSubsystem(new WristIOSim());
@@ -283,41 +283,42 @@ public class RobotContainer {
         ));
 
         // Quasistsic and Dynamic control scheme for Elevator Sysid
-        /*
-        m_driverController.rightBumper().and(
-          m_driverController.a()
-        ).onTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kForward));
-
-        m_driverController.rightBumper().and(
-          m_driverController.b()
-        ).onTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-
-        m_driverController.rightBumper().and(
-          m_driverController.x()
-        ).onTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kForward));
+        if (SystemConstants.sysidBindings) {
         
-        m_driverController.rightBumper().and(
-          m_driverController.y()
-        ).onTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kReverse));
-        */
+            m_driverController.rightBumper().and(
+                m_driverController.a()
+            ).onTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+            m_driverController.rightBumper().and(
+                m_driverController.b()
+            ).onTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+            m_driverController.rightBumper().and(
+                m_driverController.x()
+            ).onTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kForward));
+            
+            m_driverController.rightBumper().and(
+                m_driverController.y()
+            ).onTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kReverse));
+            
 
         //Quasistsic and Dynamic control scheme for Wrist Sysid
-        // m_driverController.rightBumper().and(
-        //   m_driverController.a()
-        // ).onTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+            m_driverController.rightBumper().and(
+                m_driverController.a()
+            ).onTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
-        // m_driverController.rightBumper().and(
-        //   m_driverController.b()
-        // ).onTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+            m_driverController.rightBumper().and(
+                m_driverController.b()
+            ).onTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
-        // m_driverController.rightBumper().and(
-        //   m_driverController.x()
-        // ).onTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kForward));
+            m_driverController.rightBumper().and(
+                m_driverController.x()
+            ).onTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kForward));
         
-        // m_driverController.rightBumper().and(
-        //   m_driverController.y()
-        // ).onTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kReverse));
-
+            m_driverController.rightBumper().and(
+                m_driverController.y()
+            ).onTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kReverse));
+        }
 
     }
 

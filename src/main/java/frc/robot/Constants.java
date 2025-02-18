@@ -115,8 +115,9 @@ public final class Constants {
         public static final double kControllerTriggerThreshold = 0.7;
     }
 
-    public static class Akit {
+    public static class SystemConstants {
         public static final int currentMode = 0;
+        public static final boolean sysidBindings = false;
     }
     
     public static class DriveConstants {
@@ -152,34 +153,34 @@ public final class Constants {
         // Grabber Possession State
         public enum GrabberPossession {
             EMPTY(
-                Akit.currentMode == 0
+                SystemConstants.currentMode == 0
                     ? WristConstants.Control.kG 
                     : WristSimConstants.Control.kG,
-                Akit.currentMode == 0
+                SystemConstants.currentMode == 0
                     ? ElevatorConstants.Control.kG 
                     : ElevatorSimConstants.Control.kG,
                 "EMPTY"),
             CORAL(
-                Akit.currentMode == 0
+                SystemConstants.currentMode == 0
                     ? WristConstants.Control.kG 
                     : WristSimConstants.Control.kG,
-                Akit.currentMode == 0
+                SystemConstants.currentMode == 0
                     ? ElevatorConstants.Control.kG 
                     : ElevatorSimConstants.Control.kG,
                 "CORAL"),
             ALGAE(
-                Akit.currentMode == 0
+                SystemConstants.currentMode == 0
                     ? WristConstants.Control.kG 
                     : WristSimConstants.Control.kG,
-                Akit.currentMode == 0
+                SystemConstants.currentMode == 0
                     ? ElevatorConstants.Control.kG 
                     : ElevatorSimConstants.Control.kG,
                 "ALGAE"),
             TRANSFERRING(
-                Akit.currentMode == 0
+                SystemConstants.currentMode == 0
                     ? WristConstants.Control.kG
                     : WristSimConstants.Control.kG,
-                Akit.currentMode == 0
+                SystemConstants.currentMode == 0
                     ? ElevatorConstants.Control.kG
                     : ElevatorSimConstants.Control.kG,
                 "TRANSFERRING"
