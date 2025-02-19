@@ -2,7 +2,9 @@ package lib.vision;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
+import org.apache.commons.lang3.function.Suppliers;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -12,27 +14,32 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.Timer;
 import lib.vision.CameraLocalizer.CommonPoseEstimate;
 
 public class PVTrigLocalizer implements CameraLocalizer {
     private static final Matrix<N3,N1> maxStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
     private final PhotonCamera camera;
     private final PhotonPoseEstimator poseEstimator;
+    private final Supplier<Rotation2d> headingSupplier;
     private final Matrix<N3,N1> defaultSingleStdDevs;
     private final Matrix<N3,N1> defaultMultiStdDevs;
 
     public PVTrigLocalizer(
         PhotonCamera camera, 
         Transform3d offset,
+        Supplier<Rotation2d> headingSupplier,
         AprilTagFieldLayout field,
         Matrix<N3,N1> defaultSingleStdDevs,
         Matrix<N3,N1> defaultMultiStdDevs
     ) {
         this.camera = camera;
-        this.poseEstimator = null;
+        this.poseEstimator = new PhotonPoseEstimator(field,PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,offset);
+        this.headingSupplier = headingSupplier;
         this.defaultSingleStdDevs = defaultSingleStdDevs;
         this.defaultMultiStdDevs = defaultMultiStdDevs;
     }
@@ -45,6 +52,9 @@ public class PVTrigLocalizer implements CameraLocalizer {
     public void setCameraOffset(Transform3d offset){
         this.poseEstimator.setRobotToCameraTransform(offset);
     }
+
+    //visionSystem = new visionSystem.withCamera(cameraConfig).withStrategy().withRotationSupplier()
+    //visionSystem.update()
 
     private Matrix<N3,N1> calculateStdDevs(EstimatedRobotPose est) {
         var stdDevs = defaultSingleStdDevs;
@@ -85,6 +95,7 @@ public class PVTrigLocalizer implements CameraLocalizer {
     }
 
     public Optional<CommonPoseEstimate> getPoseEstimate() {
+        poseEstimator.addHeadingData(Timer.getFPGATimestamp(), headingSupplier.get());
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();
         Optional<EstimatedRobotPose> visionEst = Optional.empty();
         

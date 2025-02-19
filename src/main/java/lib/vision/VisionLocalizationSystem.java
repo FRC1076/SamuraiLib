@@ -36,6 +36,7 @@ public class VisionLocalizationSystem {
 
     private final Map<String,CamStruct> cameras = new HashMap<>();
     
+    
     public void registerMeasurementConsumer(TriConsumer<Pose2d,Double,Matrix<N3,N1>> consumer) {
         if (measurementConsumer == null) {
             //Initialize measurementConsumer if none exists
