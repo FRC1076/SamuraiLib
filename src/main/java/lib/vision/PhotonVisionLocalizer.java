@@ -55,13 +55,12 @@ public class PhotonVisionLocalizer implements CameraLocalizer {
         this.poseEstimator.setRobotToCameraTransform(offset);
     }
 
-    /** NOTE: THIS DOESN'T WORK YET
     /**
      * Sets the pose strategy for the camera
      * @param strategy The pose strategy to use, from {@link PhotonPoseEstimator.PoseStrategy}
      */
     public void setPoseStrategy(PhotonPoseEstimator.PoseStrategy strategy){
-        this.poseEstimator.setPrimaryStrategy(strategy);
+        poseEstimator.setPrimaryStrategy(strategy);
     }
 
     /**

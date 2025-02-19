@@ -5,9 +5,13 @@
 package lib.vision;
 
 import java.util.Optional;
+import java.util.function.Supplier;
+
+import org.photonvision.PhotonPoseEstimator;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 
@@ -23,5 +27,10 @@ public interface CameraLocalizer {
     public abstract Optional<CommonPoseEstimate> getPoseEstimate();
 
     public abstract String getName();
-    
+
+    public default void addHeadingSupplier(Supplier<Rotation2d> heading) {}
+
+    public default void setPoseStrategy(PhotonPoseEstimator.PoseStrategy strategy) {}
+
+    public default void setFallbackPoseStrategy(PhotonPoseEstimator.PoseStrategy strategy) {}
 }

@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.photonvision.PhotonPoseEstimator;
+
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.numbers.N1;
@@ -80,6 +82,16 @@ public class VisionLocalizationSystem {
     public void enableAllCameras(boolean enabled) {
         for (var camStruct : cameras.values()) {
             camStruct.setActive(enabled);
+        }
+    }
+    
+    /**
+     * For PhotonVision cameras, this method will set the pose estimator strategy from {@link PhotonPoseEstimator#PoseStrategy}
+     * For Limelight cameras, this method will call the default method, which does nothing
+     */
+    public void setPhotonPoseStrategy(PhotonPoseEstimator.PoseStrategy strategy, String... cams){
+        for (String camID : cams) {
+            cameras.get(camID).camera.setPoseStrategy(strategy);
         }
     }
 
