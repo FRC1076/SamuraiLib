@@ -64,6 +64,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void periodic(){
         //System.out.println("Elevator: " + this.getPositionMeters());
         io.updateInputs(inputs);
+        Logger.recordOutput("Elevator/Setpoint", m_profiledPIDController.getSetpoint().position);
         Logger.processInputs("Elevator",inputs);
     }
 
@@ -122,6 +123,9 @@ public class ElevatorSubsystem extends SubsystemBase {
             () -> m_profiledPIDController.reset(getPositionMeters()),
             () -> setPosition(positionMeters),
             (interrupted) -> {},
+            // () -> {io.resetController();},
+            // () -> {setPosition(positionMeters);},
+            // (interrupted) -> {setVoltage(io.getFFkG());},
             () -> Math.abs(positionMeters - getPositionMeters()) < ElevatorConstants.elevatorPositionToleranceMeters,
             this
         );

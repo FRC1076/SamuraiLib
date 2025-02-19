@@ -88,8 +88,8 @@ public class RobotContainer {
     private final Trigger m_indexBeamBreak;
     private final Trigger m_transferBeamBreak;
     private final Trigger m_grabberBeamBreak;
-    //private final Trigger m_interruptElevator;
-    //private final Trigger m_interruptGrabber;
+    private final Trigger m_interruptElevator;
+    private final Trigger m_interruptWrist;
     private final Superstructure m_superstructure;
     private final SuperstructureVisualizer superVis;
     private final Elastic m_elastic;
@@ -117,7 +117,7 @@ public class RobotContainer {
 
     private final VisionSystemSim m_visionSim;
 
-    private final PhotonCamera m_driveCamera;
+   // private final PhotonCamera m_driveCamera;
 
     private final TeleopDriveCommand teleopDriveCommand;
 
@@ -137,11 +137,12 @@ public class RobotContainer {
         m_indexBeamBreak = new Trigger(() -> {return ! indexDIO.get();});//.or(m_beamBreakController.a());
         m_transferBeamBreak = new Trigger(() -> {return ! transferDIO.get();});//.or(m_beamBreakController.x());
         m_grabberBeamBreak = new Trigger(() -> {return ! grabberDIO.get();});//.or(m_beamBreakController.y());
-        //m_interruptElevator = new Trigger(() -> m_operatorController.getLeftY() != 0);
-        //m_interruptGrabber = new Trigger(() -> m_operatorController.getRightY() != 0);
-        m_driveCamera = new PhotonCamera(driverCamName);
-        m_driveCamera.setDriverMode(true);
+        m_interruptElevator = new Trigger(() -> m_operatorController.getLeftY() != 0);
+        m_interruptWrist = new Trigger(() -> m_operatorController.getRightY() != 0);
 
+        // m_driveCamera = new PhotonCamera(driverCamName);
+        // m_driveCamera.setDriverMode(true);
+        
         if (SystemConstants.currentMode == 0) {
             m_visionSim = null;
             for (PhotonConfig config : PhotonConfig.values()){
@@ -360,33 +361,37 @@ public class RobotContainer {
         m_operatorController.y().whileTrue(superstructureCommands.preL4());
 
         // Processor
-        m_operatorController.x().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.preProcessor());
+        m_operatorController.x().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.preProcessor());
 
         // Low Algae Intake
-        m_operatorController.a().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.lowAlgaeIntake());
+        m_operatorController.a().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.lowAlgaeIntake());
 
         // High Algae Intake
-        m_operatorController.b().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.highAlgaeIntake());
+        m_operatorController.b().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.highAlgaeIntake());
 
         // Net
-        m_operatorController.y().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.preNet());
+        m_operatorController.y().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.preNet());
 
         // Set default command for Indexer to continuously run
-        m_index.setDefaultCommand(superstructureCommands.indexCoral());
+        //m_index.setDefaultCommand(superstructureCommands.indexCoral());
 
         // Coral Intake and transfer into Grabber
-        m_operatorController.leftTrigger().onTrue(superstructureCommands.intakeCoral());
+        m_operatorController.leftTrigger()
+            .whileTrue(superstructureCommands.intakeCoral())
+            .whileFalse(superstructureCommands.stopIntake());
 
         // Ground Algae Intake
-        m_operatorController.leftTrigger().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.groundAlgaeIntake());
+        m_operatorController.leftTrigger().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.groundAlgaeIntake());
 
         // Does Grabber action, ie. outtake coral/algae depending 
-        m_operatorController.rightTrigger().onTrue(superstructureCommands.doGrabberAction());
+        m_operatorController.rightTrigger().whileTrue(superstructureCommands.doGrabberAction());
 
         // Retract mechanisms and stop grabber
-        m_operatorController.rightTrigger().onFalse(superstructureCommands.stopAndRetract());
-        
-        
+        m_operatorController.rightTrigger().whileFalse(superstructureCommands.stopAndRetract());
+
+        m_interruptElevator.onTrue(superstructureCommands.interruptElevator());
+
+        m_interruptWrist.onTrue(superstructureCommands.interruptWrist());
     }
 
     private void configureBeamBreakTriggers() {

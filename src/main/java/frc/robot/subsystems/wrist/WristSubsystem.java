@@ -107,6 +107,9 @@ public class WristSubsystem extends SubsystemBase {
             () -> m_profiledPIDController.reset(getAngleRadians()),
             () -> setAngle(angle), 
             (interrupted) -> {},
+            // () -> {io.resetController();},
+            // () -> setPosition(angle), 
+            // (interrupted) -> {holdAngle(angle);},
             () -> Math.abs(angle.minus(getAngle()).getRadians()) < WristConstants.wristAngleToleranceRadians,
             this
         );
@@ -134,6 +137,7 @@ public class WristSubsystem extends SubsystemBase {
     public void periodic() {
         //System.out.println("Wrist Angle: " + this.getAngleRadians());
         io.updateInputs(inputs);
+        Logger.recordOutput("Wrist/Setpoint", m_profiledPIDController.getSetpoint().position);
         Logger.processInputs("Wrist", inputs);
     }
 

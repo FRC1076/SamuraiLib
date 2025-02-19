@@ -32,6 +32,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
+import com.fasterxml.jackson.annotation.ObjectIdGenerators.None;
+
 /**
  * Superstructure class that contains all subsystems and commands for the robot's superstructure <p>
  * Allows all of the subsystems to talk to each other <p>
@@ -225,6 +227,15 @@ public class Superstructure {
             Commands.runOnce(() -> superState.setIndexerState(state)),
             m_index.applyVolts(state.volts)//.onlyIf(() -> state.running) //Can do a runOnce because runVolts is sticky
         );
+    }
+
+    private Command interruptWrist(){
+        return Commands.runOnce(() -> m_wrist.getCurrentCommand().cancel(), m_wrist);
+        
+    }
+
+    private Command interruptElevator(){
+        return Commands.runOnce(() -> m_elevator.getCurrentCommand().cancel(), m_elevator);
     }
 
     /**
@@ -431,16 +442,17 @@ public class Superstructure {
         private Command transferCoral() {
             return Commands.parallel(
                 Commands.sequence(
-                    superstructure.applyGrabberState(GrabberState.CORAL_INTAKE),
-                    Commands.waitUntil(m_grabberBeamBreak),
-                    superstructure.applyGrabberState(GrabberState.IDLE)
+                    superstructure.applyGrabberState(GrabberState.CORAL_INTAKE)
+                    //Commands.waitUntil(m_grabberBeamBreak),
+                    //superstructure.applyGrabberState(GrabberState.IDLE)
                 ),
                 Commands.sequence(
-                    superstructure.applyIndexState(IndexState.CORAL_TRANSFER),
-                    Commands.waitUntil(() -> !m_indexBeamBreak.getAsBoolean()),
-                    superstructure.applyIndexState(IndexState.EMPTY_IDLE)
+                    superstructure.applyIndexState(IndexState.CORAL_TRANSFER)
+                    //Commands.waitUntil(() -> !m_indexBeamBreak.getAsBoolean()),
+                    //superstructure.applyIndexState(IndexState.EMPTY_IDLE)
                 )
-            ).onlyIf(() -> superstructure.getSuperState().getGrabberPossession() == GrabberPossession.EMPTY);
+            );
+            //.onlyIf(() -> superstructure.getSuperState().getGrabberPossession() == GrabberPossession.EMPTY);
         }
 
         /**
@@ -453,16 +465,32 @@ public class Superstructure {
          * @return a command sequence
          */
         public Command intakeCoral(){ // (BooleanSupplier safeSignal)
-            return Commands.sequence(
+            return Commands.parallel(
                 /* 
                 superstructure.applyWristevatorState(WristevatorState.TRAVEL),
                 indexCoral(),
                 Commands.waitUntil(safeSignal),
                 */
                 superstructure.applyWristevatorState(WristevatorState.CORAL_TRANSFER),
-                transferCoral(),
-                indexCoral()
+                transferCoral()//,
+                //indexCoral()
             );
+        }
+
+        public Command stopIntake(){
+            return 
+                Commands.parallel(
+                    applyIndexState(IndexState.CORAL_IDLE),
+                    applyGrabberState(GrabberState.IDLE)
+                );
+        }
+
+        public Command interruptElevator(){
+            return superstructure.interruptElevator();
+        }
+
+        public Command interruptWrist(){
+            return superstructure.interruptWrist();
         }
 
         //TODO: Write separate intake coral command for auton
