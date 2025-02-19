@@ -320,7 +320,7 @@ public final class Constants {
         public static final int kMotorPort0 = 31; // Left motor consistent with drivetrain left side
         public static final int kMotorPort1 = 32; // Right motor consistent with drivetrain right side
         
-        public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(1);
+        public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(0.35);
         public static final double kMinElevatorHeightMeters = Units.inchesToMeters(-1); // TODO: UPDATE
         public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(70); // TODO: UPDATE
         public static final double maxOperatorControlVolts = 4;
@@ -335,8 +335,8 @@ public final class Constants {
         // Still set to WAPUR elevator units, need to be changed
         public static final double kGearRatio = 10.909;
         public static final double kElevatorStages = 3;
-        public static final double kVelocityConversionFactor = kElevatorStages * (1/kGearRatio) * 24 * 0.00635 / 60.0; //Gear ratio & chain pitch & rpm -> m/s
-        public static final double kPositionConversionFactor = kElevatorStages * (1/kGearRatio) * 24 * 0.00635; //Gear ratio & chain pitch
+        public static final double kVelocityConversionFactor = (22.0/24.0) * kElevatorStages * (1/kGearRatio) * 24 * 0.00635 / 60.0; //Gear ratio & chain pitch & rpm -> m/s
+        public static final double kPositionConversionFactor = (22.0/24.0) * kElevatorStages * (1/kGearRatio) * 24 * 0.00635; //Gear ratio & chain pitch
 
         /*
         public static final double kMaxVelocityMeters = 1.0;
@@ -350,7 +350,7 @@ public final class Constants {
 
         public static class Control {
             // PID constants
-            public static final double kP = 18;
+            public static final double kP = 24; //18
             public static final double kI = 0.0;
             public static final double kD = 0.0;
 
@@ -360,7 +360,7 @@ public final class Constants {
             public static final double kV = 0.0; // 12.0 // velocity game
             public static final double kA = 0.0; //Acceleration Gain
 
-            public static final Constraints kProfileConstraints = new Constraints(1, 3);
+            public static final Constraints kProfileConstraints = new Constraints(1.5, 4);
         }
     }
 
@@ -406,7 +406,7 @@ public final class Constants {
         public static final int kLeadMotorPort = 42; // Left motor consistent with drivetrain left side
         public static final int kFollowMotorPort = 41; // Right motor consistent with drivetrain right side
 
-        public static final double wristAngleToleranceRadians = Units.degreesToRadians(4);
+        public static final double wristAngleToleranceRadians = Units.degreesToRadians(2);
         public static final double kMinWristAngleRadians = Units.degreesToRadians(-90);
         public static final double kMaxWristAngleRadians = Units.degreesToRadians(90);
 

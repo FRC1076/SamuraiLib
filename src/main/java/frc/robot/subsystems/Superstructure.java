@@ -229,6 +229,15 @@ public class Superstructure {
         );
     }
 
+    private Command interruptWrist(){
+        return Commands.runOnce(() -> m_wrist.getCurrentCommand().cancel(), m_wrist);
+        
+    }
+
+    private Command interruptElevator(){
+        return Commands.runOnce(() -> m_elevator.getCurrentCommand().cancel(), m_elevator);
+    }
+
     /**
      * Updates game piece possession based on beambreaks and updates kG accordingly
      * (gamepieces have weight that affects elevator and wrist)
@@ -467,6 +476,14 @@ public class Superstructure {
                     applyIndexState(IndexState.CORAL_IDLE),
                     applyGrabberState(GrabberState.IDLE)
                 );
+        }
+
+        public Command interruptElevator(){
+            return superstructure.interruptElevator();
+        }
+
+        public Command interruptWrist(){
+            return superstructure.interruptWrist();
         }
 
         //TODO: Write separate intake coral command for auton

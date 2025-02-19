@@ -72,8 +72,8 @@ public class RobotContainer {
     private final Trigger m_indexBeamBreak;
     private final Trigger m_transferBeamBreak;
     private final Trigger m_grabberBeamBreak;
-    //private final Trigger m_interruptElevator;
-    //private final Trigger m_interruptGrabber;
+    private final Trigger m_interruptElevator;
+    private final Trigger m_interruptWrist;
     private final Superstructure m_superstructure;
     private final SuperstructureVisualizer superVis;
     private final Elastic m_elastic;
@@ -110,8 +110,8 @@ public class RobotContainer {
         m_indexBeamBreak = new Trigger(() -> {return ! indexDIO.get();});//.or(m_beamBreakController.a());
         m_transferBeamBreak = new Trigger(() -> {return ! transferDIO.get();});//.or(m_beamBreakController.x());
         m_grabberBeamBreak = new Trigger(() -> {return ! grabberDIO.get();});//.or(m_beamBreakController.y());
-        //m_interruptElevator = new Trigger(() -> m_operatorController.getLeftY() != 0);
-        //m_interruptGrabber = new Trigger(() -> m_operatorController.getRightY() != 0);
+        m_interruptElevator = new Trigger(() -> m_operatorController.getLeftY() != 0);
+        m_interruptWrist = new Trigger(() -> m_operatorController.getRightY() != 0);
 
 
         if (Akit.currentMode == 0) {
@@ -345,8 +345,10 @@ public class RobotContainer {
 
         // Retract mechanisms and stop grabber
         m_operatorController.rightTrigger().whileFalse(superstructureCommands.stopAndRetract());
-        
-        
+
+        m_interruptElevator.onTrue(superstructureCommands.interruptElevator());
+
+        m_interruptWrist.onTrue(superstructureCommands.interruptWrist());
     }
 
     private void configureBeamBreakTriggers() {
