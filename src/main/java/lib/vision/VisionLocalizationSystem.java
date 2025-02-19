@@ -60,10 +60,7 @@ public class VisionLocalizationSystem {
     }
 
     /**
-     * Adds a camera to the ApriltagLocalizer
-     * 
-     * @return
-     * A BooleanConsumer that can set whether or not the ApriltagLocalizer will consider the measurements from this camera in its pose estimates
+     * Adds a camera to the vision system
      */
     public void addCamera(CameraLocalizer camera) {
         CamStruct camStruct = new CamStruct(camera);
