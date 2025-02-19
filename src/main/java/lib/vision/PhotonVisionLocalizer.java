@@ -6,6 +6,7 @@ package lib.vision;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -14,9 +15,12 @@ import org.photonvision.targeting.PhotonPipelineResult;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 
 public class PhotonVisionLocalizer implements CameraLocalizer {
     private static final Matrix<N3,N1> maxStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
@@ -24,6 +28,8 @@ public class PhotonVisionLocalizer implements CameraLocalizer {
     private final PhotonPoseEstimator poseEstimator;
     private final Matrix<N3,N1> defaultSingleStdDevs;
     private final Matrix<N3,N1> defaultMultiStdDevs;
+    private Supplier<Rotation2d> headingSupplier;
+    private boolean hasHeadingSupplier;
 
     public PhotonVisionLocalizer(
         PhotonCamera camera, 
@@ -35,6 +41,8 @@ public class PhotonVisionLocalizer implements CameraLocalizer {
         this.poseEstimator = estimator;
         this.defaultSingleStdDevs = defaultSingleStdDevs;
         this.defaultMultiStdDevs = defaultMultiStdDevs;
+        this.headingSupplier = () -> Rotation2d.fromDegrees(0); // Default supplier
+        this.hasHeadingSupplier = false;
     }
 
     /**
@@ -55,12 +63,34 @@ public class PhotonVisionLocalizer implements CameraLocalizer {
         this.poseEstimator.setRobotToCameraTransform(offset);
     }
 
+    public void addHeadingSupplier(Supplier<Rotation2d> headingSupplier){
+        this.headingSupplier = headingSupplier;
+        hasHeadingSupplier = true;
+    }
+
     /**
      * Sets the pose strategy for the camera
-     * @param strategy The pose strategy to use, from {@link PhotonPoseEstimator.PoseStrategy}
+     * 
+     * @param strategy the strategy to set, from {@link PhotonPoseEstimator.PoseStrategy}
      */
+    @Override
     public void setPoseStrategy(PhotonPoseEstimator.PoseStrategy strategy){
+        if(strategy == PhotonPoseEstimator.PoseStrategy.PNP_DISTANCE_TRIG_SOLVE && !hasHeadingSupplier){
+            DriverStation.reportWarning("No heading supplier set for PNP_DISTANCE_TRIG_SOLVE strategy", false);
+            return;
+        }
         poseEstimator.setPrimaryStrategy(strategy);
+    }
+
+    /**
+     * Set the Position Estimation Strategy used in multi-tag mode when only one tag can be seen. Must
+     * NOT be MULTI_TAG_PNP
+     *
+     * @param strategy the strategy to set
+     */
+    @Override
+    public void setFallbackPoseStrategy(PhotonPoseEstimator.PoseStrategy strategy){
+        poseEstimator.setMultiTagFallbackStrategy(strategy);
     }
 
     /**
@@ -109,6 +139,9 @@ public class PhotonVisionLocalizer implements CameraLocalizer {
      * @return The pose estimate, or Optional.empty() if no estimate is available
      */
     public Optional<CommonPoseEstimate> getPoseEstimate() {
+        if(hasHeadingSupplier) {
+            poseEstimator.addHeadingData(Timer.getFPGATimestamp(), headingSupplier.get());
+        }
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();
         Optional<EstimatedRobotPose> visionEst = Optional.empty();
         
