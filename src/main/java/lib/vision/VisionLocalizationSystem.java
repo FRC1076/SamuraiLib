@@ -6,6 +6,7 @@ package lib.vision;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -36,7 +37,7 @@ public class VisionLocalizationSystem {
     }
 
     //A Consumer that accepts a Pose3d and a Matrix of Standard Deviations, usually should call addVisionMeasurements() on a SwerveDrivePoseEstimator3d
-    private TriConsumer<Pose2d,Double,Matrix<N3,N1>> measurementConsumer;
+    private TriConsumer<Pose2d,Double,Matrix<N3,N1>> measurementConsumer = (pose,timestamp,stddevs) -> {}; //A default no-op consumer is instantiated to prevent null pointer dereferences
 
     private final Map<String,CamStruct> cameras = new HashMap<>();
     
@@ -50,13 +51,7 @@ public class VisionLocalizationSystem {
      * <p> The 3x1 Matrix is the standard deviations of the measurement
      */
     public void registerMeasurementConsumer(TriConsumer<Pose2d,Double,Matrix<N3,N1>> consumer) {
-        if (measurementConsumer == null) {
-            //Initialize measurementConsumer if none exists
-            measurementConsumer = consumer;
-        } else {
-            //If measurementConsumer already exists, then compose it with the new measurementConsumer
-            measurementConsumer = measurementConsumer.andThen(consumer);
-        }
+        measurementConsumer = measurementConsumer.andThen(consumer);
     }
 
     /**
