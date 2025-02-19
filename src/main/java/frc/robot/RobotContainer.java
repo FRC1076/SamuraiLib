@@ -30,7 +30,7 @@ import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristSubsystem;
 import lib.extendedcommands.CommandUtils;
 import lib.hardware.hid.SamuraiXboxController;
-import lib.vision.PV_Localizer;
+import lib.vision.PhotonVisionLocalizer;
 import lib.vision.VisionLocalizationSystem;
 import frc.robot.subsystems.SuperstructureVisualizer;
 import frc.robot.subsystems.Superstructure.SuperstructureCommandFactory;
@@ -152,7 +152,7 @@ public class RobotContainer {
                     config.offset
                 );
                 estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-                m_vision.addCamera(new PV_Localizer(cam, estimator, kDefaultSingleTagStdDevs, kDefaultMultiTagStdDevs));
+                m_vision.addCamera(new PhotonVisionLocalizer(cam, estimator, kDefaultSingleTagStdDevs, kDefaultMultiTagStdDevs));
             }
             m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()), m_vision);
             m_elevator = new ElevatorSubsystem(new ElevatorIOHardware());
@@ -171,7 +171,7 @@ public class RobotContainer {
                     config.offset
                 );
                 estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-                m_vision.addCamera(new PV_Localizer(cam, estimator, kDefaultSingleTagStdDevs, kDefaultMultiTagStdDevs));
+                m_vision.addCamera(new PhotonVisionLocalizer(cam, estimator, kDefaultSingleTagStdDevs, kDefaultMultiTagStdDevs));
                 m_visionSim.addCamera(new PhotonCameraSim(cam),config.offset);
             }
             m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()), m_vision);

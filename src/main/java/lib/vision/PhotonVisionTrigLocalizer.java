@@ -21,7 +21,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
 import lib.vision.CameraLocalizer.CommonPoseEstimate;
 
-public class PVTrigLocalizer implements CameraLocalizer {
+public class PhotonVisionTrigLocalizer implements CameraLocalizer {
     private static final Matrix<N3,N1> maxStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
     private final PhotonCamera camera;
     private final PhotonPoseEstimator poseEstimator;
@@ -29,7 +29,7 @@ public class PVTrigLocalizer implements CameraLocalizer {
     private final Matrix<N3,N1> defaultSingleStdDevs;
     private final Matrix<N3,N1> defaultMultiStdDevs;
 
-    public PVTrigLocalizer(
+    public PhotonVisionTrigLocalizer(
         PhotonCamera camera, 
         Transform3d offset,
         Supplier<Rotation2d> headingSupplier,
@@ -44,7 +44,7 @@ public class PVTrigLocalizer implements CameraLocalizer {
         this.defaultMultiStdDevs = defaultMultiStdDevs;
     }
 
-    public PVTrigLocalizer withCameraOffset(Transform3d offset){
+    public PhotonVisionTrigLocalizer withCameraOffset(Transform3d offset){
         setCameraOffset(offset);
         return this;
     }

@@ -18,14 +18,14 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 
-public class PV_Localizer implements CameraLocalizer {
+public class PhotonVisionLocalizer implements CameraLocalizer {
     private static final Matrix<N3,N1> maxStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
     private final PhotonCamera camera;
     private final PhotonPoseEstimator poseEstimator;
     private final Matrix<N3,N1> defaultSingleStdDevs;
     private final Matrix<N3,N1> defaultMultiStdDevs;
 
-    public PV_Localizer(
+    public PhotonVisionLocalizer(
         PhotonCamera camera, 
         PhotonPoseEstimator estimator,
         Matrix<N3,N1> defaultSingleStdDevs,
@@ -38,11 +38,11 @@ public class PV_Localizer implements CameraLocalizer {
     }
 
     /**
-     * Creates a PV_Localizer object with a camera offset from the robot center
+     * Creates a PhotonVisionLocalizer object with a camera offset from the robot center
      * @param offset The offset to set
      * @return The localizer
      */
-    public PV_Localizer withCameraOffset(Transform3d offset){
+    public PhotonVisionLocalizer withCameraOffset(Transform3d offset){
         setCameraOffset(offset);
         return this;
     }
