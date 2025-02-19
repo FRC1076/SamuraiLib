@@ -14,14 +14,18 @@ import edu.wpi.first.math.numbers.N3;
 import lib.functional.TriConsumer;
 
 
-
+/**
+ * A class that manages robot position estimates from multiple cameras and 
+ * sends them to all externally registered consumers using the {@link VisionLocalizationSystem#update()} method
+ * <p>Consumers are registered using the {@link VisionLocalizationSystem#registerMeasurementConsumer()} method
+ */
 public class VisionLocalizationSystem {
 
     private class CamStruct {
         public final CameraLocalizer camera;
         public boolean cameraActive; //Signals whether or not the camera reading should be added to vision measurements
 
-        // sets whether or not the camera is active
+        /** Sets whether or not the camera is active */ 
         public void setActive(boolean active) {
             cameraActive = active;
         }
@@ -36,7 +40,15 @@ public class VisionLocalizationSystem {
 
     private final Map<String,CamStruct> cameras = new HashMap<>();
     
-    
+    /**
+     * Registers a consumer
+     * <p> This method should be called externally on initialization
+     * 
+     * @param consumer A consumer that accepts a Pose2d, Double, and 3x1 Matrix
+     * <p> The Pose2d is the robot pose estimate in meters
+     * <p> The Double is the timestamp of the measurement in seconds
+     * <p> The 3x1 Matrix is the standard deviations of the measurement
+     */
     public void registerMeasurementConsumer(TriConsumer<Pose2d,Double,Matrix<N3,N1>> consumer) {
         if (measurementConsumer == null) {
             //Initialize measurementConsumer if none exists
@@ -58,9 +70,24 @@ public class VisionLocalizationSystem {
         cameras.put(camera.getName(),camStruct);
     }
 
+    /**
+     * Enables or disables selected cameras
+     * @param enabled Whether or not the cameras should be enabled
+     * @param cams The IDs of the cameras to enable or disable
+     */
     public void enableCameras(boolean enabled, String... cams) {
         for (String camID : cams) {
             cameras.get(camID).setActive(enabled);
+        }
+    }
+
+    /**
+     * Enables or disables all cameras
+     * @param enabled Whether or not the cameras should be enabled
+     */
+    public void enableAllCameras(boolean enabled) {
+        for (var camStruct : cameras.values()) {
+            camStruct.setActive(enabled);
         }
     }
 

@@ -32,6 +32,10 @@ public class LL_Localizer implements CameraLocalizer {
         this.defaultMultiStdDevs = defaultMultiStdDevs;
     }
 
+    /**
+     * Gets the pose estimate from the camera
+     * @return The pose estimate, or Optional.empty() if no estimate is available
+     */
     public Optional<CommonPoseEstimate> getPoseEstimate() {
         return camera.getPoseEstimateMT2().map(
             (poseEstimate) -> new CommonPoseEstimate(

@@ -38,7 +38,7 @@ public class PVTrigLocalizer implements CameraLocalizer {
         Matrix<N3,N1> defaultMultiStdDevs
     ) {
         this.camera = camera;
-        this.poseEstimator = new PhotonPoseEstimator(field,PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,offset);
+        this.poseEstimator = new PhotonPoseEstimator(field, PoseStrategy.PNP_DISTANCE_TRIG_SOLVE, offset);
         this.headingSupplier = headingSupplier;
         this.defaultSingleStdDevs = defaultSingleStdDevs;
         this.defaultMultiStdDevs = defaultMultiStdDevs;
@@ -56,6 +56,11 @@ public class PVTrigLocalizer implements CameraLocalizer {
     //visionSystem = new visionSystem.withCamera(cameraConfig).withStrategy().withRotationSupplier()
     //visionSystem.update()
 
+    /**
+     * Calculates the standard deviations for the pose estimate based on the number of targets and the average distance to them
+     * @param est
+     * @return Matrix of the standard deviations for the pose estimate
+     */
     private Matrix<N3,N1> calculateStdDevs(EstimatedRobotPose est) {
         var stdDevs = defaultSingleStdDevs;
         int numTargets = 0;
@@ -94,6 +99,10 @@ public class PVTrigLocalizer implements CameraLocalizer {
         return stdDevs;
     }
 
+    /**
+     * Gets the pose estimate from the camera
+     * @return The pose estimate, or Optional.empty() if no estimate is available
+     */
     public Optional<CommonPoseEstimate> getPoseEstimate() {
         poseEstimator.addHeadingData(Timer.getFPGATimestamp(), headingSupplier.get());
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();

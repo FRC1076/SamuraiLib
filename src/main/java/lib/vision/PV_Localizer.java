@@ -37,15 +37,36 @@ public class PV_Localizer implements CameraLocalizer {
         this.defaultMultiStdDevs = defaultMultiStdDevs;
     }
 
+    /**
+     * Creates a PV_Localizer object with a camera offset from the robot center
+     * @param offset The offset to set
+     * @return The localizer
+     */
     public PV_Localizer withCameraOffset(Transform3d offset){
         setCameraOffset(offset);
         return this;
     }
 
+    /**
+     * Sets the camera offset from the robot center
+     * @param offset The offset to set
+     */
     public void setCameraOffset(Transform3d offset){
         this.poseEstimator.setRobotToCameraTransform(offset);
     }
 
+    /** NOTE: THIS DOESN'T WORK YET
+    /**
+     * Sets the pose strategy for the camera
+     * @param strategy The pose strategy to use, from {@link PhotonPoseEstimator.PoseStrategy}
+     */
+    public void setPoseStrategy(PhotonPoseEstimator.PoseStrategy strategy){
+        this.poseEstimator.setPrimaryStrategy(strategy);
+    }
+
+    /**
+     * Calculates the standard deviations for the pose estimate based on how many tags are visible and how far they are
+     */
     private Matrix<N3,N1> calculateStdDevs(EstimatedRobotPose est) {
         var stdDevs = defaultSingleStdDevs;
         int numTargets = 0;
@@ -84,6 +105,10 @@ public class PV_Localizer implements CameraLocalizer {
         return stdDevs;
     }
 
+    /**
+     * Gets the pose estimate from the camera
+     * @return The pose estimate, or Optional.empty() if no estimate is available
+     */
     public Optional<CommonPoseEstimate> getPoseEstimate() {
         List<PhotonPipelineResult> results = camera.getAllUnreadResults();
         Optional<EstimatedRobotPose> visionEst = Optional.empty();
@@ -106,5 +131,4 @@ public class PV_Localizer implements CameraLocalizer {
     public String getName() {
         return camera.getName();
     }
-    
 }

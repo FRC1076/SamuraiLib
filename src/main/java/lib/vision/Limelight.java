@@ -16,6 +16,9 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
 
+/**
+ * A wrapper class that provides access to a Limelight camera as an object, rather than through NetworkTables
+ */
 public class Limelight {
 
     public static enum LEDState {

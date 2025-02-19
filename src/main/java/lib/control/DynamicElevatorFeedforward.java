@@ -7,7 +7,7 @@ import edu.wpi.first.util.struct.StructSerializable;
 
 /**
  * A helper class that computes feedforward outputs for a simple elevator (modeled as a motor acting
- * against the force of gravity). Modified to allow for a dynamic kG constant
+ * against the force of gravity). Modified to allow for a dynamic kG value
  */
 public class DynamicElevatorFeedforward implements ProtobufSerializable, StructSerializable {
   /** The static gain, in volts. */
