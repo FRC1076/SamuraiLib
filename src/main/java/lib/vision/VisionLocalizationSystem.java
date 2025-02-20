@@ -26,7 +26,7 @@ public class VisionLocalizationSystem {
 
     private class CamStruct {
         public final CameraLocalizer camera;
-        public boolean cameraActive; //Signals whether or not the camera reading should be added to vision measurements
+        public boolean cameraActive = true; //Signals whether or not the camera reading should be added to vision measurements
 
         /** Sets whether or not the camera is active */ 
         public void setActive(boolean active) {
@@ -100,7 +100,9 @@ public class VisionLocalizationSystem {
      */
     public void update() {
         for (var camStruct : cameras.values()) {
+            System.out.println("THERE ARE CAMERAS");
             if (camStruct.cameraActive) {
+                System.out.println("CAMERAS ARE ACTIVE");
                 camStruct.camera.getPoseEstimate().ifPresent(
                     (estimate) -> {
                         measurementConsumer.accept(

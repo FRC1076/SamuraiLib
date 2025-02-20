@@ -92,6 +92,11 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
         );
     }
 
+    public void addVisionMeasurement(Pose2d poseEstimate,double timestampSeconds,Matrix<N3,N1> StdDevs){
+        System.out.println("ADDING VISION");
+        super.addVisionMeasurement(poseEstimate, timestampSeconds, StdDevs);
+    }
+
     /** Transfers the content of the odometry queue nto a more usable array in a non-blocking threadsafe manner */
     private int drainCache(){
         oldDaqs = Daqs.getAndSet(0);
