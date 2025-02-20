@@ -34,6 +34,7 @@ import lib.vision.PhotonVisionLocalizer;
 import lib.vision.PhotonVisionTrigLocalizer;
 import lib.vision.VisionLocalizationSystem;
 import frc.robot.subsystems.SuperstructureVisualizer;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.Superstructure.SuperstructureCommandFactory;
 import frc.robot.Constants.SystemConstants;
 import frc.robot.Constants.OIConstants;
@@ -86,6 +87,7 @@ public class RobotContainer {
     private final WristSubsystem m_wrist;
     private final GrabberSubsystem m_grabber;
     private final IndexSubsystem m_index;
+    private final VisionSubsystem m_vision;
     private final Trigger m_indexBeamBreak;
     private final Trigger m_transferBeamBreak;
     private final Trigger m_grabberBeamBreak;
@@ -113,11 +115,6 @@ public class RobotContainer {
     */
     
     private final SendableChooser<Command> m_autoChooser;
-
-    private final VisionLocalizationSystem m_vision = new VisionLocalizationSystem();
-
-    private final VisionSystemSim m_visionSim;
-
    // private final PhotonCamera m_driveCamera;
 
     private final TeleopDriveCommand teleopDriveCommand;
@@ -145,50 +142,25 @@ public class RobotContainer {
         // m_driveCamera.setDriverMode(true);
         
         if (SystemConstants.currentMode == 0) {
-            m_visionSim = null;
-            m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()), m_vision);
+            m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()));
             m_elevator = new ElevatorSubsystem(new ElevatorIOHardware());
             m_wrist = new WristSubsystem(new WristIOHardware());
             m_grabber = new GrabberSubsystem(new GrabberIOHardware());
             m_index = new IndexSubsystem(new IndexIOHardware());
             m_elastic = new Elastic();
             m_LEDs = new LEDSubsystem(new LEDIODigitalPins());
-            for (PhotonConfig config : PhotonConfig.values()){
-                var cam = new PhotonCamera(config.name);
-                m_vision.addCamera(new PhotonVisionTrigLocalizer(
-                    cam, 
-                    config.offset, 
-                    m_drive::getHeading,
-                    fieldLayout,
-                    kDefaultSingleTagStdDevs, 
-                    kDefaultMultiTagStdDevs)
-                );
-            }
         } else if (SystemConstants.currentMode == 1) {
-           
-            
-            m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()), m_vision);
+            m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
             m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
             m_wrist = new WristSubsystem(new WristIOSim());
             m_grabber = new GrabberSubsystem(new GrabberIOSim());
             m_index = new IndexSubsystem(new IndexIOSim());
             m_elastic = new Elastic();
             m_LEDs = new LEDSubsystem(new LEDIOSim());
-            m_visionSim = new VisionSystemSim("main");
-            for (PhotonConfig config : PhotonConfig.values()){
-                var cam = new PhotonCamera(config.name);
-                m_vision.addCamera(new PhotonVisionTrigLocalizer(
-                    cam, 
-                    config.offset, 
-                    m_drive::getHeading,
-                    fieldLayout,
-                    kDefaultSingleTagStdDevs, 
-                    kDefaultMultiTagStdDevs)
-                );
-                m_visionSim.addCamera(new PhotonCameraSim(cam),config.offset);
-            }
-            CommandUtils.makePeriodic(() -> m_visionSim.update(m_drive.getPose()));
         }
+
+        m_vision = new VisionSubsystem(m_drive::getPose)
+            .withMeasurementConsumer(m_drive::addVisionMeasurement);
 
         m_superstructure = new Superstructure(
             m_elevator,

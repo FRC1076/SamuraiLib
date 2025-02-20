@@ -29,8 +29,4 @@ public interface CameraLocalizer {
     public abstract String getName();
 
     public default void addHeadingSupplier(Supplier<Rotation2d> heading) {}
-
-    public default void setPoseStrategy(PhotonPoseEstimator.PoseStrategy strategy) {}
-
-    public default void setFallbackPoseStrategy(PhotonPoseEstimator.PoseStrategy strategy) {}
 }

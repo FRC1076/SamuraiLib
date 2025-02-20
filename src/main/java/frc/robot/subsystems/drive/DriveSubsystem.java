@@ -40,6 +40,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import com.ctre.phoenix6.swerve.SwerveRequest.ApplyRobotSpeeds;
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ApplyFieldSpeeds;
 import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentricFacingAngle;
@@ -54,12 +55,9 @@ public class DriveSubsystem extends SubsystemBase {
     //private final ModuleIOInputsAutoLogged rearRightInputs = new ModuleIOInputsAutoLogged();
     private Boolean hasSetAlliance = false; // Wait until the driverstation had an alliance before setting it
     public final DriveCommandFactory CommandBuilder;
-    private final VisionLocalizationSystem vision;
 
-    public DriveSubsystem(DriveIO io, VisionLocalizationSystem vision) {
+    public DriveSubsystem(DriveIO io) {
         this.io = io;
-        this.vision = vision;
-        vision.registerMeasurementConsumer(this.io::addVisionMeasurement); // In DriveIOHardware, addVisionMeasurement is built into the SwerveDrivetrain class
         try {
             AutoBuilder.configure(
                 this::getPose,
@@ -85,14 +83,17 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3,N1> stdDevs) {
-        io.addVisionMeasurement(pose, timestamp, stdDevs);
+        io.addVisionMeasurement(
+            pose, 
+            Utils.fpgaToCurrentTime(timestamp), 
+            stdDevs
+        );
     }
 
     @Override
     public void periodic(){
         // updateModuleInputs and processInputs are only used for logging
         io.periodic(); //currently just for calling sim
-        vision.update();
         io.updateInputs(driveInputs);
         // io.updateModuleInputs(frontLeftInputs,0);
         // io.updateModuleInputs(frontRightInputs,1);

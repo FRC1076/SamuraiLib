@@ -84,16 +84,6 @@ public class VisionLocalizationSystem {
             camStruct.setActive(enabled);
         }
     }
-    
-    /**
-     * For PhotonVision cameras, this method will set the pose estimator strategy from {@link PhotonPoseEstimator#PoseStrategy}
-     * For Limelight cameras, this method will call the default method, which does nothing
-     */
-    public void setPhotonPoseStrategy(PhotonPoseEstimator.PoseStrategy strategy, String... cams){
-        for (String camID : cams) {
-            cameras.get(camID).camera.setPoseStrategy(strategy);
-        }
-    }
 
     /**
      * Fetches pose estimate from cameras and sends them to all consumers. This function should be called exactly once every main function loop

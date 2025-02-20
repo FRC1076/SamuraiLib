@@ -69,7 +69,6 @@ public class PhotonVisionLocalizer implements CameraLocalizer {
      * 
      * @param strategy the strategy to set, from {@link PhotonPoseEstimator.PoseStrategy}
      */
-    @Override
     public void setPoseStrategy(PhotonPoseEstimator.PoseStrategy strategy){
         if(strategy == PhotonPoseEstimator.PoseStrategy.PNP_DISTANCE_TRIG_SOLVE && headingSupplier.isEmpty()){
             DriverStation.reportWarning("No heading supplier set for PNP_DISTANCE_TRIG_SOLVE strategy", false);
@@ -84,7 +83,6 @@ public class PhotonVisionLocalizer implements CameraLocalizer {
      *
      * @param strategy the strategy to set
      */
-    @Override
     public void setFallbackPoseStrategy(PhotonPoseEstimator.PoseStrategy strategy){
         poseEstimator.setMultiTagFallbackStrategy(strategy);
     }
