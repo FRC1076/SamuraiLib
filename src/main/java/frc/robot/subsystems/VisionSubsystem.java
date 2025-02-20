@@ -84,7 +84,7 @@ public class VisionSubsystem extends VirtualSubsystem {
 
     }
 
-    public VisionSubsystem withMeasurementConsumer(TriConsumer<Pose2d,Double,Matrix<N3,N1>> consumer) {
+    public VisionSubsystem withLocalizationConsumer(TriConsumer<Pose2d,Double,Matrix<N3,N1>> consumer) {
         m_localizationSystem.registerMeasurementConsumer(consumer);
         return this;
     }

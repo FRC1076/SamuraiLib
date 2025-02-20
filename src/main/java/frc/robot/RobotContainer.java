@@ -160,7 +160,7 @@ public class RobotContainer {
         }
 
         m_vision = new VisionSubsystem(m_drive::getPose)
-            .withMeasurementConsumer(m_drive::addVisionMeasurement);
+            .withLocalizationConsumer(m_drive::addVisionMeasurement);
 
         m_superstructure = new Superstructure(
             m_elevator,
