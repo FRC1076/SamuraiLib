@@ -146,6 +146,10 @@ public class DriveSubsystem extends SubsystemBase {
         io.resetHeading();
     }
 
+    public Rotation2d getHeading() {
+        return io.getPose().getRotation();
+    }
+
     public Pose2d getPose() {
         return io.getPose();
     }

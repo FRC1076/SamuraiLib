@@ -52,7 +52,7 @@ public final class Constants {
             public static enum PhotonConfig {
                 //TODO: Coordinates may be negative
                 ELEVATOR_LEFT_CAM("ELEVATOR_LEFT_CAM", 2.892, 7.163, 19.162, 11.385, 17.961, 40),
-                ELEVATOR_RIGHT_CAM("ELEVATOR_RIGHT_CAM", 2.982, -7.163, 19.162, -11.385, 11.385, -40);
+                ELEVATOR_RIGHT_CAM("ELEVATOR_RIGHT_CAM", 2.982, -7.163, 19.162, -11.385, 17.961, -40);
 
                 public final String name;
                 public final Transform3d offset;

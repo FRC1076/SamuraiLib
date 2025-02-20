@@ -31,6 +31,7 @@ import frc.robot.subsystems.wrist.WristSubsystem;
 import lib.extendedcommands.CommandUtils;
 import lib.hardware.hid.SamuraiXboxController;
 import lib.vision.PhotonVisionLocalizer;
+import lib.vision.PhotonVisionTrigLocalizer;
 import lib.vision.VisionLocalizationSystem;
 import frc.robot.subsystems.SuperstructureVisualizer;
 import frc.robot.subsystems.Superstructure.SuperstructureCommandFactory;
@@ -145,16 +146,6 @@ public class RobotContainer {
         
         if (SystemConstants.currentMode == 0) {
             m_visionSim = null;
-            for (PhotonConfig config : PhotonConfig.values()){
-                PhotonCamera cam = new PhotonCamera(config.name);
-                PhotonPoseEstimator estimator = new PhotonPoseEstimator( 
-                    fieldLayout,
-                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, 
-                    config.offset
-                );
-                estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-                m_vision.addCamera(new PhotonVisionLocalizer(cam, estimator, kDefaultSingleTagStdDevs, kDefaultMultiTagStdDevs));
-            }
             m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()), m_vision);
             m_elevator = new ElevatorSubsystem(new ElevatorIOHardware());
             m_wrist = new WristSubsystem(new WristIOHardware());
@@ -162,19 +153,20 @@ public class RobotContainer {
             m_index = new IndexSubsystem(new IndexIOHardware());
             m_elastic = new Elastic();
             m_LEDs = new LEDSubsystem(new LEDIODigitalPins());
-        } else if (SystemConstants.currentMode == 1) {
-            m_visionSim = new VisionSystemSim("main");
             for (PhotonConfig config : PhotonConfig.values()){
-                PhotonCamera cam = new PhotonCamera(config.name);
-                PhotonPoseEstimator estimator = new PhotonPoseEstimator( 
+                var cam = new PhotonCamera(config.name);
+                m_vision.addCamera(new PhotonVisionTrigLocalizer(
+                    cam, 
+                    config.offset, 
+                    m_drive::getHeading,
                     fieldLayout,
-                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, 
-                    config.offset
+                    kDefaultSingleTagStdDevs, 
+                    kDefaultMultiTagStdDevs)
                 );
-                estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-                m_vision.addCamera(new PhotonVisionLocalizer(cam, estimator, kDefaultSingleTagStdDevs, kDefaultMultiTagStdDevs));
-                m_visionSim.addCamera(new PhotonCameraSim(cam),config.offset);
             }
+        } else if (SystemConstants.currentMode == 1) {
+           
+            
             m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()), m_vision);
             m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
             m_wrist = new WristSubsystem(new WristIOSim());
@@ -182,6 +174,19 @@ public class RobotContainer {
             m_index = new IndexSubsystem(new IndexIOSim());
             m_elastic = new Elastic();
             m_LEDs = new LEDSubsystem(new LEDIOSim());
+            m_visionSim = new VisionSystemSim("main");
+            for (PhotonConfig config : PhotonConfig.values()){
+                var cam = new PhotonCamera(config.name);
+                m_vision.addCamera(new PhotonVisionTrigLocalizer(
+                    cam, 
+                    config.offset, 
+                    m_drive::getHeading,
+                    fieldLayout,
+                    kDefaultSingleTagStdDevs, 
+                    kDefaultMultiTagStdDevs)
+                );
+                m_visionSim.addCamera(new PhotonCameraSim(cam),config.offset);
+            }
             CommandUtils.makePeriodic(() -> m_visionSim.update(m_drive.getPose()));
         }
 
