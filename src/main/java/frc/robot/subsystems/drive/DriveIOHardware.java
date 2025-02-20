@@ -53,7 +53,12 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
     private SwerveDriveState[] odomDrain;
     private int oldDaqs; // Number of successul data acquisitions from previous main loop cycle
     protected AtomicInteger Daqs = new AtomicInteger(0);
-    
+    @Override
+    public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds,
+            Matrix<N3, N1> visionMeasurementStdDevs) {
+        // TODO Auto-generated method stub
+        super.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
+    }
     public DriveIOHardware(SwerveDrivetrainConstants drivetrainConstants, double odometryUpdateFrequency, SwerveModuleConstants<?,?,?>... moduleConstants){
         super(
             TalonFX::new,

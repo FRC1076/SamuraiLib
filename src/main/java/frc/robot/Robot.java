@@ -14,6 +14,7 @@ import com.pathplanner.lib.commands.PathfindingCommand;
 import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.utils.VirtualSubsystem;
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -84,6 +85,8 @@ public class Robot extends LoggedRobot {
    */
   @Override
   public void robotPeriodic() {
+    // Runs periodic methods of virtual subsystems
+    VirtualSubsystem.periodicAll();
     // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
     // commands, running already-scheduled commands, removing finished or interrupted commands,
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
@@ -91,6 +94,7 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
 
     //m_robotContainer.updateInterface();
+
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
