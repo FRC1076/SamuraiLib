@@ -13,6 +13,7 @@ import frc.robot.subsystems.drive.DriveIOHardware;
 import frc.robot.subsystems.drive.DriveIOSim;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.drive.TunerConstants;
+import frc.robot.subsystems.drive.DriveSubsystem.DriveCommandFactory;
 import frc.robot.subsystems.elevator.ElevatorIOHardware;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
@@ -83,6 +84,7 @@ public class RobotContainer {
     // The robot's subsystems and commands are defined here...
     private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
     private final DriveSubsystem m_drive;
+    private final DriveCommandFactory driveCommands;
     private final ElevatorSubsystem m_elevator;
     private final WristSubsystem m_wrist;
     private final GrabberSubsystem m_grabber;
@@ -162,6 +164,8 @@ public class RobotContainer {
         m_vision = new VisionSubsystem(m_drive::getPose)
             .withLocalizationConsumer(m_drive::addVisionMeasurement);
 
+        driveCommands = new DriveCommandFactory(m_drive, m_vision);
+
         m_superstructure = new Superstructure(
             m_elevator,
             m_grabber,
@@ -176,7 +180,7 @@ public class RobotContainer {
 
         superVis = new SuperstructureVisualizer(m_superstructure);
 
-        teleopDriveCommand = m_drive.CommandBuilder.teleopDrive(
+        teleopDriveCommand = driveCommands.teleopDrive(
             () -> -m_driverController.getLeftY(), 
             () -> -m_driverController.getLeftX(),
             () -> -m_driverController.getRightX()
@@ -235,14 +239,16 @@ public class RobotContainer {
     }
 
     private void configureDriverBindings() {
-        /*
+        
+        /* 
         m_driverController.leftTrigger().whileTrue(
-            m_drive.CommandBuilder.directDriveToNearestLeftBranch()
+            driveCommands.directDriveToNearestLeftBranch()
         );
 
         m_driverController.rightTrigger().whileTrue(
-            m_drive.CommandBuilder.directDriveToNearestRightBranch()
-        );*/
+            driveCommands.directDriveToNearestRightBranch()
+        );
+        */
 
         // Point to reef
         m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());

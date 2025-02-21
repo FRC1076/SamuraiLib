@@ -181,27 +181,27 @@ public class Superstructure {
      * @return generic transition command from one state to another 
      */
     private Command applyWristevatorState(WristevatorState position) {
+
         Command wristPreMoveCommand = Commands.either(
             m_wrist.applyAngle(algaeTravelAngle),
             m_wrist.applyAngle(coralTravelAngle),
             () -> superState.getGrabberPossession() == GrabberPossession.ALGAE
         );
-
-        
-        Command wristHoldCommand = Commands.either(
-            m_wrist.holdAngle(algaeTravelAngle), 
-            m_wrist.holdAngle(coralTravelAngle),
-            () -> superState.getGrabberPossession() == GrabberPossession.ALGAE
-        );
         
         return Commands.sequence(
             Commands.runOnce(() -> superState.setWristevatorState(position)),
-            wristPreMoveCommand,
+            Commands.deadline(
+                wristPreMoveCommand,
+                m_elevator.holdPosition()
+            ),
             Commands.deadline(
                 m_elevator.applyPosition(position.elevatorHeightMeters),
-                wristHoldCommand
+                m_wrist.holdAngle()
             ),
-            m_wrist.applyAngle(position.wristAngle)
+            Commands.deadline(
+                m_wrist.applyAngle(position.wristAngle),
+                m_elevator.holdPosition()
+            )
         );
     }
 

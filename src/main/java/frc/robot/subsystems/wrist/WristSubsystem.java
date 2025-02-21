@@ -7,12 +7,15 @@ package frc.robot.subsystems.wrist;
 import frc.robot.Constants.WristConstants;
 import lib.control.DynamicArmFeedforward;
 
+import java.util.Set;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -115,17 +118,17 @@ public class WristSubsystem extends SubsystemBase {
         );
     }
 
-    /** Returns a command that sets the wrist at the desired angle 
+    /** 
+     * Returns a command that sets the wrist at the current angle indefinitely
      * CONTINUES UNTIL INTERUPTED EXTERNALLY
-     * @param angle The desired angle of the wrist
     */
-    public Command holdAngle(Rotation2d angle){
-        return new FunctionalCommand(
-            () -> m_profiledPIDController.reset(getAngleRadians()),
-            () -> setAngle(angle), 
-            (interrupted) -> {},
-            () -> {return false;},
-            this
+    public Command holdAngle(){
+        return new DeferredCommand(
+            () -> {
+                Rotation2d currentAngle = getAngle();
+                return this.run(() -> setAngle(currentAngle));
+            }, 
+            Set.of(this)
         );
     }
 

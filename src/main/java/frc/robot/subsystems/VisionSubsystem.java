@@ -38,6 +38,7 @@ public class VisionSubsystem extends VirtualSubsystem {
     private final Supplier<Pose2d> poseSupplier;
 
     public VisionSubsystem(Supplier<Pose2d> poseSupplier) {
+
         m_localizationSystem = new VisionLocalizationSystem();
         this.poseSupplier = poseSupplier;
         
@@ -47,7 +48,7 @@ public class VisionSubsystem extends VirtualSubsystem {
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             PhotonConfig.ELEVATOR_LEFT_CAM.offset
         );
-        lest.setMultiTagFallbackStrategy(PoseStrategy.PNP_DISTANCE_TRIG_SOLVE);
+        lest.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
         LeftElevatorCameraLocalizer = new PhotonVisionLocalizer(
             lcam,
             lest,
@@ -60,7 +61,7 @@ public class VisionSubsystem extends VirtualSubsystem {
             PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             PhotonConfig.ELEVATOR_LEFT_CAM.offset
         );
-        rest.setMultiTagFallbackStrategy(PoseStrategy.PNP_DISTANCE_TRIG_SOLVE);
+        rest.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
         RightElevatorCameraLocalizer = new PhotonVisionLocalizer(
             rcam,
             rest,
@@ -97,14 +98,14 @@ public class VisionSubsystem extends VirtualSubsystem {
         m_localizationSystem.update();
     }
 
-    /** Enables single-tag trig pose estimation strategy on the elevator
+    /** Enables trig PNP solving algorithm on the elevator
      * @param enabled whether or not trig estimation should be enabled in single-tag mode
      */
-    public void enableElevatorTrigStrategy(boolean enabled) {
+    public void enableElevatorTrigPNP(boolean enabled) {
         LeftElevatorCameraLocalizer.setFallbackPoseStrategy(
             enabled 
                 ? PoseStrategy.PNP_DISTANCE_TRIG_SOLVE 
-                : PoseStrategy.LOWEST_AMBIGUITY
+                : PoseStrategy.AVERAGE_BEST_TARGETS
         );
     }
 }

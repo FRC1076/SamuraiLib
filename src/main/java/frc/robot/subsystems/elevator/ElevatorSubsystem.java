@@ -7,11 +7,14 @@ package frc.robot.subsystems.elevator;
 import frc.robot.Constants.ElevatorConstants;
 import lib.control.DynamicElevatorFeedforward;
 
+import java.util.Set;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -128,6 +131,19 @@ public class ElevatorSubsystem extends SubsystemBase {
             // (interrupted) -> {setVoltage(io.getFFkG());},
             () -> Math.abs(positionMeters - getPositionMeters()) < ElevatorConstants.elevatorPositionToleranceMeters,
             this
+        );
+    }
+
+    /**
+     * Returns a command that holds the elevator in its current position indefinitely
+     */
+    public Command holdPosition() {
+        return new DeferredCommand(
+            () -> {
+                double currentPosition = getPositionMeters();
+                return this.run(() -> setPosition(currentPosition));
+            }, 
+            Set.of(this)
         );
     }
     

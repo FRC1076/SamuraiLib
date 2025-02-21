@@ -8,6 +8,7 @@ import frc.robot.Constants.DriveConstants.PathPlannerConstants;
 import frc.robot.Constants.FieldConstants.ReefFace;
 import frc.robot.commands.drive.DirectDriveToPoseCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.utils.Localization;
 import static frc.robot.Constants.DriveConstants.PathPlannerConstants.robotOffset;
 
@@ -26,6 +27,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -54,7 +56,6 @@ public class DriveSubsystem extends SubsystemBase {
     //private final ModuleIOInputsAutoLogged rearLeftInputs = new ModuleIOInputsAutoLogged();
     //private final ModuleIOInputsAutoLogged rearRightInputs = new ModuleIOInputsAutoLogged();
     private Boolean hasSetAlliance = false; // Wait until the driverstation had an alliance before setting it
-    public final DriveCommandFactory CommandBuilder;
 
     public DriveSubsystem(DriveIO io) {
         this.io = io;
@@ -77,9 +78,6 @@ public class DriveSubsystem extends SubsystemBase {
         } catch (Exception ex) {
             DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
         }
-        CommandBuilder = new DriveCommandFactory(this);
-
-        
     }
 
     public void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3,N1> stdDevs) {
@@ -162,13 +160,15 @@ public class DriveSubsystem extends SubsystemBase {
         return io.getPose();
     }
 
-    public class DriveCommandFactory {
+    public static class DriveCommandFactory {
         private final DriveSubsystem drive;
+        private final VisionSubsystem vision;
         private final Map<ReefFace,Command> leftBranchAlignmentCommands = new HashMap<>();
         private final Map<ReefFace,Command> reefCenterAlignmentCommands = new HashMap<>();
         private final Map<ReefFace,Command> rightBranchAlignmentCommands = new HashMap<>();
-        private DriveCommandFactory(DriveSubsystem drive) {
+        public DriveCommandFactory(DriveSubsystem drive,VisionSubsystem vision) {
             this.drive = drive;
+            this.vision = vision;
             for (ReefFace face : ReefFace.values()) {
                 leftBranchAlignmentCommands.put(face,directDriveToPose(GeometryUtils.rotatePose(face.leftBranch.transformBy(robotOffset),Rotation2d.k180deg)));
                 reefCenterAlignmentCommands.put(face,directDriveToPose(GeometryUtils.rotatePose(face.AprilTag.transformBy(robotOffset),Rotation2d.k180deg)));
@@ -193,7 +193,11 @@ public class DriveSubsystem extends SubsystemBase {
         }
 
         public Command directDriveToPose(Pose2d targetPose) {
-            return new DirectDriveToPoseCommand(drive, targetPose);
+            return Commands.sequence(
+                Commands.runOnce(() -> vision.enableElevatorTrigPNP(true)),
+                new DirectDriveToPoseCommand(drive, targetPose),
+                Commands.runOnce(() -> vision.enableElevatorTrigPNP(false))
+            );
         }
 
         public Command directDriveToNearestLeftBranch() {
@@ -209,7 +213,7 @@ public class DriveSubsystem extends SubsystemBase {
         }
         
         public Command applySwerveRequest(Supplier<SwerveRequest> requestSupplier) {
-            return run(() -> acceptRequest(requestSupplier.get()));
+            return Commands.run(() -> drive.acceptRequest(requestSupplier.get()),drive);
         }
 
     }
