@@ -31,7 +31,6 @@ import frc.robot.subsystems.wrist.WristSubsystem;
 import lib.extendedcommands.CommandUtils;
 import lib.hardware.hid.SamuraiXboxController;
 import lib.vision.PhotonVisionLocalizer;
-import lib.vision.PhotonVisionTrigLocalizer;
 import lib.vision.VisionLocalizationSystem;
 import frc.robot.subsystems.SuperstructureVisualizer;
 import frc.robot.subsystems.Superstructure.SuperstructureCommandFactory;
@@ -55,6 +54,8 @@ import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.VisionSystemSim;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -155,9 +156,11 @@ public class RobotContainer {
             m_LEDs = new LEDSubsystem(new LEDIODigitalPins());
             for (PhotonConfig config : PhotonConfig.values()){
                 var cam = new PhotonCamera(config.name);
-                m_vision.addCamera(new PhotonVisionTrigLocalizer(
+                m_vision.addCamera(new PhotonVisionLocalizer(
                     cam, 
-                    config.offset, 
+                    config.offset,
+                    config.primaryStrategy,
+                    config.multiTagFallbackStrategy,
                     m_drive.getPose()::getRotation,
                     fieldLayout,
                     kDefaultSingleTagStdDevs, 
@@ -177,10 +180,12 @@ public class RobotContainer {
             m_visionSim = new VisionSystemSim("main");
             for (PhotonConfig config : PhotonConfig.values()){
                 var cam = new PhotonCamera(config.name);
-                m_vision.addCamera(new PhotonVisionTrigLocalizer(
+                m_vision.addCamera(new PhotonVisionLocalizer(
                     cam, 
-                    config.offset, 
-                    m_drive::getHeading,
+                    config.offset,
+                    config.primaryStrategy,
+                    config.multiTagFallbackStrategy,
+                    m_drive.getPose()::getRotation,
                     fieldLayout,
                     kDefaultSingleTagStdDevs, 
                     kDefaultMultiTagStdDevs)
@@ -235,6 +240,14 @@ public class RobotContainer {
 
         //Build the auto chooser with PathPlanner
         m_autoChooser = AutoBuilder.buildAutoChooser();
+        m_autoChooser.addOption(
+            "DoNothingBlue", 
+            Commands.runOnce(() -> m_drive.resetPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0))))
+        );
+        m_autoChooser.addOption(
+            "DoNothingRed", 
+            Commands.runOnce(() -> m_drive.resetPose(new Pose2d(0, 0, Rotation2d.fromDegrees(180))))
+        );
         SmartDashboard.putData(m_autoChooser);
     }
 

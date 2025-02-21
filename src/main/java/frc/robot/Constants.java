@@ -24,7 +24,7 @@ import edu.wpi.first.math.util.Units;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
 
-import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -51,13 +51,32 @@ public final class Constants {
             /** Contains configs for all photonvision localization cameras */
             public static enum PhotonConfig {
                 //TODO: Coordinates may be negative
-                ELEVATOR_LEFT_CAM("ELEVATOR_LEFT_CAM", 2.892, 7.163, 19.162, 11.385, 17.961, 40),
-                ELEVATOR_RIGHT_CAM("ELEVATOR_RIGHT_CAM", 2.982, -7.163, 19.162, -11.385, 17.961, -40);
+                ELEVATOR_LEFT_CAM(
+                    "ELEVATOR_LEFT_CAM", 
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
+                    PoseStrategy.LOWEST_AMBIGUITY,
+                    2.892, 7.163, 19.162, 
+                    11.385, 17.961, 40),
+                ELEVATOR_RIGHT_CAM(
+                    "ELEVATOR_RIGHT_CAM",
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
+                    PoseStrategy.LOWEST_AMBIGUITY, 
+                    2.982, -7.163, 19.162, 
+                    -11.385, 17.961, -40);
 
                 public final String name;
                 public final Transform3d offset;
-                private PhotonConfig(String name, double xInch, double yInch, double zInch, double rollDeg, double pitchDeg, double yawDeg) {
+                public final PoseStrategy primaryStrategy;
+                public final PoseStrategy multiTagFallbackStrategy;
+                private PhotonConfig(
+                    String name,
+                    PoseStrategy primaryStrategy,
+                    PoseStrategy multiTagFallbackStrategy,
+                    double xInch, double yInch, double zInch, 
+                    double rollDeg, double pitchDeg, double yawDeg) {
                     this.name = name;
+                    this.primaryStrategy = primaryStrategy;
+                    this.multiTagFallbackStrategy = multiTagFallbackStrategy;
                     this.offset = new Transform3d(
                         Units.inchesToMeters(xInch),
                         Units.inchesToMeters(yInch),
