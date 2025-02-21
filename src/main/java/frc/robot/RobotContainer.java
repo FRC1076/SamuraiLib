@@ -12,7 +12,7 @@ import frc.robot.subsystems.drive.DriveIOHardware;
 import frc.robot.subsystems.drive.DriveIOSim;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.drive.TunerConstants;
-import frc.robot.subsystems.drive.DriveSubsystem.DriveCommandFactory;
+import frc.robot.subsystems.drive.DriveCommandFactory;
 import frc.robot.subsystems.elevator.ElevatorIOHardware;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorSubsystem;
@@ -40,6 +40,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -135,10 +136,10 @@ public class RobotContainer {
         }
 
         m_vision = new VisionSubsystem(m_drive::getPose)
-            .withLocalizationConsumer(m_drive::addVisionMeasurement);
+            .withMeasurementConsumer(m_drive::addVisionMeasurement);
 
-        driveCommands = new DriveCommandFactory(m_drive, m_vision);
-
+        driveCommands = m_drive.buildCommandFactory(m_vision);
+        
         m_superstructure = new Superstructure(
             m_elevator,
             m_grabber,
@@ -252,9 +253,7 @@ public class RobotContainer {
             m_driverController.rightBumper().and(
                 m_driverController.x()
             )
-        ).onTrue(new InstantCommand(
-            () -> m_drive.resetHeading()
-        ));
+        ).onTrue(Commands.runOnce(() -> m_drive.resetHeading()));
     }
 
     private void configureOperatorBindings() {
@@ -302,16 +301,16 @@ public class RobotContainer {
         final SuperstructureCommandFactory superstructureCommands = m_superstructure.getCommandBuilder();
         
         // L1
-        m_operatorController.x().whileTrue(superstructureCommands.preL1());
+        m_operatorController.x().and(m_operatorController.leftBumper().negate()).whileTrue(superstructureCommands.preL1());
 
         // L2
-        m_operatorController.a().whileTrue(superstructureCommands.preL2());
+        m_operatorController.a().and(m_operatorController.leftBumper().negate()).whileTrue(superstructureCommands.preL2());
 
         // L3
-        m_operatorController.b().whileTrue(superstructureCommands.preL3());
+        m_operatorController.b().and(m_operatorController.leftBumper().negate()).whileTrue(superstructureCommands.preL3());
 
         // L4
-        m_operatorController.y().whileTrue(superstructureCommands.preL4());
+        m_operatorController.y().and(m_operatorController.leftBumper().negate()).whileTrue(superstructureCommands.preL4());
 
         // Processor
         m_operatorController.x().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.preProcessor());

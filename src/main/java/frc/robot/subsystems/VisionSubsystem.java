@@ -28,6 +28,7 @@ import lib.functional.TriConsumer;
 import lib.vision.PhotonVisionSource;
 import lib.vision.VisionLocalizationSystem;
 
+//TODO: Add sim
 public class VisionSubsystem extends VirtualSubsystem {
     private final VisionLocalizationSystem m_localizationSystem;
 
@@ -58,7 +59,7 @@ public class VisionSubsystem extends VirtualSubsystem {
 
     }
 
-    public VisionSubsystem withLocalizationConsumer(TriConsumer<Pose2d,Double,Matrix<N3,N1>> consumer) {
+    public VisionSubsystem withMeasurementConsumer(TriConsumer<Pose2d,Double,Matrix<N3,N1>> consumer) {
         m_localizationSystem.addMeasurementConsumer(consumer);
         return this;
     }
@@ -69,9 +70,6 @@ public class VisionSubsystem extends VirtualSubsystem {
 
     @Override
     public void periodic() {
-        if (SystemConstants.currentMode == 1) {
-            sim.update(poseSupplier.get());
-        }
         m_localizationSystem.update();
     }
 }

@@ -80,6 +80,10 @@ public class DriveSubsystem extends SubsystemBase {
         }
     }
 
+    public DriveCommandFactory buildCommandFactory(VisionSubsystem vision) {
+        return new DriveCommandFactory(this, vision);
+    }
+
     public void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3,N1> stdDevs) {
         io.addVisionMeasurement(
             pose, 
@@ -158,60 +162,6 @@ public class DriveSubsystem extends SubsystemBase {
 
     public Pose2d getPose() {
         return io.getPose();
-    }
-
-    public static class DriveCommandFactory {
-        private final DriveSubsystem drive;
-        private final VisionSubsystem vision;
-        private final Map<ReefFace,Command> leftBranchAlignmentCommands = new HashMap<>();
-        private final Map<ReefFace,Command> reefCenterAlignmentCommands = new HashMap<>();
-        private final Map<ReefFace,Command> rightBranchAlignmentCommands = new HashMap<>();
-        public DriveCommandFactory(DriveSubsystem drive,VisionSubsystem vision) {
-            this.drive = drive;
-            this.vision = vision;
-            for (ReefFace face : ReefFace.values()) {
-                leftBranchAlignmentCommands.put(face,directDriveToPose(GeometryUtils.rotatePose(face.leftBranch.transformBy(robotOffset),Rotation2d.k180deg)));
-                reefCenterAlignmentCommands.put(face,directDriveToPose(GeometryUtils.rotatePose(face.AprilTag.transformBy(robotOffset),Rotation2d.k180deg)));
-                rightBranchAlignmentCommands.put(face,directDriveToPose(GeometryUtils.rotatePose(face.rightBranch.transformBy(robotOffset),Rotation2d.k180deg)));
-            }
-        }
-
-        public Command pathfindToPose(Pose2d targetPose) {
-            return AutoBuilder.pathfindToPose(
-                targetPose,
-                PathPlannerConstants.pathConstraints,
-                0.0
-            );
-        }
-    
-        public Command followPath(PathPlannerPath path){
-            return AutoBuilder.followPath(path);
-        }
-
-        public TeleopDriveCommand teleopDrive(DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier omegaSupplier) {
-            return new TeleopDriveCommand(drive,xSupplier,ySupplier,omegaSupplier);
-        }
-
-        public Command directDriveToPose(Pose2d targetPose) {
-            return new DirectDriveToPoseCommand(drive, targetPose);
-        }
-
-        public Command directDriveToNearestLeftBranch() {
-            return new SelectCommand<>(leftBranchAlignmentCommands,() -> Localization.getClosestReefFace(drive.getPose()));
-        }
-
-        public Command directDriveToNearestReefFace() {
-            return new SelectCommand<>(reefCenterAlignmentCommands,() -> Localization.getClosestReefFace(drive.getPose()));
-        }
-
-        public Command directDriveToNearestRightBranch() {
-            return new SelectCommand<>(rightBranchAlignmentCommands,() -> Localization.getClosestReefFace(drive.getPose()));
-        }
-        
-        public Command applySwerveRequest(Supplier<SwerveRequest> requestSupplier) {
-            return Commands.run(() -> drive.acceptRequest(requestSupplier.get()),drive);
-        }
-
     }
 
 }
