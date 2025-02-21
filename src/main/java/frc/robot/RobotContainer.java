@@ -158,7 +158,7 @@ public class RobotContainer {
                 m_vision.addCamera(new PhotonVisionTrigLocalizer(
                     cam, 
                     config.offset, 
-                    m_drive::getHeading,
+                    m_drive.getPose()::getRotation,
                     fieldLayout,
                     kDefaultSingleTagStdDevs, 
                     kDefaultMultiTagStdDevs)
