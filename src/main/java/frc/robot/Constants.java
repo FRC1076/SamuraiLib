@@ -9,10 +9,12 @@ import java.util.List;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -27,6 +29,7 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 
 import org.apache.commons.lang3.NotImplementedException;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean+
@@ -51,12 +54,57 @@ public final class Constants {
             /** Contains configs for all photonvision localization cameras */
             public static enum PhotonConfig {
                 //TODO: Coordinates may be negative
-                ELEVATOR_LEFT_CAM("ELEVATOR_LEFT_CAM", 2.892, 7.163, 19.162, 11.385, 17.961, 40),
-                ELEVATOR_RIGHT_CAM("ELEVATOR_RIGHT_CAM", 2.982, -7.163, 19.162, -11.385, 17.961, -40);
+                ELEVATOR_LEFT_CAM(
+                    "ELEVATOR_LEFT_CAM", 
+                    kDefaultSingleTagStdDevs,
+                    kDefaultMultiTagStdDevs,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
+                    2.892, 7.163, 19.162, 
+                    11.385, 17.961, 40
+                ),
+                ELEVATOR_RIGHT_CAM(
+                    "ELEVATOR_RIGHT_CAM",
+                    kDefaultSingleTagStdDevs,
+                    kDefaultMultiTagStdDevs,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
+                    2.982, -7.163, 19.162, 
+                    -11.385, 17.961, -40
+                ),
+                REAR_LEFT_CAM(
+                    "REAR_LEFT_CAM",
+                    kDefaultSingleTagStdDevs,
+                    kDefaultMultiTagStdDevs,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
+                    0,0,0,
+                    0,0,0
+                ),
+                REAR_RIGHT_CAM("REAR_RIGHT_CAM",
+                    kDefaultSingleTagStdDevs,
+                    kDefaultMultiTagStdDevs,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
+                    0,0,0,
+                    0,0,0
+                );
 
                 public final String name;
                 public final Transform3d offset;
-                private PhotonConfig(String name, double xInch, double yInch, double zInch, double rollDeg, double pitchDeg, double yawDeg) {
+                public final Matrix<N3,N1> defaultSingleTagStdDevs;
+                public final Matrix<N3,N1> defaultMultiTagStdDevs;
+                public final PoseStrategy multiTagPoseStrategy;
+                public final PoseStrategy singleTagPoseStrategy;
+                private PhotonConfig(
+                    String name, 
+                    Matrix<N3,N1> defaultSingleTagStdDevs,
+                    Matrix<N3,N1> defaultMultiTagStdDevs,
+                    PoseStrategy multiTagPoseStrategy,
+                    PoseStrategy singleTagPoseStrategy,
+                    double xInch, double yInch, double zInch, 
+                    double rollDeg, double pitchDeg, double yawDeg
+                ) {
                     this.name = name;
                     this.offset = new Transform3d(
                         Units.inchesToMeters(xInch),
@@ -68,6 +116,10 @@ public final class Constants {
                             Units.degreesToRadians(yawDeg)
                         )
                     );
+                    this.multiTagPoseStrategy = multiTagPoseStrategy;
+                    this.singleTagPoseStrategy = singleTagPoseStrategy;
+                    this.defaultMultiTagStdDevs = defaultMultiTagStdDevs;
+                    this.defaultSingleTagStdDevs = defaultSingleTagStdDevs;
                 }
             }
         }

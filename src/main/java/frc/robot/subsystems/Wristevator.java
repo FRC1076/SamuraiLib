@@ -34,9 +34,9 @@ public class Wristevator {
     public Command applyStateSafe(WristevatorState state, Supplier<Rotation2d> safeAngleSupplier) {
         return Commands.sequence(
             m_wrist.applyAngle(safeAngleSupplier.get()),
-            Commands.race(
+            Commands.deadline(
                 m_elevator.applyPosition(state.elevatorHeightMeters),
-                m_wrist.holdAngle(safeAngleSupplier.get())
+                m_wrist.holdAngle()
             ),
             m_wrist.applyAngle(state.wristAngle)
         );

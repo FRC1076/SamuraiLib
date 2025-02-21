@@ -193,11 +193,7 @@ public class DriveSubsystem extends SubsystemBase {
         }
 
         public Command directDriveToPose(Pose2d targetPose) {
-            return Commands.sequence(
-                Commands.runOnce(() -> vision.enableElevatorTrigPNP(true)),
-                new DirectDriveToPoseCommand(drive, targetPose),
-                Commands.runOnce(() -> vision.enableElevatorTrigPNP(false))
-            );
+            return new DirectDriveToPoseCommand(drive, targetPose);
         }
 
         public Command directDriveToNearestLeftBranch() {

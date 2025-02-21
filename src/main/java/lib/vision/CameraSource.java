@@ -16,7 +16,13 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 
 /** A generic interface for handling all camera objects */
-public interface CameraLocalizer {
+public interface CameraSource {
+
+    public static enum SourceType {
+        kPhotonVision,
+        kLimelight,
+        kOther
+    }
 
     public static record CommonPoseEstimate(
         Pose2d pose,
@@ -27,6 +33,4 @@ public interface CameraLocalizer {
     public abstract Optional<CommonPoseEstimate> getPoseEstimate();
 
     public abstract String getName();
-
-    public default void addHeadingSupplier(Supplier<Rotation2d> heading) {}
 }

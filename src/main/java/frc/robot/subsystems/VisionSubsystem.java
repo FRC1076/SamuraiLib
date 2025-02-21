@@ -23,15 +23,18 @@ import edu.wpi.first.math.numbers.N3;
 import frc.robot.Constants.SystemConstants;
 import frc.robot.Constants.VisionConstants.Photonvision.PhotonConfig;
 import frc.robot.utils.VirtualSubsystem;
+import frc.robot.utils.Visionhelpers;
 import lib.functional.TriConsumer;
-import lib.vision.PhotonVisionLocalizer;
+import lib.vision.PhotonVisionSource;
 import lib.vision.VisionLocalizationSystem;
 
 public class VisionSubsystem extends VirtualSubsystem {
     private final VisionLocalizationSystem m_localizationSystem;
 
-    private final PhotonVisionLocalizer LeftElevatorCameraLocalizer;
-    private final PhotonVisionLocalizer RightElevatorCameraLocalizer;
+    private final PhotonVisionSource LeftElevatorCamera;
+    private final PhotonVisionSource RightElevatorCamera;
+    private final PhotonVisionSource RearLeftCamera;
+    private final PhotonVisionSource RearRightCamera;
 
     private final VisionSystemSim sim;
 
@@ -41,53 +44,31 @@ public class VisionSubsystem extends VirtualSubsystem {
 
         m_localizationSystem = new VisionLocalizationSystem();
         this.poseSupplier = poseSupplier;
+
+        LeftElevatorCamera = Visionhelpers.buildPVSourceFromConfig(PhotonConfig.ELEVATOR_LEFT_CAM, () -> poseSupplier.get().getRotation());
+        RightElevatorCamera = Visionhelpers.buildPVSourceFromConfig(PhotonConfig.ELEVATOR_RIGHT_CAM, () -> poseSupplier.get().getRotation());
         
-        var lcam = new PhotonCamera(PhotonConfig.ELEVATOR_LEFT_CAM.name);
-        var lest = new PhotonPoseEstimator(
-            fieldLayout,
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            PhotonConfig.ELEVATOR_LEFT_CAM.offset
-        );
-        lest.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
-        LeftElevatorCameraLocalizer = new PhotonVisionLocalizer(
-            lcam,
-            lest,
-            kDefaultSingleTagStdDevs, 
-            kDefaultMultiTagStdDevs
-        );
-        var rcam = new PhotonCamera(PhotonConfig.ELEVATOR_LEFT_CAM.name);
-        var rest = new PhotonPoseEstimator(
-            fieldLayout,
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            PhotonConfig.ELEVATOR_LEFT_CAM.offset
-        );
-        rest.setMultiTagFallbackStrategy(PoseStrategy.AVERAGE_BEST_TARGETS);
-        RightElevatorCameraLocalizer = new PhotonVisionLocalizer(
-            rcam,
-            rest,
-            kDefaultSingleTagStdDevs, 
-            kDefaultMultiTagStdDevs
-        );
+        RearLeftCamera = Visionhelpers.buildPVSourceFromConfig(PhotonConfig.REAR_LEFT_CAM, () -> poseSupplier.get().getRotation());
+        RearRightCamera = Visionhelpers.buildPVSourceFromConfig(PhotonConfig.REAR_RIGHT_CAM, () -> poseSupplier.get().getRotation());
+
         if (SystemConstants.currentMode == 1) {
-            var lcamsim = new PhotonCameraSim(lcam);
-            var rcamsim = new PhotonCameraSim(rcam);
-            sim.addCamera(lcamsim,PhotonConfig.ELEVATOR_LEFT_CAM.offset);
-            sim.addCamera(rcamsim,PhotonConfig.ELEVATOR_RIGHT_CAM.offset);
         } else {
             sim = null;
         }
-
-        LeftElevatorCameraLocalizer.addHeadingSupplier(() -> poseSupplier.get().getRotation());
-        RightElevatorCameraLocalizer.addHeadingSupplier(() -> poseSupplier.get().getRotation());
-
-        m_localizationSystem.addCamera(LeftElevatorCameraLocalizer);
-        m_localizationSystem.addCamera(RightElevatorCameraLocalizer);
+        m_localizationSystem.addSource(LeftElevatorCamera);
+        m_localizationSystem.addSource(RightElevatorCamera);
+        m_localizationSystem.addSource(RearLeftCamera);
+        m_localizationSystem.addSource(RearRightCamera);
 
     }
 
     public VisionSubsystem withLocalizationConsumer(TriConsumer<Pose2d,Double,Matrix<N3,N1>> consumer) {
-        m_localizationSystem.registerMeasurementConsumer(consumer);
+        m_localizationSystem.addMeasurementConsumer(consumer);
         return this;
+    }
+
+    public void enableRearCameras(boolean enabled) {
+        m_localizationSystem.enableSources(enabled,"REAR_LEFT_CAMERA","REAR_RIGHT_CAMERA");
     }
 
     @Override
@@ -96,16 +77,5 @@ public class VisionSubsystem extends VirtualSubsystem {
             sim.update(poseSupplier.get());
         }
         m_localizationSystem.update();
-    }
-
-    /** Enables trig PNP solving algorithm on the elevator
-     * @param enabled whether or not trig estimation should be enabled in single-tag mode
-     */
-    public void enableElevatorTrigPNP(boolean enabled) {
-        LeftElevatorCameraLocalizer.setFallbackPoseStrategy(
-            enabled 
-                ? PoseStrategy.PNP_DISTANCE_TRIG_SOLVE 
-                : PoseStrategy.AVERAGE_BEST_TARGETS
-        );
     }
 }
