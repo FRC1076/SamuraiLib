@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-import java.util.Arrays;
-import java.util.List;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;

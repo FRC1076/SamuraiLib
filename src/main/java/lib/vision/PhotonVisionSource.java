@@ -13,6 +13,7 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.targeting.PhotonPipelineResult;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -31,13 +32,17 @@ public class PhotonVisionSource implements CameraSource {
 
     public PhotonVisionSource(
         PhotonCamera camera, 
-        PhotonPoseEstimator estimator,
+        Transform3d offset,
+        PhotonPoseEstimator.PoseStrategy primaryStrategy,
+        PhotonPoseEstimator.PoseStrategy multiTagFallbackStrategy,
+        AprilTagFieldLayout fieldLayout,
         Matrix<N3,N1> defaultSingleStdDevs,
         Matrix<N3,N1> defaultMultiStdDevs,
         Supplier<Rotation2d> headingSupplier
     ) {
         this.camera = camera;
-        this.poseEstimator = estimator;
+        this.poseEstimator = new PhotonPoseEstimator(fieldLayout, primaryStrategy, offset);
+        poseEstimator.setMultiTagFallbackStrategy(multiTagFallbackStrategy);
         this.defaultSingleStdDevs = defaultSingleStdDevs;
         this.defaultMultiStdDevs = defaultMultiStdDevs;
         this.headingSupplier = headingSupplier;

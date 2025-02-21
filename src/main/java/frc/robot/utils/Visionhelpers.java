@@ -16,15 +16,16 @@ public final class Visionhelpers {
     private Visionhelpers() {}
 
     public static final PhotonVisionSource buildPVSourceFromConfig(PhotonConfig config,Supplier<Rotation2d> headingSupplier) {
-        var est = new PhotonPoseEstimator(
-            fieldLayout, 
-            config.multiTagPoseStrategy,
-            config.offset
-        );
-        est.setMultiTagFallbackStrategy(config.singleTagPoseStrategy);
         var cam = new PhotonCamera(config.name);
         return new PhotonVisionSource(
-            cam, est, config.defaultSingleTagStdDevs, config.defaultMultiTagStdDevs, headingSupplier
+            cam, 
+            config.offset, 
+            config.multiTagPoseStrategy, 
+            config.singleTagPoseStrategy, 
+            fieldLayout, 
+            config.defaultSingleTagStdDevs, 
+            config.defaultMultiTagStdDevs, 
+            headingSupplier
         );
     }
 }

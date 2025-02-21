@@ -35,7 +35,8 @@ import frc.robot.subsystems.Superstructure.SuperstructureCommandFactory;
 import frc.robot.Constants.SystemConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.BeamBreakConstants;
-
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -185,6 +186,14 @@ public class RobotContainer {
 
         //Build the auto chooser with PathPlanner
         m_autoChooser = AutoBuilder.buildAutoChooser();
+        m_autoChooser.addOption(
+            "DoNothingBlue", 
+            Commands.runOnce(() -> m_drive.resetPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0))))
+        );
+        m_autoChooser.addOption(
+            "DoNothingRed", 
+            Commands.runOnce(() -> m_drive.resetPose(new Pose2d(0, 0, Rotation2d.fromDegrees(180))))
+        );
         SmartDashboard.putData(m_autoChooser);
     }
 

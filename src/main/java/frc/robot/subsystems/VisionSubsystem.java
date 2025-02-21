@@ -48,7 +48,6 @@ public class VisionSubsystem extends VirtualSubsystem {
 
         LeftElevatorCamera = Visionhelpers.buildPVSourceFromConfig(PhotonConfig.ELEVATOR_LEFT_CAM, () -> poseSupplier.get().getRotation());
         RightElevatorCamera = Visionhelpers.buildPVSourceFromConfig(PhotonConfig.ELEVATOR_RIGHT_CAM, () -> poseSupplier.get().getRotation());
-        
         RearLeftCamera = Visionhelpers.buildPVSourceFromConfig(PhotonConfig.REAR_LEFT_CAM, () -> poseSupplier.get().getRotation());
         RearRightCamera = Visionhelpers.buildPVSourceFromConfig(PhotonConfig.REAR_RIGHT_CAM, () -> poseSupplier.get().getRotation());
 
