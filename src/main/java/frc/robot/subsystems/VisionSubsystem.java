@@ -36,7 +36,7 @@ public class VisionSubsystem extends VirtualSubsystem {
     private final PhotonVisionSource RearLeftCamera;
     private final PhotonVisionSource RearRightCamera;
 
-    private final VisionSystemSim sim;
+    //private final VisionSystemSim sim;
 
     private final Supplier<Pose2d> poseSupplier;
 
@@ -51,10 +51,6 @@ public class VisionSubsystem extends VirtualSubsystem {
         RearLeftCamera = Visionhelpers.buildPVSourceFromConfig(PhotonConfig.REAR_LEFT_CAM, () -> poseSupplier.get().getRotation());
         RearRightCamera = Visionhelpers.buildPVSourceFromConfig(PhotonConfig.REAR_RIGHT_CAM, () -> poseSupplier.get().getRotation());
 
-        if (SystemConstants.currentMode == 1) {
-        } else {
-            sim = null;
-        }
         m_localizationSystem.addSource(LeftElevatorCamera);
         m_localizationSystem.addSource(RightElevatorCamera);
         m_localizationSystem.addSource(RearLeftCamera);
