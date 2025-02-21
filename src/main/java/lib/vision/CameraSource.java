@@ -5,13 +5,9 @@
 package lib.vision;
 
 import java.util.Optional;
-import java.util.function.Supplier;
-
-import org.photonvision.PhotonPoseEstimator;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 
