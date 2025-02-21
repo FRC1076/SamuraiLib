@@ -364,34 +364,51 @@ public class RobotContainer {
         final SuperstructureCommandFactory superstructureCommands = m_superstructure.getCommandBuilder();
         
         // L1
-        m_operatorController.x().whileTrue(superstructureCommands.preL1());
+        m_operatorController.x()
+        .and(m_operatorController.leftBumper().negate())
+            .whileTrue(superstructureCommands.preL1());
 
         // L2
-        m_operatorController.a().whileTrue(superstructureCommands.preL2());
+        m_operatorController.a()
+        .and(m_operatorController.leftBumper().negate())
+            .whileTrue(superstructureCommands.preL2());
 
         // L3
-        m_operatorController.b().whileTrue(superstructureCommands.preL3());
+        m_operatorController.b()
+            .and(m_operatorController.leftBumper().negate())
+            .whileTrue(superstructureCommands.preL3());
 
         // L4
-        m_operatorController.y().whileTrue(superstructureCommands.preL4());
+        m_operatorController.y()
+        .and(m_operatorController.leftBumper().negate())
+            .whileTrue(superstructureCommands.preL4());
 
         // Processor
-        m_operatorController.x().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.preProcessor());
+        m_operatorController.x()
+            .and(m_operatorController.leftBumper())
+            .whileTrue(superstructureCommands.preProcessor());
 
         // Low Algae Intake
-        m_operatorController.a().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.lowAlgaeIntake());
+        m_operatorController.a()
+            .and(m_operatorController.leftBumper())
+            .whileTrue(superstructureCommands.lowAlgaeIntake());
 
         // High Algae Intake
-        m_operatorController.b().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.highAlgaeIntake());
+        m_operatorController.b()
+            .and(m_operatorController.leftBumper())
+            .whileTrue(superstructureCommands.highAlgaeIntake());
 
         // Net
-        m_operatorController.y().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.preNet());
+        m_operatorController.y()
+            .and(m_operatorController.leftBumper())
+            .whileTrue(superstructureCommands.preNet());
 
         // Set default command for Indexer to continuously run
         //m_index.setDefaultCommand(superstructureCommands.indexCoral());
 
         // Coral Intake and transfer into Grabber
         m_operatorController.leftTrigger()
+            .and(m_operatorController.leftBumper().negate())
             .whileTrue(superstructureCommands.intakeCoral())
             .whileFalse(superstructureCommands.stopIntake());
 
