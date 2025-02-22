@@ -543,10 +543,17 @@ public final class Constants {
     }
 
     public static class LEDConstants {
-        // Digital input-output pins on the RIO
-        public static final int kDIOPort1 = 7;
-        public static final int kDIOPort2 = 8;
-        public static final int kDIOPort3 = 9;
+        /// Digital input-output pins on the RIO
+        public static class LEDDIOConstants {
+            public static final int kDIOPort1 = 7;
+            public static final int kDIOPort2 = 8;
+            public static final int kDIOPort3 = 9;
+        }
+
+        public static class LEDOnRIOConstants {
+            public static final int kPWMPort = 0;
+            public static final int kLength = 100;
+        }
 
         public static enum LEDStates {
             EMPTY(false, false, false),
