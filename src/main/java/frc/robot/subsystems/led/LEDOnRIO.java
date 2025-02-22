@@ -14,8 +14,26 @@ import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 
 public class LEDOnRIO implements LEDBase {
-    AddressableLED m_leds;
-    AddressableLEDBuffer m_buffer;
+    private final AddressableLED m_leds;
+    private final AddressableLEDBuffer m_buffer;
+
+    // LED patterns
+    private final LEDPattern solidPurple = LEDPattern
+        .solid(Color.kPurple)
+        .atBrightness(Percent.of(LEDOnRIOConstants.kEmptyStateBrightness));
+    private final LEDPattern flashingPurple = LEDPattern
+        .solid(Color.kPurple)
+        .atBrightness(Percent.of(LEDOnRIOConstants.kFlashingStateBrightness))
+        .blink(Seconds.of(LEDOnRIOConstants.kFlashSeconds));
+    private final LEDPattern flashingWhite = LEDPattern
+        .solid(Color.kWhite)
+        .atBrightness(Percent.of(LEDOnRIOConstants.kFlashingStateBrightness))
+        .blink(Seconds.of(LEDOnRIOConstants.kFlashSeconds));
+    private final LEDPattern flashingGreen = LEDPattern
+        .solid(Color.kGreen)
+        .atBrightness(Percent.of(LEDOnRIOConstants.kFlashingStateBrightness))
+        .blink(Seconds.of(LEDOnRIOConstants.kFlashSeconds));
+
 
     public LEDOnRIO() {
         m_leds = new AddressableLED(LEDOnRIOConstants.kPWMPort);
@@ -24,6 +42,7 @@ public class LEDOnRIO implements LEDBase {
         // Setting the length is intensive, so ONLY update data after this
         m_leds.setLength(m_buffer.getLength());
 
+        solidPurple.applyTo(m_buffer); // Start at solid purple
         m_leds.setData(m_buffer);
         m_leds.start();
     }
@@ -32,30 +51,19 @@ public class LEDOnRIO implements LEDBase {
     public void setState(LEDStates state) {
         if(state == LEDStates.EMPTY) {
             // Solid purple
-            LEDPattern.solid(Color.kPurple)
-                .atBrightness(Percent.of(LEDOnRIOConstants.kEmptyStateBrightness))
-                .applyTo(m_buffer);
+            solidPurple.applyTo(m_buffer);
             m_leds.setData(m_buffer);
         } else if (state == LEDStates.CORAL_INDEX) {
             // Flashing purple
-            LEDPattern.solid(Color.kPurple)
-                .atBrightness(Percent.of(LEDOnRIOConstants.kFlashingStateBrightness))
-                .blink(Seconds.of(LEDOnRIOConstants.kFlashSeconds))
-                .applyTo(m_buffer);
+            flashingPurple.applyTo(m_buffer);
             m_leds.setData(m_buffer);
         } else if (state == LEDStates.CORAL_GRABBER) {
             // Flashing white
-            LEDPattern.solid(Color.kWhite)
-                .atBrightness(Percent.of(LEDOnRIOConstants.kFlashingStateBrightness))
-                .blink(Seconds.of(LEDOnRIOConstants.kFlashSeconds))
-                .applyTo(m_buffer);
+            flashingWhite.applyTo(m_buffer);
             m_leds.setData(m_buffer);
         } else if (state == LEDStates.ALGAE) {
             // Flashing green
-            LEDPattern.solid(Color.kGreen)
-                .atBrightness(Percent.of(LEDOnRIOConstants.kFlashingStateBrightness))
-                .blink(Seconds.of(LEDOnRIOConstants.kFlashSeconds))
-                .applyTo(m_buffer);
+            flashingGreen.applyTo(m_buffer);
             m_leds.setData(m_buffer);
         }
     }
