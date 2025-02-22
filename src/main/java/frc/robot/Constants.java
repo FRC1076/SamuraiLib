@@ -459,8 +459,8 @@ public final class Constants {
     }
 
     public static final class GrabberConstants {
-        public static final int kLeftMotorPort = 61;
-        public static final int kRightMotorPort = 62;
+        public static final int kLeftMotorPort = 41;
+        public static final int kRightMotorPort = 42;
         
         public static final double kCurrentLimit = 40; 
 
@@ -469,8 +469,7 @@ public final class Constants {
     }
 
     public static class WristConstants {
-        public static final int kLeadMotorPort = 42; // Left motor consistent with drivetrain left side
-        public static final int kFollowMotorPort = 41; // Right motor consistent with drivetrain right side
+        public static final int kLeadMotorPort = 61; // Left motor consistent with drivetrain left side
 
         public static final double wristAngleToleranceRadians = Units.degreesToRadians(2);
         public static final double kMinWristAngleRadians = Units.degreesToRadians(-90);
@@ -480,7 +479,6 @@ public final class Constants {
         public static final double kSmartCurrentLimit = 60.0;
 
         public static final boolean kLeadMotorInverted = true;
-        public static final boolean kFollowMotorInverted = false;
 
         // Source: https://docs.revrobotics.com/brushless/spark-max/encoders/alternate-encoder
         public static final int kCountsPerRevolution = 8192;
