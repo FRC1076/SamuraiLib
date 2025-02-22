@@ -159,12 +159,12 @@ public class RobotContainer {
                 m_vision.addCamera(new PhotonVisionLocalizer(
                     cam, 
                     config.offset,
-                    config.primaryStrategy,
-                    config.multiTagFallbackStrategy,
-                    m_drive.getPose()::getRotation,
+                    config.multiTagPoseStrategy,
+                    config.singleTagPoseStrategy,
+                    () -> m_drive.getPose().getRotation(),
                     fieldLayout,
-                    kDefaultSingleTagStdDevs, 
-                    kDefaultMultiTagStdDevs)
+                    config.defaultSingleTagStdDevs, 
+                    config.defaultMultiTagStdDevs)
                 );
             }
         } else if (SystemConstants.currentMode == 1) {
@@ -183,9 +183,9 @@ public class RobotContainer {
                 m_vision.addCamera(new PhotonVisionLocalizer(
                     cam, 
                     config.offset,
-                    config.primaryStrategy,
-                    config.multiTagFallbackStrategy,
-                    m_drive.getPose()::getRotation,
+                    config.multiTagPoseStrategy,
+                    config.singleTagPoseStrategy,
+                    () -> m_drive.getPose().getRotation(),
                     fieldLayout,
                     kDefaultSingleTagStdDevs, 
                     kDefaultMultiTagStdDevs)

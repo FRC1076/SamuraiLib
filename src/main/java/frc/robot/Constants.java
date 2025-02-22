@@ -9,10 +9,12 @@ import java.util.List;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -38,7 +40,7 @@ import org.apache.commons.lang3.NotImplementedException;
  */
 public final class Constants {
     
-    public static class VisionConstants {
+     public static class VisionConstants {
         public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
         public static class Photonvision {
 
@@ -53,30 +55,56 @@ public final class Constants {
                 //TODO: Coordinates may be negative
                 ELEVATOR_LEFT_CAM(
                     "ELEVATOR_LEFT_CAM", 
+                    kDefaultSingleTagStdDevs,
+                    kDefaultMultiTagStdDevs,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
                     2.892, 7.163, 19.162, 
-                    11.385, 17.961, 40),
+                    11.385, 17.961, 40
+                ),
                 ELEVATOR_RIGHT_CAM(
                     "ELEVATOR_RIGHT_CAM",
+                    kDefaultSingleTagStdDevs,
+                    kDefaultMultiTagStdDevs,
                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE, 
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
                     2.982, -7.163, 19.162, 
-                    -11.385, 17.961, -40);
+                    -11.385, 17.961, -40
+                ),
+                REAR_LEFT_CAM(
+                    "REAR_LEFT_CAM",
+                    kDefaultSingleTagStdDevs,
+                    kDefaultMultiTagStdDevs,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
+                    0,0,0,
+                    0,0,0
+                ),
+                REAR_RIGHT_CAM("REAR_RIGHT_CAM",
+                    kDefaultSingleTagStdDevs,
+                    kDefaultMultiTagStdDevs,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
+                    0,0,0,
+                    0,0,0
+                );
 
                 public final String name;
                 public final Transform3d offset;
-                public final PoseStrategy primaryStrategy;
-                public final PoseStrategy multiTagFallbackStrategy;
+                public final Matrix<N3,N1> defaultSingleTagStdDevs;
+                public final Matrix<N3,N1> defaultMultiTagStdDevs;
+                public final PoseStrategy multiTagPoseStrategy;
+                public final PoseStrategy singleTagPoseStrategy;
                 private PhotonConfig(
-                    String name,
-                    PoseStrategy primaryStrategy,
-                    PoseStrategy multiTagFallbackStrategy,
+                    String name, 
+                    Matrix<N3,N1> defaultSingleTagStdDevs,
+                    Matrix<N3,N1> defaultMultiTagStdDevs,
+                    PoseStrategy multiTagPoseStrategy,
+                    PoseStrategy singleTagPoseStrategy,
                     double xInch, double yInch, double zInch, 
-                    double rollDeg, double pitchDeg, double yawDeg) {
+                    double rollDeg, double pitchDeg, double yawDeg
+                ) {
                     this.name = name;
-                    this.primaryStrategy = primaryStrategy;
-                    this.multiTagFallbackStrategy = multiTagFallbackStrategy;
                     this.offset = new Transform3d(
                         Units.inchesToMeters(xInch),
                         Units.inchesToMeters(yInch),
@@ -87,11 +115,15 @@ public final class Constants {
                             Units.degreesToRadians(yawDeg)
                         )
                     );
+                    this.multiTagPoseStrategy = multiTagPoseStrategy;
+                    this.singleTagPoseStrategy = singleTagPoseStrategy;
+                    this.defaultMultiTagStdDevs = defaultMultiTagStdDevs;
+                    this.defaultSingleTagStdDevs = defaultSingleTagStdDevs;
                 }
             }
         }
     }
-    
+  
     /** Contains starting position and team */
     public static class GameConstants {
 
