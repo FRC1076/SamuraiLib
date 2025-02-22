@@ -59,22 +59,22 @@ public class GrabberSubsystem extends SubsystemBase{
     }
 
     /**
-     * NOTE: ROTATIONS ARE RELATIVE, CONTROL IS BASED OFF THE LEFT MOTOR'S ENCODER
+     * NOTE: RADIANS ARE RELATIVE, CONTROL IS BASED OFF THE LEFT MOTOR'S ENCODER
      * @param volts
-     * @param rotations
+     * @param radians
      * @return
      *  a command that applies a certain number of rotations to the grabber via a simple Bang-Bang controller.
      */
-    public Command applyRotations(double volts, double rotations) {
-        double setpoint = inputs.leftMotorRotations + rotations;
-        boolean positiveDirection = (setpoint > inputs.leftMotorRotations);
+    public Command applyRotationsBangBang(double volts, double radians) {
+        double setpoint = inputs.motorPositionRadians + radians;
+        boolean positiveDirection = (setpoint > inputs.motorPositionRadians);
         return new FunctionalCommand(
-            () -> {},
             () -> runVolts(volts),
-            (interrupted) -> runVolts(0),
+            () -> {},
+            (interrupted) -> stop(),
             positiveDirection 
-                ? () -> inputs.leftMotorRotations >= setpoint
-                : () -> inputs.leftMotorRotations <= setpoint
+                ? () -> inputs.motorPositionRadians >= setpoint
+                : () -> inputs.motorPositionRadians <= setpoint
         );
         
     }

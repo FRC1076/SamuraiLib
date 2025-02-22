@@ -18,8 +18,7 @@ public class GrabberIOHardware implements GrabberIO{
     private final SparkMax m_leftMotor;
     private final SparkMax m_rightMotor;
 
-    private final RelativeEncoder m_leftEncoder;
-    private final RelativeEncoder m_rightEncoder;
+    private final RelativeEncoder m_encoder;
 
     private final SparkMaxConfig m_leftMotorConfig;
     private final SparkMaxConfig m_rightMotorConfig;
@@ -29,15 +28,17 @@ public class GrabberIOHardware implements GrabberIO{
         m_leftMotor = new SparkMax(GrabberConstants.kLeftMotorPort, MotorType.kBrushless);
         m_rightMotor = new SparkMax(GrabberConstants.kRightMotorPort, MotorType.kBrushless);
 
-        m_leftEncoder = m_leftMotor.getEncoder();
-        m_rightEncoder = m_rightMotor.getEncoder();
+        m_encoder = m_leftMotor.getEncoder();
 
         m_leftMotorConfig = new SparkMaxConfig();
         m_rightMotorConfig = new SparkMaxConfig();
 
         m_leftMotorConfig
             .smartCurrentLimit((int) GrabberConstants.kCurrentLimit)
-            .inverted(GrabberConstants.kLeftMotorInverted);
+            .inverted(GrabberConstants.kLeftMotorInverted)
+        .encoder
+            .positionConversionFactor(GrabberConstants.kPositionConversionFactor);
+            
         m_rightMotorConfig
             .smartCurrentLimit((int) GrabberConstants.kCurrentLimit)
             .inverted(GrabberConstants.kRightMotorInverted);
@@ -69,7 +70,6 @@ public class GrabberIOHardware implements GrabberIO{
         inputs.rightMotorAppliedVoltage = m_rightMotor.getAppliedOutput() * m_rightMotor.getBusVoltage();
         inputs.rightMotorCurrent = m_rightMotor.getOutputCurrent();
 
-        inputs.leftMotorRotations = m_leftEncoder.getPosition(); //This is used for bang-bang control
-        inputs.rightMotorRotations = m_rightEncoder.getPosition();
+        inputs.motorPositionRadians = m_encoder.getPosition(); //This is used for bang-bang control
     }
 }
