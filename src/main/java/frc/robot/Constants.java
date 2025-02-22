@@ -571,9 +571,8 @@ public final class Constants {
     }
 
     public static class BeamBreakConstants{
-        public static final int indexBeamBreakPort = 0;
-        public static final int transferBeamBreakPort = 1;
-        public static final int grabberBeamBreakPort = 2;
+        public static final int indexBeamBreakPort = 4;
+        public static final int transferBeamBreakPort = 0;
     }
 
     public static class LEDConstants {

@@ -89,7 +89,6 @@ public class RobotContainer {
     private final IndexSubsystem m_index;
     private final Trigger m_indexBeamBreak;
     private final Trigger m_transferBeamBreak;
-    private final Trigger m_grabberBeamBreak;
     private final Trigger m_interruptElevator;
     private final Trigger m_interruptWrist;
     private final Superstructure m_superstructure;
@@ -135,10 +134,8 @@ public class RobotContainer {
     */
         DigitalInput indexDIO = new DigitalInput(BeamBreakConstants.indexBeamBreakPort);
         DigitalInput transferDIO = new DigitalInput(BeamBreakConstants.transferBeamBreakPort);
-        DigitalInput grabberDIO = new DigitalInput(BeamBreakConstants.grabberBeamBreakPort);
         m_indexBeamBreak = new Trigger(() -> {return ! indexDIO.get();});//.or(m_beamBreakController.a());
         m_transferBeamBreak = new Trigger(() -> {return ! transferDIO.get();});//.or(m_beamBreakController.x());
-        m_grabberBeamBreak = new Trigger(() -> {return ! grabberDIO.get();});//.or(m_beamBreakController.y());
         m_interruptElevator = new Trigger(() -> m_operatorController.getLeftY() != 0);
         m_interruptWrist = new Trigger(() -> m_operatorController.getRightY() != 0);
 
@@ -204,7 +201,7 @@ public class RobotContainer {
             m_LEDs,
             m_indexBeamBreak, 
             m_transferBeamBreak, 
-            m_grabberBeamBreak
+            () -> false
         );
 
         superVis = new SuperstructureVisualizer(m_superstructure);
@@ -436,9 +433,6 @@ public class RobotContainer {
             m_superstructure.CommandBuilder.updatePossessionAndKg()
         );
         
-        m_grabberBeamBreak.onChange(
-            m_superstructure.CommandBuilder.updatePossessionAndKg()
-        );
     }
 
   /**
