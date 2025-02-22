@@ -494,7 +494,7 @@ public final class Constants {
         public static final int kLeftMotorPort = 41;
         public static final int kRightMotorPort = 42;
         
-        public static final double kCurrentLimit = 40; 
+        public static final double kCurrentLimit = 10; 
         public static final double kGearRatio = 45;
         public static final double kPositionConversionFactor = Math.PI * 2 * (1/kGearRatio);
 
@@ -510,7 +510,7 @@ public final class Constants {
         public static final double kMaxWristAngleRadians = Units.degreesToRadians(90);
 
         public static final double maxOperatorControlVolts = 1;
-        public static final double kSmartCurrentLimit = 60.0;
+        public static final double kSmartCurrentLimit = 15.0;
 
         public static final boolean kLeadMotorInverted = true;
 
