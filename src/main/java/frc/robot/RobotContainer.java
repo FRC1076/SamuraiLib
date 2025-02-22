@@ -283,7 +283,9 @@ public class RobotContainer {
         );*/
 
         // Point to reef
-        m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
+        m_driverController.a().whileTrue(
+            m_grabber.applyRotationsBangBang(4,4 * Math.PI)
+        );
 
         // Apply single clutch
         m_driverController.rightBumper().and(m_driverController.leftBumper().negate())
