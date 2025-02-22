@@ -18,6 +18,9 @@ public interface GrabberIO {
 
         public double rightMotorAppliedVoltage = 0;
         public double rightMotorCurrent = 0;
+
+        public double leftMotorRotations = 0;
+        public double rightMotorRotations = 0;
     }
 
     /** Update values for logging */

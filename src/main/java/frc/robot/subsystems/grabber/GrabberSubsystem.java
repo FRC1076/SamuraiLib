@@ -4,7 +4,9 @@
 
 package frc.robot.subsystems.grabber;
 
+import edu.wpi.first.math.controller.BangBangController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import org.littletonrobotics.junction.Logger;
@@ -54,6 +56,27 @@ public class GrabberSubsystem extends SubsystemBase{
     */
     public Command applyDifferentialVolts(double leftMotorVolts, double rightMotorVolts) {
         return runOnce(() -> runVoltsDifferential(leftMotorVolts, rightMotorVolts));
+    }
+
+    /**
+     * NOTE: ROTATIONS ARE RELATIVE, CONTROL IS BASED OFF THE LEFT MOTOR'S ENCODER
+     * @param volts
+     * @param rotations
+     * @return
+     *  a command that applies a certain number of rotations to the grabber via a simple Bang-Bang controller.
+     */
+    public Command applyRotations(double volts, double rotations) {
+        double setpoint = inputs.leftMotorRotations + rotations;
+        boolean positiveDirection = (setpoint > inputs.leftMotorRotations);
+        return new FunctionalCommand(
+            () -> {},
+            () -> runVolts(volts),
+            (interrupted) -> runVolts(0),
+            positiveDirection 
+                ? () -> inputs.leftMotorRotations >= setpoint
+                : () -> inputs.leftMotorRotations <= setpoint
+        );
+        
     }
     
 }

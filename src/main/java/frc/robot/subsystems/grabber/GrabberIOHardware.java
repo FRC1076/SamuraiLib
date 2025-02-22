@@ -6,7 +6,9 @@ package frc.robot.subsystems.grabber;
 
 import frc.robot.Constants.GrabberConstants;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkRelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -16,6 +18,9 @@ public class GrabberIOHardware implements GrabberIO{
     private final SparkMax m_leftMotor;
     private final SparkMax m_rightMotor;
 
+    private final RelativeEncoder m_leftEncoder;
+    private final RelativeEncoder m_rightEncoder;
+
     private final SparkMaxConfig m_leftMotorConfig;
     private final SparkMaxConfig m_rightMotorConfig;
 
@@ -23,6 +28,9 @@ public class GrabberIOHardware implements GrabberIO{
         // motor port constant is currently unknown. Change when known.
         m_leftMotor = new SparkMax(GrabberConstants.kLeftMotorPort, MotorType.kBrushless);
         m_rightMotor = new SparkMax(GrabberConstants.kRightMotorPort, MotorType.kBrushless);
+
+        m_leftEncoder = m_leftMotor.getEncoder();
+        m_rightEncoder = m_rightMotor.getEncoder();
 
         m_leftMotorConfig = new SparkMaxConfig();
         m_rightMotorConfig = new SparkMaxConfig();
@@ -60,5 +68,8 @@ public class GrabberIOHardware implements GrabberIO{
         
         inputs.rightMotorAppliedVoltage = m_rightMotor.getAppliedOutput() * m_rightMotor.getBusVoltage();
         inputs.rightMotorCurrent = m_rightMotor.getOutputCurrent();
+
+        inputs.leftMotorRotations = m_leftEncoder.getPosition(); //This is used for bang-bang control
+        inputs.rightMotorRotations = m_rightEncoder.getPosition();
     }
 }
