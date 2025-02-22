@@ -53,14 +53,14 @@ public final class Constants {
                 //TODO: Coordinates may be negative
                 ELEVATOR_LEFT_CAM(
                     "ELEVATOR_LEFT_CAM", 
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                     PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
-                    PoseStrategy.LOWEST_AMBIGUITY,
                     2.892, 7.163, 19.162, 
                     11.385, 17.961, 40),
                 ELEVATOR_RIGHT_CAM(
                     "ELEVATOR_RIGHT_CAM",
-                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
-                    PoseStrategy.LOWEST_AMBIGUITY, 
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE, 
                     2.982, -7.163, 19.162, 
                     -11.385, 17.961, -40);
 
