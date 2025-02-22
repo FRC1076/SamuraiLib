@@ -33,28 +33,28 @@ public class LEDOnRIO implements LEDBase {
         if(state == LEDStates.EMPTY) {
             // Solid purple
             LEDPattern.solid(Color.kPurple)
-                .atBrightness(Percent.of(50))
+                .atBrightness(Percent.of(LEDOnRIOConstants.kEmptyStateBrightness))
                 .applyTo(m_buffer);
             m_leds.setData(m_buffer);
         } else if (state == LEDStates.CORAL_INDEX) {
             // Flashing purple
             LEDPattern.solid(Color.kPurple)
-                .atBrightness(Percent.of(100))
-                .blink(Seconds.of(0.75))
+                .atBrightness(Percent.of(LEDOnRIOConstants.kFlashingStateBrightness))
+                .blink(Seconds.of(LEDOnRIOConstants.kFlashSeconds))
                 .applyTo(m_buffer);
             m_leds.setData(m_buffer);
         } else if (state == LEDStates.CORAL_GRABBER) {
             // Flashing white
             LEDPattern.solid(Color.kWhite)
-                .atBrightness(Percent.of(100))
-                .blink(Seconds.of(0.75))
+                .atBrightness(Percent.of(LEDOnRIOConstants.kFlashingStateBrightness))
+                .blink(Seconds.of(LEDOnRIOConstants.kFlashSeconds))
                 .applyTo(m_buffer);
             m_leds.setData(m_buffer);
         } else if (state == LEDStates.ALGAE) {
             // Flashing green
             LEDPattern.solid(Color.kGreen)
-                .atBrightness(Percent.of(100))
-                .blink(Seconds.of(0.75))
+                .atBrightness(Percent.of(LEDOnRIOConstants.kFlashingStateBrightness))
+                .blink(Seconds.of(LEDOnRIOConstants.kFlashSeconds))
                 .applyTo(m_buffer);
             m_leds.setData(m_buffer);
         }
