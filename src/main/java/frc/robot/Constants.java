@@ -267,11 +267,11 @@ public final class Constants {
             IDLE(0, 0),
             
             ALGAE_INTAKE(-12, -12),
-            CORAL_INTAKE(5, 5),
+            CORAL_INTAKE(12, 12),
 
-            ALGAE_OUTTAKE(6, 6),
-            CORAL_OUTTAKE(10.5, 10.5),
-            DEFAULT_OUTTAKE(10.5, 10.5);
+            ALGAE_OUTTAKE(12, 12),
+            CORAL_OUTTAKE(12, 12),
+            DEFAULT_OUTTAKE(12, 12);
 
             public final double leftVoltage;
             public final double rightVoltage;
@@ -285,8 +285,8 @@ public final class Constants {
         // Index State
         public enum IndexState {
             EMPTY_IDLE(false, 0),
-            CORAL_INTAKE(true, 6),
-            CORAL_TRANSFER(true, 6),
+            CORAL_INTAKE(true, 12),
+            CORAL_TRANSFER(true, 12),
             CORAL_IDLE(false, 0);
             public final boolean running; // Whether or not the indexer motors are running
             public final double volts;
