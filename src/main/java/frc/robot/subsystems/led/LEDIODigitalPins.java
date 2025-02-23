@@ -7,6 +7,7 @@
 package frc.robot.subsystems.led;
 
 import frc.robot.Constants.LEDConstants;
+import frc.robot.Constants.LEDConstants.LEDDIOConstants;
 import frc.robot.Constants.LEDConstants.LEDStates;
 
 import edu.wpi.first.wpilibj.DigitalOutput;
@@ -20,9 +21,9 @@ public class LEDIODigitalPins implements LEDBase {
 
     /** Instantiate each digital pin, using integer constants for the channel */
     public LEDIODigitalPins() {
-        m_pin1 = new DigitalOutput(LEDConstants.kDIOPort1);
-        m_pin2 = new DigitalOutput(LEDConstants.kDIOPort2);
-        m_pin3 = new DigitalOutput(LEDConstants.kDIOPort3);
+        m_pin1 = new DigitalOutput(LEDDIOConstants.kDIOPort1);
+        m_pin2 = new DigitalOutput(LEDDIOConstants.kDIOPort2);
+        m_pin3 = new DigitalOutput(LEDDIOConstants.kDIOPort3);
     }
 
     /** Overrides the method in LEDIO.java so it actually does something.

@@ -9,10 +9,12 @@ import java.util.List;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -24,7 +26,7 @@ import edu.wpi.first.math.util.Units;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
 
-import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -38,7 +40,7 @@ import org.apache.commons.lang3.NotImplementedException;
  */
 public final class Constants {
     
-    public static class VisionConstants {
+     public static class VisionConstants {
         public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
         public static class Photonvision {
 
@@ -50,13 +52,58 @@ public final class Constants {
 
             /** Contains configs for all photonvision localization cameras */
             public static enum PhotonConfig {
-                //TODO: Coordinates may be negative
-                ELEVATOR_LEFT_CAM("ELEVATOR_LEFT_CAM", 15 - 7.163, 15 - 2.892, 19.162, 11.385, 17.961, -40),
-                ELEVATOR_RIGHT_CAM("ELEVATOR_RIGHT_CAM",  15 - 7.163, -(15 - 2.892), 19.162, -11.385, 17.961, 40);
+                
+                ELEVATOR_LEFT_CAM(
+                    "ELEVATOR_LEFT_CAM", 
+                    kDefaultSingleTagStdDevs,
+                    kDefaultMultiTagStdDevs,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
+                    15 - 7.163, 15 - 2.892, 19.162, // 2.892, 7.163, 19.162, 
+                    11.385, 17.961, -40 //11.385, 17.961, 40
+                ),
+                ELEVATOR_RIGHT_CAM(
+                    "ELEVATOR_RIGHT_CAM",
+                    kDefaultSingleTagStdDevs,
+                    kDefaultMultiTagStdDevs,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
+                    15 - 7.163, -(15 - 2.892), 19.162, //2.982, -7.163, 19.162, 
+                    -11.385, 17.961, 40 //-11.385, 17.961, -40
+                ),
+                REAR_LEFT_CAM(
+                    "REAR_LEFT_CAM",
+                    kDefaultSingleTagStdDevs,
+                    kDefaultMultiTagStdDevs,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
+                    0,0,0,
+                    0,0,0
+                ),
+                REAR_RIGHT_CAM("REAR_RIGHT_CAM",
+                    kDefaultSingleTagStdDevs,
+                    kDefaultMultiTagStdDevs,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
+                    0,0,0,
+                    0,0,0
+                );
 
                 public final String name;
                 public final Transform3d offset;
-                private PhotonConfig(String name, double xInch, double yInch, double zInch, double rollDeg, double pitchDeg, double yawDeg) {
+                public final Matrix<N3,N1> defaultSingleTagStdDevs;
+                public final Matrix<N3,N1> defaultMultiTagStdDevs;
+                public final PoseStrategy multiTagPoseStrategy;
+                public final PoseStrategy singleTagPoseStrategy;
+                private PhotonConfig(
+                    String name, 
+                    Matrix<N3,N1> defaultSingleTagStdDevs,
+                    Matrix<N3,N1> defaultMultiTagStdDevs,
+                    PoseStrategy multiTagPoseStrategy,
+                    PoseStrategy singleTagPoseStrategy,
+                    double xInch, double yInch, double zInch, 
+                    double rollDeg, double pitchDeg, double yawDeg
+                ) {
                     this.name = name;
                     this.offset = new Transform3d(
                         Units.inchesToMeters(xInch),
@@ -68,11 +115,15 @@ public final class Constants {
                             Units.degreesToRadians(yawDeg)
                         )
                     );
+                    this.multiTagPoseStrategy = multiTagPoseStrategy;
+                    this.singleTagPoseStrategy = singleTagPoseStrategy;
+                    this.defaultMultiTagStdDevs = defaultMultiTagStdDevs;
+                    this.defaultSingleTagStdDevs = defaultSingleTagStdDevs;
                 }
             }
         }
     }
-    
+  
     /** Contains starting position and team */
     public static class GameConstants {
 
@@ -216,11 +267,11 @@ public final class Constants {
             IDLE(0, 0),
             
             ALGAE_INTAKE(-12, -12),
-            CORAL_INTAKE(5, 5),
+            CORAL_INTAKE(12, 12),
 
-            ALGAE_OUTTAKE(6, 6),
-            CORAL_OUTTAKE(10.5, 10.5),
-            DEFAULT_OUTTAKE(10.5, 10.5);
+            ALGAE_OUTTAKE(12, 12),
+            CORAL_OUTTAKE(12, 12),
+            DEFAULT_OUTTAKE(12, 12);
 
             public final double leftVoltage;
             public final double rightVoltage;
@@ -234,8 +285,8 @@ public final class Constants {
         // Index State
         public enum IndexState {
             EMPTY_IDLE(false, 0),
-            CORAL_INTAKE(true, 6),
-            CORAL_TRANSFER(true, 6),
+            CORAL_INTAKE(true, 12),
+            CORAL_TRANSFER(true, 12),
             CORAL_IDLE(false, 0);
             public final boolean running; // Whether or not the indexer motors are running
             public final double volts;
@@ -440,18 +491,19 @@ public final class Constants {
     }
 
     public static final class GrabberConstants {
-        public static final int kLeftMotorPort = 61;
-        public static final int kRightMotorPort = 62;
+        public static final int kLeftMotorPort = 41;
+        public static final int kRightMotorPort = 42;
         
         public static final double kCurrentLimit = 40; 
+        public static final double kGearRatio = 45;
+        public static final double kPositionConversionFactor = Math.PI * 2 * (1/kGearRatio);
 
         public static final boolean kLeftMotorInverted = false;
         public static final boolean kRightMotorInverted = true;
     }
 
     public static class WristConstants {
-        public static final int kLeadMotorPort = 42; // Left motor consistent with drivetrain left side
-        public static final int kFollowMotorPort = 41; // Right motor consistent with drivetrain right side
+        public static final int kLeadMotorPort = 61; // Left motor consistent with drivetrain left side
 
         public static final double wristAngleToleranceRadians = Units.degreesToRadians(2);
         public static final double kMinWristAngleRadians = Units.degreesToRadians(-90);
@@ -461,7 +513,6 @@ public final class Constants {
         public static final double kSmartCurrentLimit = 60.0;
 
         public static final boolean kLeadMotorInverted = true;
-        public static final boolean kFollowMotorInverted = false;
 
         // Source: https://docs.revrobotics.com/brushless/spark-max/encoders/alternate-encoder
         public static final int kCountsPerRevolution = 8192;
@@ -520,16 +571,26 @@ public final class Constants {
     }
 
     public static class BeamBreakConstants{
-        public static final int indexBeamBreakPort = 0;
-        public static final int transferBeamBreakPort = 1;
-        public static final int grabberBeamBreakPort = 2;
+        public static final int indexBeamBreakPort = 4;
+        public static final int transferBeamBreakPort = 0;
     }
 
     public static class LEDConstants {
-        // Digital input-output pins on the RIO
-        public static final int kDIOPort1 = 7;
-        public static final int kDIOPort2 = 8;
-        public static final int kDIOPort3 = 9;
+        /// Digital input-output pins on the RIO
+        public static class LEDDIOConstants {
+            public static final int kDIOPort1 = 7;
+            public static final int kDIOPort2 = 8;
+            public static final int kDIOPort3 = 9;
+        }
+
+        public static class LEDOnRIOConstants {
+            public static final int kPWMPort = 0;
+            public static final int kLength = 100;
+
+            public static final double kFlashSeconds = 0.75;
+            public static final int kEmptyStateBrightness = 50;
+            public static final int kFlashingStateBrightness = 100;
+        }
 
         public static enum LEDStates {
             EMPTY(false, false, false),

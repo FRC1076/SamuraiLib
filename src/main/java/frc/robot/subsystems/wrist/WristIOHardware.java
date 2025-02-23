@@ -10,7 +10,9 @@ import static frc.robot.Constants.WristSimConstants.Control.*;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkMaxAlternateEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -24,20 +26,14 @@ public class WristIOHardware implements WristIO {
     );
 
     private final SparkMax m_leadMotor;
-    private final SparkMax m_followMotor;
 
     private final SparkMaxConfig m_leadMotorConfig;
-    private final SparkMaxConfig m_followMotorConfig;
-
-    private final RelativeEncoder m_alternateEncoder;
-
+    private final SparkAbsoluteEncoder m_absoluteEncoder;
 
     public WristIOHardware() {
         m_leadMotor = new SparkMax(WristConstants.kLeadMotorPort, MotorType.kBrushless);
-        m_followMotor = new SparkMax(WristConstants.kFollowMotorPort, MotorType.kBrushless);
 
         m_leadMotorConfig = new SparkMaxConfig();
-        m_followMotorConfig = new SparkMaxConfig();
         
 
         // create motor configurations
@@ -47,16 +43,11 @@ public class WristIOHardware implements WristIO {
             .smartCurrentLimit((int) WristConstants.kSmartCurrentLimit);
 
 
-        m_leadMotorConfig.alternateEncoder
+        m_leadMotorConfig.absoluteEncoder
             .setSparkMaxDataPortConfig()
-            .countsPerRevolution(WristConstants.kCountsPerRevolution)
+            //.countsPerRevolution(WristConstants.kCountsPerRevolution)
             .positionConversionFactor(WristConstants.kPositionConversionFactor)
             .velocityConversionFactor(WristConstants.kVelocityConversionFactor);
-            
-
-        m_followMotorConfig
-            .follow(m_leadMotor, WristConstants.kFollowMotorInverted != WristConstants.kLeadMotorInverted)
-            .idleMode(IdleMode.kBrake);
         
         m_leadMotorConfig.encoder
             .positionConversionFactor(WristConstants.kPositionConversionFactor)
@@ -64,10 +55,8 @@ public class WristIOHardware implements WristIO {
 
         // configure motors
         m_leadMotor.configure(m_leadMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-        m_followMotor.configure(m_followMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
-        m_alternateEncoder = m_leadMotor.getEncoder();
-        m_alternateEncoder.setPosition(Rotation2d.kCCW_90deg.getRadians());
+        m_absoluteEncoder = m_leadMotor.getAbsoluteEncoder();
 
     }
 
@@ -85,9 +74,8 @@ public class WristIOHardware implements WristIO {
     public void updateInputs(WristIOInputs inputs) {
         inputs.appliedVolts = m_leadMotor.getAppliedOutput() * m_leadMotor.getBusVoltage();
         inputs.leadCurrentAmps = m_leadMotor.getOutputCurrent();
-        inputs.followCurrentAmps = m_followMotor.getOutputCurrent();
-        inputs.angleRadians = m_alternateEncoder.getPosition();
-        inputs.velocityRadiansPerSecond = m_alternateEncoder.getVelocity();
+        inputs.angleRadians = m_absoluteEncoder.getPosition();
+        inputs.velocityRadiansPerSecond = m_absoluteEncoder.getVelocity();
     }
 
 }

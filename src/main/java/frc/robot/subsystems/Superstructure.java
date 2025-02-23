@@ -217,6 +217,11 @@ public class Superstructure {
         );
     }
 
+    //TODO: Refactor this to be more in-line with the rest of the superstructure code
+    private Command grabberRotationsBangBang(double volts, double rotations) {
+        return m_grabber.applyRotationsBangBang(volts,rotations);
+    }
+
     /**
      * Sets indexer to run at desired state
      * @param state the IndexState
@@ -440,18 +445,32 @@ public class Superstructure {
          * Transfers a coral from the indexer to the grabber, without checking for position 
          */
         private Command transferCoral() {
-            return Commands.parallel(
+            /*return Commands.parallel(
                 Commands.sequence(
-                    superstructure.applyGrabberState(GrabberState.CORAL_INTAKE)
-                    //Commands.waitUntil(m_grabberBeamBreak),
-                    //superstructure.applyGrabberState(GrabberState.IDLE)
+                    superstructure.applyGrabberState(GrabberState.CORAL_INTAKE),
+                    Commands.waitUntil(m_indexBeamBreak),
+                    superstructure.grabberRotationsBangBang(4, kIndexVoltage),
+                    superstructure.applyGrabberState(GrabberState.IDLE)
                 ),
                 Commands.sequence(
+                    superstructure.applyIndexState(IndexState.CORAL_TRANSFER),
+                    Commands.waitUntil(() -> !m_indexBeamBreak.getAsBoolean()),
+                    superstructure.applyIndexState(IndexState.EMPTY_IDLE)
+                )
+            );*/
+            return Commands.sequence(
+                Commands.parallel(
+                    superstructure.applyGrabberState(GrabberState.CORAL_INTAKE),
                     superstructure.applyIndexState(IndexState.CORAL_TRANSFER)
-                    //Commands.waitUntil(() -> !m_indexBeamBreak.getAsBoolean()),
-                    //superstructure.applyIndexState(IndexState.EMPTY_IDLE)
+                ),
+                Commands.waitUntil(m_indexBeamBreak),
+                superstructure.m_grabber.applyRotationsBangBang(4,4*Math.PI),
+                Commands.parallel(
+                    superstructure.applyGrabberState(GrabberState.IDLE),
+                    superstructure.applyIndexState(IndexState.EMPTY_IDLE)
                 )
             );
+            
             //.onlyIf(() -> superstructure.getSuperState().getGrabberPossession() == GrabberPossession.EMPTY);
         }
 

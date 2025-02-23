@@ -27,13 +27,10 @@ public class WristIOSim implements WristIO {
     private final DCMotor m_wristGearbox;
 
     private SparkMax m_leadMotor;
-    private SparkMax m_followMotor;
 
     private final SparkMaxSim m_leadMotorSim;
-    private final SparkMaxSim m_followMotorSim;
 
     private SparkMaxConfig m_leadMotorConfig;
-    private SparkMaxConfig m_followMotorConfig;
 
     private final SparkRelativeEncoderSim m_encoderSim;
 
@@ -43,10 +40,8 @@ public class WristIOSim implements WristIO {
         m_wristGearbox = DCMotor.getNEO(2);
 
         m_leadMotor = new SparkMax(WristConstants.kLeadMotorPort, MotorType.kBrushless);
-        m_followMotor = new SparkMax(WristConstants.kFollowMotorPort, MotorType.kBrushless);
 
         m_leadMotorConfig = new SparkMaxConfig();
-        m_followMotorConfig = new SparkMaxConfig();
 
         // create motor configurations
         m_leadMotorConfig
@@ -56,16 +51,9 @@ public class WristIOSim implements WristIO {
         m_leadMotorConfig.encoder
             .positionConversionFactor(WristConstants.kPositionConversionFactor)
             .velocityConversionFactor(WristConstants.kVelocityConversionFactor);
-            
-
-        m_followMotorConfig
-            .follow(m_leadMotor)
-            .inverted(WristConstants.kFollowMotorInverted)
-            .idleMode(IdleMode.kBrake);
 
         // configure motors
         m_leadMotor.configure(m_leadMotorConfig, null, null);
-        m_followMotor.configure(m_followMotorConfig, null, null);
 
         m_wristSim = new SingleJointedArmSim(
             m_wristGearbox,
@@ -82,7 +70,6 @@ public class WristIOSim implements WristIO {
         );
 
         m_leadMotorSim = new SparkMaxSim(m_leadMotor, m_wristGearbox);
-        m_followMotorSim = new SparkMaxSim(m_followMotor, m_wristGearbox);
         m_encoderSim = m_leadMotorSim.getRelativeEncoderSim();
 
     }
@@ -110,7 +97,6 @@ public class WristIOSim implements WristIO {
     public void updateInputs(WristIOInputs inputs) {
         inputs.appliedVolts = m_leadMotorSim.getAppliedOutput() * m_leadMotorSim.getBusVoltage();
         inputs.leadCurrentAmps = m_leadMotorSim.getMotorCurrent();
-        inputs.followCurrentAmps = m_followMotorSim.getMotorCurrent();
         inputs.angleRadians = m_encoderSim.getPosition();
         inputs.velocityRadiansPerSecond = m_encoderSim.getVelocity();
     }

@@ -24,7 +24,6 @@ public interface WristIO {
     public static class WristIOInputs {
         public double appliedVolts = 0;
         public double leadCurrentAmps = 0;
-        public double followCurrentAmps = 0;
         public double angleRadians = 0;
         public double velocityRadiansPerSecond = 0;
     }

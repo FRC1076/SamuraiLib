@@ -31,7 +31,6 @@ import frc.robot.subsystems.wrist.WristSubsystem;
 import lib.extendedcommands.CommandUtils;
 import lib.hardware.hid.SamuraiXboxController;
 import lib.vision.PhotonVisionLocalizer;
-import lib.vision.PhotonVisionTrigLocalizer;
 import lib.vision.VisionLocalizationSystem;
 import frc.robot.subsystems.SuperstructureVisualizer;
 import frc.robot.subsystems.Superstructure.SuperstructureCommandFactory;
@@ -55,6 +54,8 @@ import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.VisionSystemSim;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -88,7 +89,6 @@ public class RobotContainer {
     private final IndexSubsystem m_index;
     private final Trigger m_indexBeamBreak;
     private final Trigger m_transferBeamBreak;
-    private final Trigger m_grabberBeamBreak;
     private final Trigger m_interruptElevator;
     private final Trigger m_interruptWrist;
     private final Superstructure m_superstructure;
@@ -134,10 +134,8 @@ public class RobotContainer {
     */
         DigitalInput indexDIO = new DigitalInput(BeamBreakConstants.indexBeamBreakPort);
         DigitalInput transferDIO = new DigitalInput(BeamBreakConstants.transferBeamBreakPort);
-        DigitalInput grabberDIO = new DigitalInput(BeamBreakConstants.grabberBeamBreakPort);
         m_indexBeamBreak = new Trigger(() -> {return ! indexDIO.get();});//.or(m_beamBreakController.a());
         m_transferBeamBreak = new Trigger(() -> {return ! transferDIO.get();});//.or(m_beamBreakController.x());
-        m_grabberBeamBreak = new Trigger(() -> {return ! grabberDIO.get();});//.or(m_beamBreakController.y());
         m_interruptElevator = new Trigger(() -> m_operatorController.getLeftY() != 0);
         m_interruptWrist = new Trigger(() -> m_operatorController.getRightY() != 0);
 
@@ -155,13 +153,15 @@ public class RobotContainer {
             m_LEDs = new LEDSubsystem(new LEDIODigitalPins());
             for (PhotonConfig config : PhotonConfig.values()){
                 var cam = new PhotonCamera(config.name);
-                m_vision.addCamera(new PhotonVisionTrigLocalizer(
+                m_vision.addCamera(new PhotonVisionLocalizer(
                     cam, 
-                    config.offset, 
-                    m_drive::getHeading,
+                    config.offset,
+                    config.multiTagPoseStrategy,
+                    config.singleTagPoseStrategy,
+                    () -> m_drive.getPose().getRotation(),
                     fieldLayout,
-                    kDefaultSingleTagStdDevs, 
-                    kDefaultMultiTagStdDevs)
+                    config.defaultSingleTagStdDevs, 
+                    config.defaultMultiTagStdDevs)
                 );
             }
         } else if (SystemConstants.currentMode == 1) {
@@ -177,10 +177,12 @@ public class RobotContainer {
             m_visionSim = new VisionSystemSim("main");
             for (PhotonConfig config : PhotonConfig.values()){
                 var cam = new PhotonCamera(config.name);
-                m_vision.addCamera(new PhotonVisionTrigLocalizer(
+                m_vision.addCamera(new PhotonVisionLocalizer(
                     cam, 
-                    config.offset, 
-                    m_drive::getHeading,
+                    config.offset,
+                    config.multiTagPoseStrategy,
+                    config.singleTagPoseStrategy,
+                    () -> m_drive.getPose().getRotation(),
                     fieldLayout,
                     kDefaultSingleTagStdDevs, 
                     kDefaultMultiTagStdDevs)
@@ -199,7 +201,7 @@ public class RobotContainer {
             m_LEDs,
             m_indexBeamBreak, 
             m_transferBeamBreak, 
-            m_grabberBeamBreak
+            () -> false
         );
 
         superVis = new SuperstructureVisualizer(m_superstructure);
@@ -235,6 +237,14 @@ public class RobotContainer {
 
         //Build the auto chooser with PathPlanner
         m_autoChooser = AutoBuilder.buildAutoChooser();
+        m_autoChooser.addOption(
+            "DoNothingBlue180", 
+            Commands.runOnce(() -> m_drive.resetPose(new Pose2d(0, 0, Rotation2d.fromDegrees(180))))
+        );
+        m_autoChooser.addOption(
+            "DoNothingRed0", 
+            Commands.runOnce(() -> m_drive.resetPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0))))
+        );
         SmartDashboard.putData(m_autoChooser);
     }
 
@@ -273,7 +283,9 @@ public class RobotContainer {
         );*/
 
         // Point to reef
-        m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
+        m_driverController.a().whileTrue(
+            m_grabber.applyRotationsBangBang(4,4 * Math.PI)
+        );
 
         // Apply single clutch
         m_driverController.rightBumper().and(m_driverController.leftBumper().negate())
@@ -284,7 +296,7 @@ public class RobotContainer {
             .whileTrue(teleopDriveCommand.applyDoubleClutch());
 
         // Apply FPV Driving TODO: Finalize bindings and FPV clutch with drive team
-        m_driverController.leftBumper().and(m_driverController.rightBumper())
+        m_driverController.leftBumper().and(m_driverController.rightBumper()).and(m_driverController.x().negate())
             .whileTrue(teleopDriveCommand.applyFPVDrive());
 
         m_driverController.x().and(
@@ -351,34 +363,51 @@ public class RobotContainer {
         final SuperstructureCommandFactory superstructureCommands = m_superstructure.getCommandBuilder();
         
         // L1
-        m_operatorController.x().whileTrue(superstructureCommands.preL1());
+        m_operatorController.x()
+        .and(m_operatorController.leftBumper().negate())
+            .whileTrue(superstructureCommands.preL1());
 
         // L2
-        m_operatorController.a().whileTrue(superstructureCommands.preL2());
+        m_operatorController.a()
+        .and(m_operatorController.leftBumper().negate())
+            .whileTrue(superstructureCommands.preL2());
 
         // L3
-        m_operatorController.b().whileTrue(superstructureCommands.preL3());
+        m_operatorController.b()
+            .and(m_operatorController.leftBumper().negate())
+            .whileTrue(superstructureCommands.preL3());
 
         // L4
-        m_operatorController.y().whileTrue(superstructureCommands.preL4());
+        m_operatorController.y()
+        .and(m_operatorController.leftBumper().negate())
+            .whileTrue(superstructureCommands.preL4());
 
         // Processor
-        m_operatorController.x().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.preProcessor());
+        m_operatorController.x()
+            .and(m_operatorController.leftBumper())
+            .whileTrue(superstructureCommands.preProcessor());
 
         // Low Algae Intake
-        m_operatorController.a().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.lowAlgaeIntake());
+        m_operatorController.a()
+            .and(m_operatorController.leftBumper())
+            .whileTrue(superstructureCommands.lowAlgaeIntake());
 
         // High Algae Intake
-        m_operatorController.b().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.highAlgaeIntake());
+        m_operatorController.b()
+            .and(m_operatorController.leftBumper())
+            .whileTrue(superstructureCommands.highAlgaeIntake());
 
         // Net
-        m_operatorController.y().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.preNet());
+        m_operatorController.y()
+            .and(m_operatorController.leftBumper())
+            .whileTrue(superstructureCommands.preNet());
 
         // Set default command for Indexer to continuously run
         //m_index.setDefaultCommand(superstructureCommands.indexCoral());
 
         // Coral Intake and transfer into Grabber
         m_operatorController.leftTrigger()
+            .and(m_operatorController.leftBumper().negate())
             .whileTrue(superstructureCommands.intakeCoral())
             .whileFalse(superstructureCommands.stopIntake());
 
@@ -406,9 +435,6 @@ public class RobotContainer {
             m_superstructure.CommandBuilder.updatePossessionAndKg()
         );
         
-        m_grabberBeamBreak.onChange(
-            m_superstructure.CommandBuilder.updatePossessionAndKg()
-        );
     }
 
   /**
