@@ -537,6 +537,10 @@ public class Superstructure {
             return superstructure.interruptWrist();
         }
 
+        public Command holdAlgae(){
+            return superstructure.applyGrabberState(GrabberState.ALGAE_INTAKE);
+        }
+
         //TODO: Write separate intake coral command for auton
 
         /**

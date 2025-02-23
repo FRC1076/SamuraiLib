@@ -242,11 +242,11 @@ public class RobotContainer {
         m_autoChooser = AutoBuilder.buildAutoChooser();
         m_autoChooser.addOption(
             "DoNothingBlue180", 
-            Commands.runOnce(() -> m_drive.resetPose(new Pose2d(0, 0, Rotation2d.fromDegrees(180))))
+            Commands.runOnce(() -> m_drive.resetPose(new Pose2d(7.177, 5.147, Rotation2d.fromDegrees(180))))
         );
         m_autoChooser.addOption(
             "DoNothingRed0", 
-            Commands.runOnce(() -> m_drive.resetPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0))))
+            Commands.runOnce(() -> m_drive.resetPose(new Pose2d(10.380, 3.043, Rotation2d.fromDegrees(0))))
         );
         SmartDashboard.putData(m_autoChooser);
     }
@@ -266,13 +266,15 @@ public class RobotContainer {
 
     private void configureNamedCommands(){
         final SuperstructureCommandFactory superstructureCommands = m_superstructure.getCommandBuilder();
+        /* 
         NamedCommands.registerCommand("preL1", superstructureCommands.preL1());
         NamedCommands.registerCommand("preL2", superstructureCommands.preL2());
         NamedCommands.registerCommand("preL3", superstructureCommands.preL3());
         NamedCommands.registerCommand("preL4", superstructureCommands.preL4());
         // TODO: Change name to match later
         NamedCommands.registerCommand("scoreGamePiece", superstructureCommands.doGrabberAction());
-        NamedCommands.registerCommand("stopAndRetract", superstructureCommands.stopAndRetract());
+        NamedCommands.registerCommand("stopAndRetract", superstructureCommands.stopAndRetract());*/
+        
     }
 
     private void configureDriverBindings() {
@@ -424,6 +426,12 @@ public class RobotContainer {
 
         // Retract mechanisms and stop grabber
         m_operatorController.rightTrigger().whileFalse(superstructureCommands.stopAndRetract());
+
+        m_operatorController.povDown().onTrue(
+            superstructureCommands.holdAlgae()
+        ).onFalse(
+            superstructureCommands.stopGrabber()
+        );
 
         m_interruptElevator.onTrue(superstructureCommands.interruptElevator());
 

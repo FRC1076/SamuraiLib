@@ -307,15 +307,15 @@ public final class Constants {
 
             L1(0.08128,90), // Placeholder
             L2(0.910, -35),//0.71628, -35),
-            L3(1.348, -35),//1.11252, -35),
-            L4(2.109649, -40.4130051),//1.8161, -45),
+            L3(1.348 + 2 * 0.00889, -35),//1.11252, -35),
+            L4(2.109649 + 3 * 0.00635, -40.4130051),//1.8161, -45),
 
             GROUND_INTAKE(0.184277,-20),
-            LOW_INTAKE(0.9144, -35),
-            HIGH_INTAKE(1.30556, -35),
+            LOW_INTAKE(1.13789, -35),
+            HIGH_INTAKE(1.7440645, -35),
 
-            PROCESSOR(0.184277, 0),
-            NET(1.8288, 65);
+            PROCESSOR(0.184277 + 0.15, 0),
+            NET(2.109649 + 3 * 0.00635, 65);
 
             public final double elevatorHeightMeters;
             public final Rotation2d wristAngle;
@@ -417,8 +417,8 @@ public final class Constants {
         public static final int kMotorPort1 = 32; // Right motor consistent with drivetrain right side
         
         public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(0.5);
-        public static final double kMinElevatorHeightMeters = Units.inchesToMeters(-1); // TODO: UPDATE
-        public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(81.15); // TODO: UPDATE
+        public static final double kMinElevatorHeightMeters = Units.inchesToMeters(0); // TODO: UPDATE
+        public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(82.75);//81.15); // TODO: UPDATE
         public static final double maxOperatorControlVolts = 4;
 
         public static final boolean leadMotorInverted = false;
@@ -456,7 +456,7 @@ public final class Constants {
             public static final double kV = 2.8829; // 12.0 // velocity game
             public static final double kA = 0.0; //Acceleration Gain
 
-            public static final Constraints kProfileConstraints = new Constraints(2, 6);
+            public static final Constraints kProfileConstraints = new Constraints(3, 8);
         }
     }
 
@@ -531,7 +531,7 @@ public final class Constants {
             public static final double kV = 0.92013; // velocity gain in volts per radian per second
             public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
 
-            public static final Constraints kProfileConstraints = new Constraints(3 * Math.PI, 3 * Math.PI);
+            public static final Constraints kProfileConstraints = new Constraints(7 * Math.PI, 7 * Math.PI);
         }
     }
 
