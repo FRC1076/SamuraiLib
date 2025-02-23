@@ -23,8 +23,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants.SystemConstants;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.Pigeon2;
@@ -93,8 +95,12 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
     }
 
     public void addVisionMeasurement(Pose2d poseEstimate,double timestampSeconds,Matrix<N3,N1> StdDevs){
-        System.out.println("ADDING VISION");
-        super.addVisionMeasurement(poseEstimate, timestampSeconds, StdDevs);
+        //System.out.println(poseEstimate.toString());
+        super.addVisionMeasurement(
+            poseEstimate, 
+            Utils.fpgaToCurrentTime(timestampSeconds), 
+            StdDevs
+        );
     }
 
     /** Transfers the content of the odometry queue nto a more usable array in a non-blocking threadsafe manner */

@@ -109,6 +109,7 @@ public class PhotonVisionTrigLocalizer implements CameraLocalizer {
         Optional<EstimatedRobotPose> visionEst = Optional.empty();
         
         for (var res : results) {
+            //System.out.println(res);
             visionEst = poseEstimator.update(res);
         }
         //System.out.println(visionEst.get().estimatedPose);

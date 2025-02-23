@@ -59,6 +59,7 @@ public class DriveSubsystem extends SubsystemBase {
         this.io = io;
         this.vision = vision;
         vision.registerMeasurementConsumer(this.io::addVisionMeasurement); // In DriveIOHardware, addVisionMeasurement is built into the SwerveDrivetrain class
+        
         try {
             AutoBuilder.configure(
                 this::getPose,
