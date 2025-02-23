@@ -200,7 +200,7 @@ public final class Constants {
     public static class SuperstructureConstants {
 
         public static Rotation2d algaeTravelAngle = Rotation2d.fromDegrees(65);
-        public static Rotation2d coralTravelAngle = Rotation2d.fromDegrees(85);
+        public static Rotation2d coralTravelAngle = Rotation2d.fromDegrees(65);
 
         // Grabber Possession State
         public enum GrabberPossession {
@@ -300,17 +300,17 @@ public final class Constants {
         // Should we have an eject state with an optional elevator height? just to immediately eject if a game piece is stuck
         public enum WristevatorState {
             
-            TRAVEL(0.08128 + 0.065,90),
-            ALGAE_TRAVEL(0.08128 + 0.065, 65),
+            TRAVEL(0.08128,90),
+            ALGAE_TRAVEL(0.08128, 65),
 
-            CORAL_TRANSFER(0.08128 + 0.065,-23.5), // Same as CORAL_DIRECT_INTAKE
+            CORAL_TRANSFER(0.08128,-23.5), // Same as CORAL_DIRECT_INTAKE
 
-            L1(0.08128 + 0.065,90), // Placeholder
-            L2(0.71628 + 0.3, -35),
-            L3(1.11252 + 0.2, -35),
-            L4(1.8161, -45),
+            L1(0.08128,90), // Placeholder
+            L2(0.910, -35),//0.71628, -35),
+            L3(1.348, -35),//1.11252, -35),
+            L4(2.109649, -40.4130051),//1.8161, -45),
 
-            GROUND_INTAKE(0.08128 + 0.065,90),
+            GROUND_INTAKE(0.184277,-20),
             LOW_INTAKE(0.9144, -35),
             HIGH_INTAKE(1.30556, -35),
 
@@ -418,7 +418,7 @@ public final class Constants {
         
         public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(0.5);
         public static final double kMinElevatorHeightMeters = Units.inchesToMeters(-1); // TODO: UPDATE
-        public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(70); // TODO: UPDATE
+        public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(81.15); // TODO: UPDATE
         public static final double maxOperatorControlVolts = 4;
 
         public static final boolean leadMotorInverted = false;
@@ -431,8 +431,8 @@ public final class Constants {
         // Still set to WAPUR elevator units, need to be changed
         public static final double kGearRatio = 10.909;
         public static final double kElevatorStages = 3;
-        public static final double kVelocityConversionFactor = (22.0/24.0) * kElevatorStages * (1/kGearRatio) * 24 * 0.00635 / 60.0; //Gear ratio & chain pitch & rpm -> m/s
-        public static final double kPositionConversionFactor = (22.0/24.0) * kElevatorStages * (1/kGearRatio) * 24 * 0.00635; //Gear ratio & chain pitch
+        public static final double kVelocityConversionFactor = (24.0/22.0) * kElevatorStages * (1/kGearRatio) * 24 * 0.00635 / 60.0; //Gear ratio & chain pitch & rpm -> m/s
+        public static final double kPositionConversionFactor = (24.0/22.0) * kElevatorStages * (1/kGearRatio) * 24 * 0.00635; //Gear ratio & chain pitch
 
         /*
         public static final double kMaxVelocityMeters = 1.0;
@@ -446,17 +446,17 @@ public final class Constants {
 
         public static class Control {
             // PID constants
-            public static final double kP = 24; //18
+            public static final double kP = 30;
             public static final double kI = 0.0;
             public static final double kD = 0.0;
 
             // Feedforward constant
-            public static final double kS = 0.0; //Static gain (voltage)
-            public static final double kG = 1;//1.2;//0.97369; // 0.6 //Gravity gain (voltage)
-            public static final double kV = 0.0; // 12.0 // velocity game
+            public static final double kS = 0.059004; //Static gain (voltage)
+            public static final double kG = 0.77763;//1.2;//0.97369; // 0.6 //Gravity gain (voltage)
+            public static final double kV = 2.8829; // 12.0 // velocity game
             public static final double kA = 0.0; //Acceleration Gain
 
-            public static final Constraints kProfileConstraints = new Constraints(1.5, 4);
+            public static final Constraints kProfileConstraints = new Constraints(2, 6);
         }
     }
 
@@ -498,8 +498,8 @@ public final class Constants {
         public static final double kGearRatio = 45;
         public static final double kPositionConversionFactor = Math.PI * 2 * (1/kGearRatio);
 
-        public static final boolean kLeftMotorInverted = false;
-        public static final boolean kRightMotorInverted = true;
+        public static final boolean kLeftMotorInverted = true;
+        public static final boolean kRightMotorInverted = false;
     }
 
     public static class WristConstants {
@@ -516,22 +516,22 @@ public final class Constants {
 
         // Source: https://docs.revrobotics.com/brushless/spark-max/encoders/alternate-encoder
         public static final int kCountsPerRevolution = 8192;
-        public static final double kPositionConversionFactor = (1/5.0) * 2 * Math.PI; // rotations to radians
-        public static final double kVelocityConversionFactor = (1/5.0) * (2 * Math.PI) / 60.0; // rpm to radians/second
+        public static final double kPositionConversionFactor = (1/117.1875) * 2 * Math.PI; // rotations to radians
+        public static final double kVelocityConversionFactor = (1/117.1875) * (2 * Math.PI) / 60.0; // rpm to radians/second
 
         public static final class Control {
             // PID constants
-            public static final double kP = 2;
+            public static final double kP = 18;
             public static final double kI = 0.0;
             public static final double kD = 0;
 
             // Feedforward constants
-            public static final double kS = 0.0; // static gain in volts
-            public static final double kG = 1.44; // gravity gain in volts
-            public static final double kV = 0.0; // velocity gain in volts per radian per second
+            public static final double kS = 0.26649; // static gain in volts
+            public static final double kG = 0.13593; // gravity gain in volts
+            public static final double kV = 0.92013; // velocity gain in volts per radian per second
             public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
 
-            public static final Constraints kProfileConstraints = new Constraints(3, 4);
+            public static final Constraints kProfileConstraints = new Constraints(3 * Math.PI, 3 * Math.PI);
         }
     }
 

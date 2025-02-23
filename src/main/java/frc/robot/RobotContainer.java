@@ -152,6 +152,7 @@ public class RobotContainer {
             m_elastic = new Elastic();
             m_LEDs = new LEDSubsystem(new LEDIODigitalPins());
             for (PhotonConfig config : PhotonConfig.values()){
+                /*
                 var cam = new PhotonCamera(config.name);
                 m_vision.addCamera(new PhotonVisionLocalizer(
                     cam, 
@@ -162,7 +163,7 @@ public class RobotContainer {
                     fieldLayout,
                     config.defaultSingleTagStdDevs, 
                     config.defaultMultiTagStdDevs)
-                );
+                );*/
             }
         } else if (SystemConstants.currentMode == 1) {
            
@@ -175,6 +176,7 @@ public class RobotContainer {
             m_elastic = new Elastic();
             m_LEDs = new LEDSubsystem(new LEDIOSim());
             m_visionSim = new VisionSystemSim("main");
+            /*
             for (PhotonConfig config : PhotonConfig.values()){
                 var cam = new PhotonCamera(config.name);
                 m_vision.addCamera(new PhotonVisionLocalizer(
@@ -190,6 +192,7 @@ public class RobotContainer {
                 m_visionSim.addCamera(new PhotonCameraSim(cam),config.offset);
             }
             CommandUtils.makePeriodic(() -> m_visionSim.update(m_drive.getPose()));
+            */
         }
 
         m_superstructure = new Superstructure(
@@ -283,6 +286,7 @@ public class RobotContainer {
         );*/
 
         // Point to reef
+        
         m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
 
         // Apply single clutch
@@ -314,91 +318,94 @@ public class RobotContainer {
         ).onTrue(new InstantCommand(
             () -> m_drive.resetHeading()
         ));
+        
     }
 
     private void configureOperatorBindings() {
 
-        /*
-        if (SystemConstants.operatorSysID) {
-            
+        
+        //if (SystemConstants.operatorSysID) {
+            /* 
             // Quasistsic and Dynamic control scheme for Elevator Sysid
-            m_driverController.rightBumper().and(
+            m_driverController.rightBumper().and(   
                 m_driverController.a()
-            ).onTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+            ).whileTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
             m_driverController.rightBumper().and(
                 m_driverController.b()
-            ).onTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+            ).whileTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
             m_driverController.rightBumper().and(
                 m_driverController.x()
-            ).onTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kForward));
+            ).whileTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kForward));
             
             m_driverController.rightBumper().and(
                 m_driverController.y()
-            ).onTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kReverse));
-            
+            ).whileTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kReverse));
+            */
 
             //Quasistsic and Dynamic control scheme for Wrist Sysid
+            /*
             m_driverController.rightBumper().and(
                 m_driverController.a()
-            ).onTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+            ).whileTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kForward));
 
             m_driverController.rightBumper().and(
                 m_driverController.b()
-            ).onTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+            ).whileTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
 
             m_driverController.rightBumper().and(
                 m_driverController.x()
-            ).onTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kForward));
+            ).whileTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kForward));
         
             m_driverController.rightBumper().and(
                 m_driverController.y()
-            ).onTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kReverse));
-        }
-        */
+            ).whileTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kReverse));*/
+        //}
+        
         
         final SuperstructureCommandFactory superstructureCommands = m_superstructure.getCommandBuilder();
+        
         
         // L1
         m_operatorController.x()
         .and(m_operatorController.leftBumper().negate())
-            .whileTrue(superstructureCommands.preL1());
+            .onTrue(superstructureCommands.preL1());
 
         // L2
         m_operatorController.a()
         .and(m_operatorController.leftBumper().negate())
-            .whileTrue(superstructureCommands.preL2());
+            .onTrue(superstructureCommands.preL2());
 
         // L3
         m_operatorController.b()
             .and(m_operatorController.leftBumper().negate())
-            .whileTrue(superstructureCommands.preL3());
+            .onTrue(superstructureCommands.preL3());
 
         // L4
         m_operatorController.y()
         .and(m_operatorController.leftBumper().negate())
-            .whileTrue(superstructureCommands.preL4());
+            .onTrue(superstructureCommands.preL4());
 
         // Processor
         m_operatorController.x()
             .and(m_operatorController.leftBumper())
-            .whileTrue(superstructureCommands.preProcessor());
+            .onTrue(superstructureCommands.preProcessor());
 
         // Low Algae Intake
         m_operatorController.a()
             .and(m_operatorController.leftBumper())
-            .whileTrue(superstructureCommands.lowAlgaeIntake());
+            .onTrue(superstructureCommands.lowAlgaeIntake());
 
         // High Algae Intake
         m_operatorController.b()
             .and(m_operatorController.leftBumper())
-            .whileTrue(superstructureCommands.highAlgaeIntake());
+            .onTrue(superstructureCommands.highAlgaeIntake());
 
         // Net
         m_operatorController.y()
             .and(m_operatorController.leftBumper())
-            .whileTrue(superstructureCommands.preNet());
+            .onTrue(superstructureCommands.preNet());
 
         // Set default command for Indexer to continuously run
         //m_index.setDefaultCommand(superstructureCommands.indexCoral());
@@ -410,10 +417,10 @@ public class RobotContainer {
             .whileFalse(superstructureCommands.stopIntake());
 
         // Ground Algae Intake
-        m_operatorController.leftTrigger().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.groundAlgaeIntake());
+        m_operatorController.leftTrigger().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.groundAlgaeIntake());
 
         // Does Grabber action, ie. outtake coral/algae depending 
-        m_operatorController.rightTrigger().whileTrue(superstructureCommands.doGrabberAction());
+        m_operatorController.rightTrigger().onTrue(superstructureCommands.doGrabberAction());
 
         // Retract mechanisms and stop grabber
         m_operatorController.rightTrigger().whileFalse(superstructureCommands.stopAndRetract());
@@ -421,6 +428,7 @@ public class RobotContainer {
         m_interruptElevator.onTrue(superstructureCommands.interruptElevator());
 
         m_interruptWrist.onTrue(superstructureCommands.interruptWrist());
+        
     }
 
     private void configureBeamBreakTriggers() {
