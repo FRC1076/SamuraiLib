@@ -26,6 +26,9 @@ public class DaemonCommand extends Command {
 
     @Override
     public void initialize() {
+        if (command.isScheduled()) {
+            CommandScheduler.getInstance().cancel(command);
+        }
         CommandScheduler.getInstance().schedule(command.until(endCondition));
     }
 

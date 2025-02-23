@@ -23,4 +23,8 @@ public final class GeometryUtils {
     public static Rotation2d angleToPose(Pose2d startPose, Pose2d endPose){
         return endPose.getTranslation().minus(startPose.getTranslation()).getAngle();
     }
+
+    public static Pose2d copyPose(Pose2d pose) {
+        return new Pose2d(pose.getTranslation(),pose.getRotation());
+    }
 }
