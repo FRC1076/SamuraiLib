@@ -238,12 +238,12 @@ public class RobotContainer {
         //Build the auto chooser with PathPlanner
         m_autoChooser = AutoBuilder.buildAutoChooser();
         m_autoChooser.addOption(
-            "DoNothingBlue", 
-            Commands.runOnce(() -> m_drive.resetPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0))))
+            "DoNothingBlue180", 
+            Commands.runOnce(() -> m_drive.resetPose(new Pose2d(0, 0, Rotation2d.fromDegrees(180))))
         );
         m_autoChooser.addOption(
-            "DoNothingRed", 
-            Commands.runOnce(() -> m_drive.resetPose(new Pose2d(0, 0, Rotation2d.fromDegrees(180))))
+            "DoNothingRed0", 
+            Commands.runOnce(() -> m_drive.resetPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0))))
         );
         SmartDashboard.putData(m_autoChooser);
     }
@@ -296,7 +296,7 @@ public class RobotContainer {
             .whileTrue(teleopDriveCommand.applyDoubleClutch());
 
         // Apply FPV Driving TODO: Finalize bindings and FPV clutch with drive team
-        m_driverController.leftBumper().and(m_driverController.rightBumper())
+        m_driverController.leftBumper().and(m_driverController.rightBumper()).and(m_driverController.x().negate())
             .whileTrue(teleopDriveCommand.applyFPVDrive());
 
         m_driverController.x().and(
