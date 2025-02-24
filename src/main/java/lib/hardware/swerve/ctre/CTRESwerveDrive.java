@@ -1,5 +1,6 @@
-package lib.hardware.swerve.impl;
+package lib.hardware.swerve.ctre;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -14,18 +15,24 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import lib.hardware.swerve.SwerveDrive;
+import lib.hardware.swerve.SwerveDriveBase;
 import lib.hardware.swerve.requests.SamuraiSwerveRequest;
 
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-public class CTRESwerveDrive<DriveMotorT extends CommonTalon, SteerMotorT extends CommonTalon, EncoderT extends ParentDevice> implements SwerveDrive {
+/** 
+ * NOTE: This code is provided for testing and demonstration purposes. If you have an all-CTRE drivetrain, you will
+ * likely have better performance simply using the CTRE Swerve API on its own. Most of the features of SamuraiSwerve are
+ * already implemented by the CTRE Swerve API
+ */
+public class CTRESwerveDrive implements SwerveDriveBase {
     
-    private final SwerveDrivetrain<DriveMotorT,SteerMotorT,EncoderT> drivetrain;
+    private final SwerveDrivetrain<?,?,?> drivetrain;
     private final SwerveState state = new SwerveState();
 
     //Converts from CTRE SwerveDriveState to SamuraiSwerve SwerveState
@@ -70,7 +77,7 @@ public class CTRESwerveDrive<DriveMotorT extends CommonTalon, SteerMotorT extend
         state.odometryPeriod = ctreState.OdometryPeriod;
     }
 
-    public CTRESwerveDrive(
+    public <DriveMotorT extends CommonTalon, SteerMotorT extends CommonTalon, EncoderT extends ParentDevice> CTRESwerveDrive(
         DeviceConstructor<DriveMotorT> driveMotorConstructor,
         DeviceConstructor<SteerMotorT> steerMotorConstructor,
         DeviceConstructor<EncoderT> encoderConstructor,
@@ -78,7 +85,7 @@ public class CTRESwerveDrive<DriveMotorT extends CommonTalon, SteerMotorT extend
         double odometryUpdateFrequency,
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
-        drivetrain = new SwerveDrivetrain<>(driveMotorConstructor, steerMotorConstructor, encoderConstructor, drivetrainConstants, modules);
+        drivetrain = new SwerveDrivetrain<DriveMotorT,SteerMotorT,EncoderT>(driveMotorConstructor, steerMotorConstructor, encoderConstructor, drivetrainConstants, modules);
     }
 
     @Override
@@ -105,7 +112,7 @@ public class CTRESwerveDrive<DriveMotorT extends CommonTalon, SteerMotorT extend
 
     @Override
     //TODO: Add support for all SamuraiSwerveRequest types
-    public void applyRequest(SamuraiSwerveRequest request) {
+    public void acceptRequest(SamuraiSwerveRequest request) {
         double[] arbParams = request.getArbParams();
         double[] xForceFeedforwards = request.getXForceFeedforwardsNewtons();
         double[] yForceFeedforwards = request.getYForceFeedforwardsNewtons();
@@ -139,6 +146,21 @@ public class CTRESwerveDrive<DriveMotorT extends CommonTalon, SteerMotorT extend
     @Override
     public void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs) {
         drivetrain.addVisionMeasurement(pose, Utils.fpgaToCurrentTime(timestamp), stdDevs);
+    }
+
+    @Override
+    public SwerveDriveKinematics getKinematics() {
+        return drivetrain.getKinematics();
+    }
+
+    @Override
+    public void tareEverything() {
+        drivetrain.tareEverything();
+    }
+
+    @Override
+    public Optional<Pose2d> samplePoseAt(double timestamp) {
+        return drivetrain.samplePoseAt(Utils.fpgaToCurrentTime(timestamp));
     }
 
     

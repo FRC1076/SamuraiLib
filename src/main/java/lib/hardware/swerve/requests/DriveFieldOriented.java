@@ -12,8 +12,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Force;
 import edu.wpi.first.units.measure.LinearVelocity;
 import lib.hardware.swerve.SwerveOptimizer;
-import lib.hardware.swerve.SwerveDrive.ControlParameters;
-import lib.hardware.swerve.SwerveDrive.SwerveState;
+import lib.hardware.swerve.SwerveDriveBase.ControlParameters;
+import lib.hardware.swerve.SwerveDriveBase.SwerveState;
 
 // All native units are in SI base units unless otherwise specified
 public class DriveFieldOriented implements SamuraiSwerveRequest {

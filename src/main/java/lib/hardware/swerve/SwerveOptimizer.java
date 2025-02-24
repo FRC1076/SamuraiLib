@@ -70,4 +70,8 @@ public class SwerveOptimizer {
         optimizeStates(discStates, currentStates);
         return discStates;
     }
+
+    public SwerveDriveKinematics getKinematics() {
+        return kinematics;
+    }
 }

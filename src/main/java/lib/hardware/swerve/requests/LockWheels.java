@@ -4,8 +4,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import lib.hardware.swerve.SwerveOptimizer;
-import lib.hardware.swerve.SwerveDrive.ControlParameters;
-import lib.hardware.swerve.SwerveDrive.SwerveState;
+import lib.hardware.swerve.SwerveDriveBase.ControlParameters;
+import lib.hardware.swerve.SwerveDriveBase.SwerveState;
 
 public class LockWheels implements SamuraiSwerveRequest {
 
