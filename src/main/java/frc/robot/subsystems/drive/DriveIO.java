@@ -1,3 +1,7 @@
+// Copyright (c) FRC 1076 PiHi Samurai
+// You may use, distribute, and modify this software under the terms of
+// the license found in the root directory of this project
+
 package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.Matrix;
@@ -82,4 +86,5 @@ public interface DriveIO {
     public abstract Pose2d getPose();
     public abstract void setAllianceRotation(Rotation2d allianceRotation);
     public abstract void periodic();
+    public abstract void setDriveStatorCurrentLimit(double currentLimit);
 }

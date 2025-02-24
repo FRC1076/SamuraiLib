@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.commands.drive.DirectDriveToPoseCommand;
 import frc.robot.commands.drive.TeleopDriveCommand;
+import frc.robot.subsystems.Elastic;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.drive.DriveIOHardware;
@@ -21,20 +22,41 @@ import frc.robot.subsystems.grabber.GrabberSubsystem;
 import frc.robot.subsystems.index.IndexIOHardware;
 import frc.robot.subsystems.index.IndexIOSim;
 import frc.robot.subsystems.index.IndexSubsystem;
+import frc.robot.subsystems.led.LEDIODigitalPins;
+import frc.robot.subsystems.led.LEDIOSim;
+import frc.robot.subsystems.led.LEDSubsystem;
 import frc.robot.subsystems.wrist.WristIOHardware;
 import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristSubsystem;
+import lib.extendedcommands.CommandUtils;
+import lib.hardware.hid.SamuraiXboxController;
+import lib.vision.PhotonVisionLocalizer;
+import lib.vision.VisionLocalizationSystem;
 import frc.robot.subsystems.SuperstructureVisualizer;
 import frc.robot.subsystems.Superstructure.SuperstructureCommandFactory;
-import frc.robot.Constants.Akit;
+import frc.robot.Constants.SystemConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.VisionConstants.Photonvision.PhotonConfig;
 import frc.robot.Constants.BeamBreakConstants;
 import frc.robot.subsystems.Superstructure;
+import static frc.robot.Constants.VisionConstants.Photonvision.kDefaultSingleTagStdDevs;
+import static frc.robot.Constants.VisionConstants.Photonvision.driverCamName;
+import static frc.robot.Constants.VisionConstants.Photonvision.kDefaultMultiTagStdDevs;
+import static frc.robot.Constants.VisionConstants.fieldLayout;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import org.photonvision.simulation.PhotonCameraSim;
+import org.photonvision.simulation.VisionSystemSim;
+
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.util.function.BooleanConsumer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -67,24 +89,36 @@ public class RobotContainer {
     private final IndexSubsystem m_index;
     private final Trigger m_indexBeamBreak;
     private final Trigger m_transferBeamBreak;
-    private final Trigger m_grabberBeamBreak;
     private final Trigger m_interruptElevator;
-    private final Trigger m_interruptGrabber;
+    private final Trigger m_interruptWrist;
     private final Superstructure m_superstructure;
     private final SuperstructureVisualizer superVis;
+    private final Elastic m_elastic;
+    private final LEDSubsystem m_LEDs;
 
 
     // Replace with CommandPS4Controller or CommandJoystick if needed
     private final CommandXboxController m_driverController =
-        new CommandXboxController(OIConstants.kDriverControllerPort);
+        new SamuraiXboxController(OIConstants.kDriverControllerPort)
+            .withDeadband(OIConstants.kControllerDeadband)
+            .withTriggerThreshold(OIConstants.kControllerTriggerThreshold);
 
     private final CommandXboxController m_operatorController =
-        new CommandXboxController(OIConstants.kOperatorControllerPort);
-
+        new SamuraiXboxController(OIConstants.kOperatorControllerPort)
+            .withDeadband(OIConstants.kControllerDeadband)
+            .withTriggerThreshold(OIConstants.kControllerTriggerThreshold);
+    /* 
     private final CommandXboxController m_beamBreakController = 
         new CommandXboxController(2);
+    */
     
     private final SendableChooser<Command> m_autoChooser;
+
+    private final VisionLocalizationSystem m_vision = new VisionLocalizationSystem();
+
+    private final VisionSystemSim m_visionSim;
+
+   // private final PhotonCamera m_driveCamera;
 
     private final TeleopDriveCommand teleopDriveCommand;
 
@@ -98,27 +132,64 @@ public class RobotContainer {
     if constexpr
     Also, ignore the "comparing identical expressions" and "dead code" warnings
     */
-    
-        
-        m_indexBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.indexBeamBreakPort)::get);
-        m_transferBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.transferBeamBreakPort)::get);
-        m_grabberBeamBreak = new Trigger(new DigitalInput(BeamBreakConstants.grabberBeamBreakPort)::get);
+        DigitalInput indexDIO = new DigitalInput(BeamBreakConstants.indexBeamBreakPort);
+        DigitalInput transferDIO = new DigitalInput(BeamBreakConstants.transferBeamBreakPort);
+        m_indexBeamBreak = new Trigger(() -> {return ! indexDIO.get();});//.or(m_beamBreakController.a());
+        m_transferBeamBreak = new Trigger(() -> {return ! transferDIO.get();});//.or(m_beamBreakController.x());
         m_interruptElevator = new Trigger(() -> m_operatorController.getLeftY() != 0);
-        m_interruptGrabber = new Trigger(() -> m_operatorController.getRightY() != 0);
+        m_interruptWrist = new Trigger(() -> m_operatorController.getRightY() != 0);
 
-
-        if (Akit.currentMode == 0) {
-            m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()));
+        // m_driveCamera = new PhotonCamera(driverCamName);
+        // m_driveCamera.setDriverMode(true);
+        
+        if (SystemConstants.currentMode == 0) {
+            m_visionSim = null;
+            m_drive = new DriveSubsystem(new DriveIOHardware(TunerConstants.createDrivetrain()), m_vision);
             m_elevator = new ElevatorSubsystem(new ElevatorIOHardware());
             m_wrist = new WristSubsystem(new WristIOHardware());
             m_grabber = new GrabberSubsystem(new GrabberIOHardware());
             m_index = new IndexSubsystem(new IndexIOHardware());
-        } else if (Akit.currentMode == 1) {
-            m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()));
+            m_elastic = new Elastic();
+            m_LEDs = new LEDSubsystem(new LEDIODigitalPins());
+            for (PhotonConfig config : PhotonConfig.values()){
+                var cam = new PhotonCamera(config.name);
+                m_vision.addCamera(new PhotonVisionLocalizer(
+                    cam, 
+                    config.offset,
+                    config.multiTagPoseStrategy,
+                    config.singleTagPoseStrategy,
+                    () -> m_drive.getPose().getRotation(),
+                    fieldLayout,
+                    config.defaultSingleTagStdDevs, 
+                    config.defaultMultiTagStdDevs)
+                );
+            }
+        } else if (SystemConstants.currentMode == 1) {
+           
+            
+            m_drive = new DriveSubsystem(new DriveIOSim(TunerConstants.createDrivetrain()), m_vision);
             m_elevator = new ElevatorSubsystem(new ElevatorIOSim());
             m_wrist = new WristSubsystem(new WristIOSim());
             m_grabber = new GrabberSubsystem(new GrabberIOSim());
             m_index = new IndexSubsystem(new IndexIOSim());
+            m_elastic = new Elastic();
+            m_LEDs = new LEDSubsystem(new LEDIOSim());
+            m_visionSim = new VisionSystemSim("main");
+            for (PhotonConfig config : PhotonConfig.values()){
+                var cam = new PhotonCamera(config.name);
+                m_vision.addCamera(new PhotonVisionLocalizer(
+                    cam, 
+                    config.offset,
+                    config.multiTagPoseStrategy,
+                    config.singleTagPoseStrategy,
+                    () -> m_drive.getPose().getRotation(),
+                    fieldLayout,
+                    kDefaultSingleTagStdDevs, 
+                    kDefaultMultiTagStdDevs)
+                );
+                m_visionSim.addCamera(new PhotonCameraSim(cam),config.offset);
+            }
+            CommandUtils.makePeriodic(() -> m_visionSim.update(m_drive.getPose()));
         }
 
         m_superstructure = new Superstructure(
@@ -126,17 +197,19 @@ public class RobotContainer {
             m_grabber,
             m_index, 
             m_wrist, 
+            m_elastic,
+            m_LEDs,
             m_indexBeamBreak, 
             m_transferBeamBreak, 
-            m_grabberBeamBreak
+            () -> false
         );
 
         superVis = new SuperstructureVisualizer(m_superstructure);
 
         teleopDriveCommand = m_drive.CommandBuilder.teleopDrive(
-            () -> MathUtil.applyDeadband(-m_driverController.getLeftY(), OIConstants.kControllerDeadband), 
-            () -> MathUtil.applyDeadband(-m_driverController.getLeftX(), OIConstants.kControllerDeadband),
-            () -> MathUtil.applyDeadband(-m_driverController.getRightX(), OIConstants.kControllerDeadband)
+            () -> -m_driverController.getLeftY(), 
+            () -> -m_driverController.getLeftX(),
+            () -> -m_driverController.getRightX()
         );
 
         m_drive.setDefaultCommand(
@@ -144,11 +217,11 @@ public class RobotContainer {
         );
 
         m_wrist.setDefaultCommand(m_wrist.applyManualControl(
-            () -> MathUtil.applyDeadband(-m_operatorController.getRightY(), OIConstants.kControllerDeadband)
+            () -> -m_operatorController.getRightY()
         ));
 
         m_elevator.setDefaultCommand(m_elevator.applyManualControl(
-            () -> MathUtil.applyDeadband(-m_operatorController.getLeftY(), OIConstants.kControllerDeadband)
+            () -> -m_operatorController.getLeftY()
         ));
 
         configureNamedCommands();
@@ -164,6 +237,14 @@ public class RobotContainer {
 
         //Build the auto chooser with PathPlanner
         m_autoChooser = AutoBuilder.buildAutoChooser();
+        m_autoChooser.addOption(
+            "DoNothingBlue", 
+            Commands.runOnce(() -> m_drive.resetPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0))))
+        );
+        m_autoChooser.addOption(
+            "DoNothingRed", 
+            Commands.runOnce(() -> m_drive.resetPose(new Pose2d(0, 0, Rotation2d.fromDegrees(180))))
+        );
         SmartDashboard.putData(m_autoChooser);
     }
 
@@ -186,29 +267,38 @@ public class RobotContainer {
         NamedCommands.registerCommand("preL2", superstructureCommands.preL2());
         NamedCommands.registerCommand("preL3", superstructureCommands.preL3());
         NamedCommands.registerCommand("preL4", superstructureCommands.preL4());
-        // TODO: Change this to match later
+        // TODO: Change name to match later
         NamedCommands.registerCommand("scoreGamePiece", superstructureCommands.doGrabberAction());
         NamedCommands.registerCommand("stopAndRetract", superstructureCommands.stopAndRetract());
     }
 
     private void configureDriverBindings() {
         /*
+        
         m_driverController.leftTrigger().whileTrue(
             m_drive.CommandBuilder.directDriveToNearestLeftBranch()
         );
 
         m_driverController.rightTrigger().whileTrue(
             m_drive.CommandBuilder.directDriveToNearestRightBranch()
-        );*/
+        );
+        
+        */
 
         // Point to reef
         m_driverController.a().whileTrue(teleopDriveCommand.applyReefHeadingLock());
 
         // Apply single clutch
-        m_driverController.rightBumper().whileTrue(teleopDriveCommand.applySingleClutch());
+        m_driverController.rightBumper().and(m_driverController.leftBumper().negate())
+            .whileTrue(teleopDriveCommand.applySingleClutch());
 
         // Apply double clutch
-        m_driverController.leftBumper().whileTrue(teleopDriveCommand.applyDoubleClutch());
+        m_driverController.leftBumper().and(m_driverController.rightBumper().negate())
+            .whileTrue(teleopDriveCommand.applyDoubleClutch());
+
+        // Apply FPV Driving TODO: Finalize bindings and FPV clutch with drive team
+        m_driverController.leftBumper().and(m_driverController.rightBumper())
+            .whileTrue(teleopDriveCommand.applyFPVDrive());
 
         m_driverController.x().and(
             m_driverController.leftBumper().and(
@@ -227,98 +317,125 @@ public class RobotContainer {
         ).onTrue(new InstantCommand(
             () -> m_drive.resetHeading()
         ));
-
-        // Quasistsic and Dynamic control scheme for Elevator Sysid
-        m_driverController.rightBumper().and(
-          m_driverController.a()
-        ).onTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kForward));
-
-        m_driverController.rightBumper().and(
-          m_driverController.b()
-        ).onTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-
-        m_driverController.rightBumper().and(
-          m_driverController.x()
-        ).onTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kForward));
-        
-        m_driverController.rightBumper().and(
-          m_driverController.y()
-        ).onTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-        //Quasistsic and Dynamic control scheme for Wrist Sysid
-        // m_driverController.rightBumper().and(
-        //   m_driverController.a()
-        // ).onTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kForward));
-
-        // m_driverController.rightBumper().and(
-        //   m_driverController.b()
-        // ).onTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-
-        // m_driverController.rightBumper().and(
-        //   m_driverController.x()
-        // ).onTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kForward));
-        
-        // m_driverController.rightBumper().and(
-        //   m_driverController.y()
-        // ).onTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-
     }
 
     private void configureOperatorBindings() {
-        // TODO: Add coral and algae intake triggers
+
+        /*
+        if (SystemConstants.operatorSysID) {
+            
+            // Quasistsic and Dynamic control scheme for Elevator Sysid
+            m_driverController.rightBumper().and(
+                m_driverController.a()
+            ).onTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+            m_driverController.rightBumper().and(
+                m_driverController.b()
+            ).onTrue(m_elevator.elevatorSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+            m_driverController.rightBumper().and(
+                m_driverController.x()
+            ).onTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kForward));
+            
+            m_driverController.rightBumper().and(
+                m_driverController.y()
+            ).onTrue(m_elevator.elevatorSysIdDynamic(SysIdRoutine.Direction.kReverse));
+            
+
+            //Quasistsic and Dynamic control scheme for Wrist Sysid
+            m_driverController.rightBumper().and(
+                m_driverController.a()
+            ).onTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kForward));
+
+            m_driverController.rightBumper().and(
+                m_driverController.b()
+            ).onTrue(m_wrist.wristSysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+
+            m_driverController.rightBumper().and(
+                m_driverController.x()
+            ).onTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kForward));
+        
+            m_driverController.rightBumper().and(
+                m_driverController.y()
+            ).onTrue(m_wrist.wristSysIdDynamic(SysIdRoutine.Direction.kReverse));
+        }
+        */
+        
         final SuperstructureCommandFactory superstructureCommands = m_superstructure.getCommandBuilder();
         
         // L1
-        m_operatorController.x().onTrue(superstructureCommands.preL1());
+        m_operatorController.x()
+        .and(m_operatorController.leftBumper().negate())
+            .whileTrue(superstructureCommands.preL1());
 
         // L2
-        m_operatorController.a().onTrue(superstructureCommands.preL2());
+        m_operatorController.a()
+        .and(m_operatorController.leftBumper().negate())
+            .whileTrue(superstructureCommands.preL2());
 
         // L3
-        m_operatorController.b().onTrue(superstructureCommands.preL3());
+        m_operatorController.b()
+            .and(m_operatorController.leftBumper().negate())
+            .whileTrue(superstructureCommands.preL3());
 
         // L4
-        m_operatorController.y().onTrue(superstructureCommands.preL4());
+        m_operatorController.y()
+        .and(m_operatorController.leftBumper().negate())
+            .whileTrue(superstructureCommands.preL4());
 
         // Processor
-        m_operatorController.x().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.preProcessor());
+        m_operatorController.x()
+            .and(m_operatorController.leftBumper())
+            .whileTrue(superstructureCommands.preProcessor());
 
         // Low Algae Intake
-        m_operatorController.a().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.lowAlgaeIntake());
+        m_operatorController.a()
+            .and(m_operatorController.leftBumper())
+            .whileTrue(superstructureCommands.lowAlgaeIntake());
 
         // High Algae Intake
-        m_operatorController.b().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.highAlgaeIntake());
+        m_operatorController.b()
+            .and(m_operatorController.leftBumper())
+            .whileTrue(superstructureCommands.highAlgaeIntake());
 
         // Net
-        m_operatorController.y().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.preNet());
+        m_operatorController.y()
+            .and(m_operatorController.leftBumper())
+            .whileTrue(superstructureCommands.preNet());
 
         // Set default command for Indexer to continuously run
-        m_index.setDefaultCommand(superstructureCommands.indexCoral());
+        //m_index.setDefaultCommand(superstructureCommands.indexCoral());
 
         // Coral Intake and transfer into Grabber
-        m_operatorController.leftTrigger().onTrue(superstructureCommands.intakeCoral());
+        m_operatorController.leftTrigger()
+            .and(m_operatorController.leftBumper().negate())
+            .whileTrue(superstructureCommands.intakeCoral())
+            .whileFalse(superstructureCommands.stopIntake());
 
         // Ground Algae Intake
-        m_operatorController.leftTrigger().and(m_operatorController.leftBumper()).onTrue(superstructureCommands.groundAlgaeIntake());
+        m_operatorController.leftTrigger().and(m_operatorController.leftBumper()).whileTrue(superstructureCommands.groundAlgaeIntake());
 
         // Does Grabber action, ie. outtake coral/algae depending 
-        m_operatorController.rightTrigger().onTrue(superstructureCommands.doGrabberAction());
+        m_operatorController.rightTrigger().whileTrue(superstructureCommands.doGrabberAction());
 
         // Retract mechanisms and stop grabber
-        m_operatorController.rightTrigger().onFalse(superstructureCommands.stopAndRetract());
+        m_operatorController.rightTrigger().whileFalse(superstructureCommands.stopAndRetract());
+
+        m_interruptElevator.onTrue(superstructureCommands.interruptElevator());
+
+        m_interruptWrist.onTrue(superstructureCommands.interruptWrist());
     }
 
     private void configureBeamBreakTriggers() {
 
-
-        m_indexBeamBreak.or(
-            m_transferBeamBreak.or(
-                m_grabberBeamBreak
-            )
-        ).onChange(
+        m_indexBeamBreak.onChange(
             m_superstructure.CommandBuilder.updatePossessionAndKg()
         );
+
+        m_transferBeamBreak.onChange(
+            m_superstructure.CommandBuilder.updatePossessionAndKg()
+        );
+        
     }
 
   /**

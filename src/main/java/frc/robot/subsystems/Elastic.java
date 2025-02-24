@@ -1,5 +1,8 @@
-package frc.robot.subsystems;
+// Copyright (c) FRC 1076 PiHi Samurai
+// You may use, distribute, and modify this software under the terms of
+// the license found in the root directory of this project
 
+package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -7,6 +10,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.GameConstants;
 import frc.robot.Constants.GameConstants.StartPositions;
 import frc.robot.Constants.GameConstants.TeamColors;
+import frc.robot.Constants.SuperstructureConstants.GrabberPossession;
+import frc.robot.Constants.SuperstructureConstants.IndexPossession;
 
 //TODO: Either make this a singleton class or make putX methods static
 public class Elastic {
@@ -37,6 +42,16 @@ public class Elastic {
 
     public void putString(String key, String value) {
         SmartDashboard.putString(key, value);
+    }
+
+    public void putIndexPossession(IndexPossession indexPossession) {
+        // System.out.println("indexPossession: " + indexPossession.name);
+        SmartDashboard.putString("indexPossession", indexPossession.name);
+    }
+
+    public void putGrabberPossession(GrabberPossession grabberPossession) {
+        // System.out.println("grabberPossession: " + grabberPossession.name);
+        SmartDashboard.putString("grabberPossession", grabberPossession.name);
     }
 
     public void updateInterface() {

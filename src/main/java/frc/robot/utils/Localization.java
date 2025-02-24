@@ -1,3 +1,7 @@
+// Copyright (c) FRC 1076 PiHi Samurai
+// You may use, distribute, and modify this software under the terms of
+// the license found in the root directory of this project
+
 package frc.robot.utils;
 
 import java.util.ArrayList;
@@ -79,9 +83,9 @@ public final class Localization {
         return poseList;
     }
 
-    private static ReefFace getReefFromAprilTagID(int AprilTagID){
+    private static ReefFace getReefFromAprilTagID(int aprilTagID){
         for (ReefFace face: ReefFace.values()) {
-            if (face.aprilTagID == AprilTagID) {
+            if (face.aprilTagID == aprilTagID) {
                 return face;
             }
         }

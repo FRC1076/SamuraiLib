@@ -1,6 +1,11 @@
+// Copyright (c) FRC 1076 PiHi Samurai
+// You may use, distribute, and modify this software under the terms of
+// the license found in the root directory of this project
+
 package frc.robot.subsystems.elevator;
 
 import frc.robot.Constants.ElevatorConstants;
+
 import static frc.robot.Constants.ElevatorConstants.Control.kA;
 import static frc.robot.Constants.ElevatorConstants.Control.kD;
 import static frc.robot.Constants.ElevatorConstants.Control.kI;
@@ -8,36 +13,33 @@ import static frc.robot.Constants.ElevatorConstants.Control.kP;
 import static frc.robot.Constants.ElevatorConstants.Control.kS;
 import static frc.robot.Constants.ElevatorConstants.Control.kV;
 import static frc.robot.Constants.ElevatorConstants.Control.kG;
+import static frc.robot.Constants.ElevatorConstants.Control.kProfileConstraints;
+
 import static frc.robot.Constants.ElevatorConstants.kMotorPort0;
 import static frc.robot.Constants.ElevatorConstants.kMotorPort1;
 import static frc.robot.Constants.ElevatorConstants.kPositionConversionFactor;
 import static frc.robot.Constants.ElevatorConstants.kVelocityConversionFactor;
 import static frc.robot.Constants.ElevatorConstants.Electrical.*;
 
-import lib.control.MutableElevatorFeedforward; // We use our own library! (We're literally 254 fr fr)
-
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
 import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
 public class ElevatorIOHardware implements ElevatorIO {
-    private final SparkMax m_leadMotor; // Leader
-    private final SparkMax m_followMotor; // Follower
+    private static final ElevatorControlConstants realControlConstants = new ElevatorControlConstants(
+        kP, kI, kD, kProfileConstraints,
+        kS, kG, kV, kA
+    );
+    // TODO: Figure out which motor is on which side
+    private final SparkMax m_leadMotor; 
+    private final SparkMax m_followMotor;
 
     private final SparkMaxConfig m_leadMotorConfig;
     private final SparkMaxConfig m_followMotorConfig;
     
     private final RelativeEncoder m_encoder;
-
-    private final SparkClosedLoopController m_closedLoopController;
-
-    private final MutableElevatorFeedforward FFcontroller = new MutableElevatorFeedforward(kS, kG, kV, kA);
 
     public ElevatorIOHardware() {
         m_leadMotor = new SparkMax(kMotorPort0,SparkMax.MotorType.kBrushless);
@@ -53,8 +55,7 @@ public class ElevatorIOHardware implements ElevatorIO {
             .inverted(ElevatorConstants.leadMotorInverted)
             .smartCurrentLimit((int) kCurrentLimit)
             .voltageCompensation(kVoltageCompensation);
-        m_leadMotorConfig.closedLoop
-            .pid(kP, kI, kD);
+
         m_leadMotorConfig.encoder
             .positionConversionFactor(kPositionConversionFactor)
             .velocityConversionFactor(kVelocityConversionFactor)
@@ -70,7 +71,6 @@ public class ElevatorIOHardware implements ElevatorIO {
         m_followMotor.configure(m_followMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kNoPersistParameters);
 
         m_encoder = m_leadMotor.getEncoder();
-        m_closedLoopController = m_leadMotor.getClosedLoopController();
 
         m_encoder.setPosition(0);
 
@@ -87,36 +87,22 @@ public class ElevatorIOHardware implements ElevatorIO {
         m_leadMotor.setVoltage(volts);
     }
 
-    /** TODO: VERY IMPORTANT: ADD SOFTWARE STOPS */
-    /** Set desired position of the elevator
-     * @param positionMeters The desired position of the elevator in meters
-     */
     @Override
-    public void setPosition(double positionMeters){
-        m_closedLoopController.setReference(
-            positionMeters,
-            ControlType.kPosition,
-            ClosedLoopSlot.kSlot0,
-            FFcontroller.getKg(),
-            ArbFFUnits.kVoltage
-        );
-    }
-
-    /** Set kG of the elevator feedforward
-     * Used when the weight of the elevator changes because of game pieces
-     * @param kG The new kG value in volts
-     */
-     @Override
-    public void setFFkG(double kG) {
-        FFcontroller.setKg(kG);
+    public ElevatorControlConstants getControlConstants() {
+        return realControlConstants;
     }
 
     /** Used to log elevator status */
     @Override
     public void updateInputs(ElevatorIOInputs inputs) {
         inputs.appliedVolts = m_leadMotor.getAppliedOutput() * m_leadMotor.getBusVoltage();
+        inputs.appliedOutput = m_leadMotor.getAppliedOutput();
         inputs.leadCurrentAmps = m_leadMotor.getOutputCurrent();
         inputs.followCurrentAmps = m_followMotor.getOutputCurrent();
+        inputs.leadPowerWatts = inputs.leadCurrentAmps * inputs.appliedVolts;
+        inputs.followPowerWatts = inputs.followCurrentAmps * inputs.appliedVolts;
+        inputs.totalPowerWatts = inputs.leadPowerWatts + inputs.followPowerWatts;
+
         inputs.elevatorHeightMeters = m_encoder.getPosition();
         inputs.velocityMetersPerSecond = m_encoder.getVelocity();
     }

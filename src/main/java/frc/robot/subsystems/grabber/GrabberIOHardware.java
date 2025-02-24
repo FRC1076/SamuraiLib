@@ -1,8 +1,14 @@
+// Copyright (c) FRC 1076 PiHi Samurai
+// You may use, distribute, and modify this software under the terms of
+// the license found in the root directory of this project
+
 package frc.robot.subsystems.grabber;
 
 import frc.robot.Constants.GrabberConstants;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkRelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -12,6 +18,8 @@ public class GrabberIOHardware implements GrabberIO{
     private final SparkMax m_leftMotor;
     private final SparkMax m_rightMotor;
 
+    private final RelativeEncoder m_encoder;
+
     private final SparkMaxConfig m_leftMotorConfig;
     private final SparkMaxConfig m_rightMotorConfig;
 
@@ -20,11 +28,20 @@ public class GrabberIOHardware implements GrabberIO{
         m_leftMotor = new SparkMax(GrabberConstants.kLeftMotorPort, MotorType.kBrushless);
         m_rightMotor = new SparkMax(GrabberConstants.kRightMotorPort, MotorType.kBrushless);
 
+        m_encoder = m_leftMotor.getEncoder();
+
         m_leftMotorConfig = new SparkMaxConfig();
         m_rightMotorConfig = new SparkMaxConfig();
 
-        m_leftMotorConfig.smartCurrentLimit((int) GrabberConstants.kCurrentLimit);
-        m_rightMotorConfig.smartCurrentLimit((int) GrabberConstants.kCurrentLimit);
+        m_leftMotorConfig
+            .smartCurrentLimit((int) GrabberConstants.kCurrentLimit)
+            .inverted(GrabberConstants.kLeftMotorInverted)
+        .encoder
+            .positionConversionFactor(GrabberConstants.kPositionConversionFactor);
+            
+        m_rightMotorConfig
+            .smartCurrentLimit((int) GrabberConstants.kCurrentLimit)
+            .inverted(GrabberConstants.kRightMotorInverted);
 
         m_leftMotor.configure(m_leftMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
         m_rightMotor.configure(m_rightMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -52,5 +69,7 @@ public class GrabberIOHardware implements GrabberIO{
         
         inputs.rightMotorAppliedVoltage = m_rightMotor.getAppliedOutput() * m_rightMotor.getBusVoltage();
         inputs.rightMotorCurrent = m_rightMotor.getOutputCurrent();
+
+        inputs.motorPositionRadians = m_encoder.getPosition(); //This is used for bang-bang control
     }
 }

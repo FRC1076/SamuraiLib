@@ -7,21 +7,31 @@ package frc.robot;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.util.Units;
 
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.path.PathConstraints;
 
-import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
 import org.apache.commons.lang3.NotImplementedException;
 
 /**
- * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
+ * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean+
  * constants. This class should not be used for any other purpose. All constants should be declared
  * globally (i.e. public static). Do not put anything functional in this class.
  *
@@ -29,6 +39,91 @@ import org.apache.commons.lang3.NotImplementedException;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    
+     public static class VisionConstants {
+        public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+        public static class Photonvision {
+
+            public static final String driverCamName = "DRIVER_CAM"; //PV name of the driver camera TODO: Add sim driver camera implementation with wireframe
+
+            //TODO: Update all of these values
+            public static final Vector<N3> kDefaultSingleTagStdDevs = VecBuilder.fill(1, 1, 1);
+            public static final Vector<N3> kDefaultMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 0.5);
+
+            /** Contains configs for all photonvision localization cameras */
+            public static enum PhotonConfig {
+                //TODO: Coordinates may be negative
+                ELEVATOR_LEFT_CAM(
+                    "ELEVATOR_LEFT_CAM", 
+                    kDefaultSingleTagStdDevs,
+                    kDefaultMultiTagStdDevs,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
+                    2.892, 7.163, 19.162, 
+                    11.385, 17.961, 40
+                ),
+                ELEVATOR_RIGHT_CAM(
+                    "ELEVATOR_RIGHT_CAM",
+                    kDefaultSingleTagStdDevs,
+                    kDefaultMultiTagStdDevs,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
+                    2.982, -7.163, 19.162, 
+                    -11.385, 17.961, -40
+                ),
+                REAR_LEFT_CAM(
+                    "REAR_LEFT_CAM",
+                    kDefaultSingleTagStdDevs,
+                    kDefaultMultiTagStdDevs,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
+                    0,0,0,
+                    0,0,0
+                ),
+                REAR_RIGHT_CAM("REAR_RIGHT_CAM",
+                    kDefaultSingleTagStdDevs,
+                    kDefaultMultiTagStdDevs,
+                    PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+                    PoseStrategy.PNP_DISTANCE_TRIG_SOLVE,
+                    0,0,0,
+                    0,0,0
+                );
+
+                public final String name;
+                public final Transform3d offset;
+                public final Matrix<N3,N1> defaultSingleTagStdDevs;
+                public final Matrix<N3,N1> defaultMultiTagStdDevs;
+                public final PoseStrategy multiTagPoseStrategy;
+                public final PoseStrategy singleTagPoseStrategy;
+                private PhotonConfig(
+                    String name, 
+                    Matrix<N3,N1> defaultSingleTagStdDevs,
+                    Matrix<N3,N1> defaultMultiTagStdDevs,
+                    PoseStrategy multiTagPoseStrategy,
+                    PoseStrategy singleTagPoseStrategy,
+                    double xInch, double yInch, double zInch, 
+                    double rollDeg, double pitchDeg, double yawDeg
+                ) {
+                    this.name = name;
+                    this.offset = new Transform3d(
+                        Units.inchesToMeters(xInch),
+                        Units.inchesToMeters(yInch),
+                        Units.inchesToMeters(zInch),
+                        new Rotation3d(
+                            Units.degreesToRadians(rollDeg),
+                            Units.degreesToRadians(pitchDeg),
+                            Units.degreesToRadians(yawDeg)
+                        )
+                    );
+                    this.multiTagPoseStrategy = multiTagPoseStrategy;
+                    this.singleTagPoseStrategy = singleTagPoseStrategy;
+                    this.defaultMultiTagStdDevs = defaultMultiTagStdDevs;
+                    this.defaultSingleTagStdDevs = defaultSingleTagStdDevs;
+                }
+            }
+        }
+    }
+  
     /** Contains starting position and team */
     public static class GameConstants {
 
@@ -71,8 +166,10 @@ public final class Constants {
         public static final double kControllerTriggerThreshold = 0.7;
     }
 
-    public static class Akit {
+    public static class SystemConstants {
         public static final int currentMode = 0;
+        public static final boolean operatorSysID = false;
+        public static final boolean driverSysID = false;
     }
     
     public static class DriveConstants {
@@ -82,6 +179,8 @@ public final class Constants {
             public static final double singleClutchRotationFactor = 0.5;
             public static final double doubleClutchTranslationFactor = 0.3;
             public static final double doubleClutchRotationFactor = 0.35;
+            public static final double FPVClutchTranslationFactor = 0.1;
+            public static final double FPVClutchRotationFactor = 0.1;
             public static final double maxTranslationSpeedMPS = 5.0;
             public static final double maxRotationSpeedRadPerSec = 5.0;
         }
@@ -100,43 +199,66 @@ public final class Constants {
 
     public static class SuperstructureConstants {
 
+        public static Rotation2d algaeTravelAngle = Rotation2d.fromDegrees(65);
+        public static Rotation2d coralTravelAngle = Rotation2d.fromDegrees(85);
+
         // Grabber Possession State
         public enum GrabberPossession {
             EMPTY(
-                Akit.currentMode == 0
+                SystemConstants.currentMode == 0
                     ? WristConstants.Control.kG 
                     : WristSimConstants.Control.kG,
-                Akit.currentMode == 0
+                SystemConstants.currentMode == 0
                     ? ElevatorConstants.Control.kG 
-                    : ElevatorSimConstants.Control.kG),
+                    : ElevatorSimConstants.Control.kG,
+                "EMPTY"),
             CORAL(
-                Akit.currentMode == 0
+                SystemConstants.currentMode == 0
                     ? WristConstants.Control.kG 
                     : WristSimConstants.Control.kG,
-                Akit.currentMode == 0
+                SystemConstants.currentMode == 0
                     ? ElevatorConstants.Control.kG 
-                    : ElevatorSimConstants.Control.kG),
+                    : ElevatorSimConstants.Control.kG,
+                "CORAL"),
             ALGAE(
-                Akit.currentMode == 0
+                SystemConstants.currentMode == 0
                     ? WristConstants.Control.kG 
                     : WristSimConstants.Control.kG,
-                Akit.currentMode == 0
+                SystemConstants.currentMode == 0
                     ? ElevatorConstants.Control.kG 
-                    : ElevatorSimConstants.Control.kG);
+                    : ElevatorSimConstants.Control.kG,
+                "ALGAE"),
+            TRANSFERRING(
+                SystemConstants.currentMode == 0
+                    ? WristConstants.Control.kG
+                    : WristSimConstants.Control.kG,
+                SystemConstants.currentMode == 0
+                    ? ElevatorConstants.Control.kG
+                    : ElevatorSimConstants.Control.kG,
+                "TRANSFERRING"
+            );
 
             public final double wrist_kG;
             public final double elevator_kG;
+            public final String name;
 
-            private GrabberPossession(double wrist_kG, double elevator_kG) {
+            private GrabberPossession(double wrist_kG, double elevator_kG, String name) {
                 this.wrist_kG = wrist_kG;
                 this.elevator_kG = elevator_kG;
+                this.name = name;
             }
         }
 
         // Index Possession State
         public enum IndexPossession {
-            EMPTY,
-            CORAL
+            EMPTY("EMPTY"),
+            CORAL("CORAL");
+
+            public final String name;
+
+            private IndexPossession(String name) {
+                this.name = name;
+            }
         }
 
         // Grabber State
@@ -148,8 +270,8 @@ public final class Constants {
             CORAL_INTAKE(5, 5),
 
             ALGAE_OUTTAKE(6, 6),
-            CORAL_OUTTAKE(12, 12),
-            DEFAULT_OUTTAKE(12, 12);
+            CORAL_OUTTAKE(10.5, 10.5),
+            DEFAULT_OUTTAKE(10.5, 10.5);
 
             public final double leftVoltage;
             public final double rightVoltage;
@@ -162,13 +284,15 @@ public final class Constants {
 
         // Index State
         public enum IndexState {
-            EMPTY_IDLE(false),
-            CORAL_INTAKE(true),
-            CORAL_TRANSFER(true),
-            CORAL_IDLE(false);
+            EMPTY_IDLE(false, 0),
+            CORAL_INTAKE(true, 6),
+            CORAL_TRANSFER(true, 6),
+            CORAL_IDLE(false, 0);
             public final boolean running; // Whether or not the indexer motors are running
-            private IndexState(boolean running) {
+            public final double volts;
+            private IndexState(boolean running, double volts) {
                 this.running = running;
+                this.volts = volts;
             }
         }
 
@@ -176,17 +300,17 @@ public final class Constants {
         // Should we have an eject state with an optional elevator height? just to immediately eject if a game piece is stuck
         public enum WristevatorState {
             
-            TRAVEL(0.08128,90),
-            ALGAE_TRAVEL(0.08128, 65),
+            TRAVEL(0.08128 + 0.065,90),
+            ALGAE_TRAVEL(0.08128 + 0.065, 65),
 
-            CORAL_TRANSFER(0.08128,-23.5), // Same as CORAL_DIRECT_INTAKE
+            CORAL_TRANSFER(0.08128 + 0.065,-23.5), // Same as CORAL_DIRECT_INTAKE
 
-            L1(-1, -1), // Placeholder
-            L2(0.71628, -35),
-            L3(1.11252, -35),
+            L1(0.08128 + 0.065,90), // Placeholder
+            L2(0.71628 + 0.3, -35),
+            L3(1.11252 + 0.2, -35),
             L4(1.8161, -45),
 
-            GROUND_INTAKE(-1, -1),
+            GROUND_INTAKE(0.08128 + 0.065,90),
             LOW_INTAKE(0.9144, -35),
             HIGH_INTAKE(1.30556, -35),
 
@@ -293,41 +417,46 @@ public final class Constants {
         public static final int kMotorPort1 = 32; // Right motor consistent with drivetrain right side
         
         public static final double elevatorPositionToleranceMeters = Units.inchesToMeters(0.5);
-        public static final double maxOperatorControlVolts = 3;
+        public static final double kMinElevatorHeightMeters = Units.inchesToMeters(-1); // TODO: UPDATE
+        public static final double kMaxElevatorHeightMeters = Units.inchesToMeters(70); // TODO: UPDATE
+        public static final double maxOperatorControlVolts = 4;
 
         public static final boolean leadMotorInverted = false;
         public static final boolean followMotorInverted = false;
-
-        // Heights measured in meters
-        public static final double lowHeight = 0.0;
-        public static final double autonHeight = 0.0;
-        public static final double midHeight = 0.0;
-        public static final double highHeight = 0.0;
 
         //public static final double minHeightMeters = 0;
         //public static final double maxHeightMeters = 0.85; // Temporary
 
         // https://wcproducts.com/collections/gearboxes/products/wcp-single-stage-gearbox  Inches.of(0.25).in(Meters)
         // Still set to WAPUR elevator units, need to be changed
-        public static final double kVelocityConversionFactor = (11/60.0) * 22 * 0.00635 / 60.0; //Gear ratio & chain pitch & rpm -> m/s
-        public static final double kPositionConversionFactor = (11/60.0) * 22 * 0.00635; //Gear ratio & chain pitch
+        public static final double kGearRatio = 10.909;
+        public static final double kElevatorStages = 3;
+        public static final double kVelocityConversionFactor = (22.0/24.0) * kElevatorStages * (1/kGearRatio) * 24 * 0.00635 / 60.0; //Gear ratio & chain pitch & rpm -> m/s
+        public static final double kPositionConversionFactor = (22.0/24.0) * kElevatorStages * (1/kGearRatio) * 24 * 0.00635; //Gear ratio & chain pitch
+
+        /*
+        public static final double kMaxVelocityMeters = 1.0;
+        public static final double kMaxAccelerationMetersSquared = 0.5;
+        */
         public static class Electrical {
-            public static final double kVoltageCompensation = 12;
-            public static final double kCurrentLimit = 80;
+            public static final double kVoltageCompensation = 10.5;
+            public static final double kCurrentLimit = 60;
         }
 
 
         public static class Control {
-            // PID constants - STILL SET TO WAPUR ELEVATOR VALUES
-            public static final double kP = 8.0;
+            // PID constants
+            public static final double kP = 24; //18
             public static final double kI = 0.0;
             public static final double kD = 0.0;
 
-            // Feedforward constants - STILL SET TO WAPUR ELEVATOR VALUES
+            // Feedforward constant
             public static final double kS = 0.0; //Static gain (voltage)
-            public static final double kG = 0.0; // 0.6 //Gravity gain (voltage)
+            public static final double kG = 1;//1.2;//0.97369; // 0.6 //Gravity gain (voltage)
             public static final double kV = 0.0; // 12.0 // velocity game
             public static final double kA = 0.0; //Acceleration Gain
+
+            public static final Constraints kProfileConstraints = new Constraints(1.5, 4);
         }
     }
 
@@ -356,42 +485,53 @@ public final class Constants {
             public static final double kG = 2.8605; // Gravity gain (voltage)
             public static final double kV = 0.0; // Velocity gain
             public static final double kA = 0.0; // Acceleration Gain
+
+            public static final Constraints kProfileConstraints = new Constraints(1, 3);
         }
     }
 
     public static final class GrabberConstants {
-        public static final int kLeftMotorPort = 61;
-        public static final int kRightMotorPort = 62;
+        public static final int kLeftMotorPort = 41;
+        public static final int kRightMotorPort = 42;
         
-        public static final double kCurrentLimit = 80.0; 
+        public static final double kCurrentLimit = 10; 
+        public static final double kGearRatio = 45;
+        public static final double kPositionConversionFactor = Math.PI * 2 * (1/kGearRatio);
+
+        public static final boolean kLeftMotorInverted = false;
+        public static final boolean kRightMotorInverted = true;
     }
 
     public static class WristConstants {
-        public static final int kLeadMotorPort = 41; // Left motor consistent with drivetrain left side
-        public static final int kFollowMotorPort = 42; // Right motor consistent with drivetrain right side
+        public static final int kLeadMotorPort = 61; // Left motor consistent with drivetrain left side
 
-        public static final double wristAngleToleranceRadians = Units.degreesToRadians(1);
-        public static final double maxOperatorControlVolts = 3.0;
+        public static final double wristAngleToleranceRadians = Units.degreesToRadians(2);
+        public static final double kMinWristAngleRadians = Units.degreesToRadians(-90);
+        public static final double kMaxWristAngleRadians = Units.degreesToRadians(90);
 
-        public static final boolean kLeadMotorInverted = false;
-        public static final boolean kFollowMotorInverted = true;
+        public static final double maxOperatorControlVolts = 1;
+        public static final double kSmartCurrentLimit = 15.0;
+
+        public static final boolean kLeadMotorInverted = true;
 
         // Source: https://docs.revrobotics.com/brushless/spark-max/encoders/alternate-encoder
         public static final int kCountsPerRevolution = 8192;
-        public static final double kPositionConversionFactor = 2*Math.PI; // rotations to radians
-        public static final double kVelocityConversionFactor = (2*Math.PI) / 60.0; // rpm to radians/second
+        public static final double kPositionConversionFactor = (1/5.0) * 2 * Math.PI; // rotations to radians
+        public static final double kVelocityConversionFactor = (1/5.0) * (2 * Math.PI) / 60.0; // rpm to radians/second
 
         public static final class Control {
             // PID constants
-            public static final double kP = 0.0;
+            public static final double kP = 2;
             public static final double kI = 0.0;
-            public static final double kD = 0.0;
+            public static final double kD = 0;
 
             // Feedforward constants
             public static final double kS = 0.0; // static gain in volts
-            public static final double kG = 0.57 * 3; // gravity gain in volts
+            public static final double kG = 1.44; // gravity gain in volts
             public static final double kV = 0.0; // velocity gain in volts per radian per second
             public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
+
+            public static final Constraints kProfileConstraints = new Constraints(3, 4);
         }
     }
 
@@ -412,7 +552,11 @@ public final class Constants {
             public static final double kG = 0.0553; // gravity gain in volts
             public static final double kV = 0.0; // velocity gain in volts per radian per second
             public static final double kA = 0.0; // acceleration gain in volts per radian per second squared
+
+            public static final Constraints kProfileConstraints = new Constraints(2, 2);
         }
+
+
     }
 
     public static class IndexConstants {
@@ -420,16 +564,49 @@ public final class Constants {
         public static final int kFollowMotorPort = 52;
 
         public static final double kCurrentLimit = 20.0;
-        public static final double kIndexVoltage = 6.0;
+        public static final double kIndexVoltage = 12.0;
 
         public static final boolean kLeadMotorInverted = false;
         public static final boolean kFollowMotorInverted = true;
     }
 
     public static class BeamBreakConstants{
-        public static final int indexBeamBreakPort = 0;
-        public static final int transferBeamBreakPort = 1;
-        public static final int grabberBeamBreakPort = 2;
+        public static final int indexBeamBreakPort = 4;
+        public static final int transferBeamBreakPort = 0;
+    }
+
+    public static class LEDConstants {
+        /// Digital input-output pins on the RIO
+        public static class LEDDIOConstants {
+            public static final int kDIOPort1 = 7;
+            public static final int kDIOPort2 = 8;
+            public static final int kDIOPort3 = 9;
+        }
+
+        public static class LEDOnRIOConstants {
+            public static final int kPWMPort = 0;
+            public static final int kLength = 100;
+
+            public static final double kFlashSeconds = 0.75;
+            public static final int kEmptyStateBrightness = 50;
+            public static final int kFlashingStateBrightness = 100;
+        }
+
+        public static enum LEDStates {
+            EMPTY(false, false, false),
+            CORAL_INDEX(true, false, false),
+            CORAL_GRABBER(false, true, false),
+            ALGAE(true, true, false);
+
+            public final boolean onesPlace;
+            public final boolean twosPlace;
+            public final boolean foursPlace;
+            private LEDStates(boolean onesPlace, boolean twosPlace, boolean foursPlace) {
+                this.onesPlace = onesPlace;
+                this.twosPlace = twosPlace;
+                this.foursPlace = foursPlace;
+            } 
+        }
     }
 
     private Constants() {

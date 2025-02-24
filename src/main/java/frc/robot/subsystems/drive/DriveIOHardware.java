@@ -1,22 +1,26 @@
+// Copyright (c) FRC 1076 PiHi Samurai
+// You may use, distribute, and modify this software under the terms of
+// the license found in the root directory of this project
+
 package frc.robot.subsystems.drive;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.RobotController;
 
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.hardware.Pigeon2;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
@@ -79,6 +83,11 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
             constants.RearLeft(),
             constants.RearRight()
         );
+    }
+
+    public void addVisionMeasurement(Pose2d poseEstimate,double timestampSeconds,Matrix<N3,N1> StdDevs){
+        System.out.println("ADDING VISION");
+        super.addVisionMeasurement(poseEstimate, timestampSeconds, StdDevs);
     }
 
     /** Transfers the content of the odometry queue nto a more usable array in a non-blocking threadsafe manner */
@@ -160,6 +169,25 @@ public class DriveIOHardware extends SwerveDrivetrain<TalonFX,TalonFX,CANcoder> 
     @Override
     public void periodic(){
         
+    }
+
+    /** Set the current limit for each drive motor. 
+     * Stator current is the amount of current that is sent to the motor.
+     * <p>
+     * <b>WARNING:</b> This method is resource intensive. Do not call it every loop.
+     * 
+     * @param currentLimit The amount of current sent to each motor.
+     */
+    @Override
+    public void setDriveStatorCurrentLimit(double currentLimit) {
+        
+        CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs()
+            .withStatorCurrentLimitEnable(true)
+            .withStatorCurrentLimit(currentLimit);
+            
+        for (var module : getModules()) {
+            module.getDriveMotor().getConfigurator().apply(currentConfigs);
+        }
     }
 
 }

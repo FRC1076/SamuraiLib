@@ -1,3 +1,7 @@
+// Copyright (c) FRC 1076 PiHi Samurai
+// You may use, distribute, and modify this software under the terms of
+// the license found in the root directory of this project
+
 package frc.robot.subsystems.drive;
 
 import frc.robot.Constants.DriveConstants.PathPlannerConstants;
@@ -8,6 +12,7 @@ import frc.robot.utils.Localization;
 import static frc.robot.Constants.DriveConstants.PathPlannerConstants.robotOffset;
 
 import lib.utils.GeometryUtils;
+import lib.vision.VisionLocalizationSystem;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +28,8 @@ import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -40,15 +47,18 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 public class DriveSubsystem extends SubsystemBase {
     private final DriveIO io;
     private final DriveIOInputsAutoLogged driveInputs = new DriveIOInputsAutoLogged();
-    private final ModuleIOInputsAutoLogged frontLeftInputs = new ModuleIOInputsAutoLogged();
-    private final ModuleIOInputsAutoLogged frontRightInputs = new ModuleIOInputsAutoLogged();
-    private final ModuleIOInputsAutoLogged rearLeftInputs = new ModuleIOInputsAutoLogged();
-    private final ModuleIOInputsAutoLogged rearRightInputs = new ModuleIOInputsAutoLogged();
+    //private final ModuleIOInputsAutoLogged frontLeftInputs = new ModuleIOInputsAutoLogged();
+    //private final ModuleIOInputsAutoLogged frontRightInputs = new ModuleIOInputsAutoLogged();
+    //private final ModuleIOInputsAutoLogged rearLeftInputs = new ModuleIOInputsAutoLogged();
+    //private final ModuleIOInputsAutoLogged rearRightInputs = new ModuleIOInputsAutoLogged();
     private Boolean hasSetAlliance = false; // Wait until the driverstation had an alliance before setting it
     public final DriveCommandFactory CommandBuilder;
+    private final VisionLocalizationSystem vision;
 
-    public DriveSubsystem(DriveIO io) {
+    public DriveSubsystem(DriveIO io, VisionLocalizationSystem vision) {
         this.io = io;
+        this.vision = vision;
+        vision.registerMeasurementConsumer(this.io::addVisionMeasurement); // In DriveIOHardware, addVisionMeasurement is built into the SwerveDrivetrain class
         try {
             AutoBuilder.configure(
                 this::getPose,
@@ -69,6 +79,7 @@ public class DriveSubsystem extends SubsystemBase {
             DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
         }
         CommandBuilder = new DriveCommandFactory(this);
+
         
     }
 
@@ -76,18 +87,19 @@ public class DriveSubsystem extends SubsystemBase {
     public void periodic(){
         // updateModuleInputs and processInputs are only used for logging
         io.periodic(); //currently just for calling sim
+        vision.update();
         io.updateInputs(driveInputs);
-        io.updateModuleInputs(frontLeftInputs,0);
-        io.updateModuleInputs(frontRightInputs,1);
-        io.updateModuleInputs(rearLeftInputs,2);
-        io.updateModuleInputs(rearRightInputs,3);
+        // io.updateModuleInputs(frontLeftInputs,0);
+        // io.updateModuleInputs(frontRightInputs,1);
+        // io.updateModuleInputs(rearLeftInputs,2);
+        // io.updateModuleInputs(rearRightInputs,3);
         Logger.processInputs("Drive", driveInputs);
-        Logger.processInputs("Drive/FrontLeft",frontLeftInputs);
-        Logger.processInputs("Drive/FrontRight",frontRightInputs);
-        Logger.processInputs("Drive/RearLeft",rearLeftInputs);
-        Logger.processInputs("Drive/RearRight",rearRightInputs);
+        // Logger.processInputs("Drive/FrontLeft",frontLeftInputs);
+        // Logger.processInputs("Drive/FrontRight",frontRightInputs);
+        // Logger.processInputs("Drive/RearLeft",rearLeftInputs);
+        // Logger.processInputs("Drive/RearRight",rearRightInputs);
 
-        if (DriverStation.getAlliance().isPresent() & !hasSetAlliance) {
+        if (DriverStation.getAlliance().isPresent() && !hasSetAlliance) {
             hasSetAlliance = true;
             if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
                 io.setAllianceRotation(Rotation2d.fromDegrees(180));
@@ -136,6 +148,11 @@ public class DriveSubsystem extends SubsystemBase {
         io.resetHeading();
     }
 
+    public Rotation2d getHeading() {
+        return io.getPose().getRotation();
+    }
+
+    @AutoLogOutput
     public Pose2d getPose() {
         return io.getPose();
     }
