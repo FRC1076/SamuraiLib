@@ -100,12 +100,6 @@ public class CTRESwerveDrive implements SwerveDriveBase {
     }
 
     @Override
-    public SwerveState getStateClone() {
-        updateState();
-        return state.clone();
-    }
-
-    @Override
     public void resetPose(Pose2d pose) {
         drivetrain.resetPose(pose);
     }

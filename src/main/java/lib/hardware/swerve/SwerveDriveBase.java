@@ -60,8 +60,6 @@ public interface SwerveDriveBase {
 
     public abstract SwerveState getState();
 
-    public abstract SwerveState getStateClone();
-
     public abstract void resetPose(Pose2d pose);
 
     public abstract void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3,N1> stdDevs);

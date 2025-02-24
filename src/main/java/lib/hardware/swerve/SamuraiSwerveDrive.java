@@ -36,31 +36,114 @@ public class SamuraiSwerveDrive implements SwerveDriveBase {
 
     private SwerveModuleBase[] modules;
 
+    private final Swervometer swervometer;
+
     private final Lock moduleLock = new ReentrantLock();
     private final Supplier<Rotation2d> headingSupplier; //TODO: Make SwerveIMU interface
     private final SwerveDriveKinematics kinematics;
     
-    //TODO: redo the constructor to use the config objects
-    public SamuraiSwerveDrive(Translation2d[] moduleTranslations,Supplier<Rotation2d> headingSupplier) {
+    //TODO: make swerve drive factory that uses the configurator objects
+    public SamuraiSwerveDrive(Translation2d[] moduleTranslations,SwerveModuleBase[] modules, Supplier<Rotation2d> headingSupplier) {
+        this.modules = modules;
         this.kinematics = new SwerveDriveKinematics(moduleTranslations);
         this.headingSupplier = headingSupplier;
+        swervometer = new Swervometer();
+        swervometer.start();
     }
 
     public SwerveModuleBase[] getModules() {
         return modules;
     }
 
-    /** Implements high-speed odometry and pose estimation for the swerve drive */
+    /** Implements multithreaded high-speed odometry and pose estimation for the swerve drive */
     private class Swervometer {
+
+        private static class ConcurrentSwerveState {
+
+            private Lock stateLock = new ReentrantLock();
+            
+            private volatile int successfulDaqs;
+            private volatile int failedDaqs;
+            private volatile Pose2d pose;
         
-        private ConcurrentSwerveState state = new ConcurrentSwerveState();
+            private volatile SwerveModulePosition[] modulePositions;
+            private volatile SwerveModuleState[] moduleStates;
+            private volatile SwerveModuleState[] moduleTargets;
+        
+            private volatile double timestamp;
+            private volatile ChassisSpeeds speeds;
+            private volatile Rotation2d rawHeading;
+            private volatile double odometryPeriod;
+        
+            public SwerveState get() {
+                var state = new SwerveState();
+                
+                synchronized (stateLock) {
+                    mapToState(state);
+                }
+        
+                return state;
+            }
+
+            private void mapToState(SwerveState state) {
+                state.timestamp = timestamp;
+                state.successfulDaqs = successfulDaqs;
+                state.failedDaqs = failedDaqs;
+                state.modulePositions = modulePositions.clone();
+                state.moduleStates = moduleStates.clone();
+                state.moduleTargets = moduleTargets.clone();
+                state.pose = pose;
+                state.speeds = speeds;
+                state.rawHeading = rawHeading;
+                state.odometryPeriod = odometryPeriod;
+            }
+        
+            public SwerveState logSuccessfulDaq(
+                double timestamp,
+                SwerveModulePosition[] modulePositions,
+                SwerveModuleState[] moduleStates,
+                Pose2d pose,
+                ChassisSpeeds speeds,
+                Rotation2d rawHeading
+            ) {
+                SwerveState state = new SwerveState();
+                synchronized (stateLock) {
+                    this.timestamp = timestamp;
+                    this.modulePositions = modulePositions;
+                    this.moduleStates = moduleStates;
+                    this.pose = pose;
+                    this.speeds = speeds;
+                    this.rawHeading = rawHeading;
+                    this.successfulDaqs++;
+                    mapToState(state);
+                }
+                return state;
+            }
+        
+            public SwerveState logFailedDaq() {
+                SwerveState state = new SwerveState();
+                synchronized (stateLock) {
+                    this.failedDaqs++;
+                    mapToState(state);
+                }
+                return state;
+            }
+        
+            public void resetDaqs() {
+                synchronized (stateLock) {
+                    this.successfulDaqs = 0;
+                    this.failedDaqs = 0;
+                }
+            }
+        
+        }
+        
+        private ConcurrentSwerveState volatileState = new ConcurrentSwerveState();
 
         private final Lock signalLock = new ReentrantLock();
         private final Lock estimatorLock = new ReentrantLock();
 
         private final SwerveDrivePoseEstimator poseEstimator;
-
-        private SwerveState cachedState; //Odometry thread local
 
         private SwerveModulePosition[] oldPositions = new SwerveModulePosition[4];
         private SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[4];
@@ -73,6 +156,9 @@ public class SamuraiSwerveDrive implements SwerveDriveBase {
 
         public Swervometer(){
             poseEstimator = new SwerveDrivePoseEstimator(kinematics, headingSupplier.get(), oldPositions, new Pose2d(0,0,headingSupplier.get())); //TODO: Instantiate thiw with proper parameters
+            for (SwerveModuleBase module : modules) {
+                registerErrorSignal(module.getErrorSignal());
+            }
             notifier.setName("Swervometer");
         }
 
@@ -108,7 +194,7 @@ public class SamuraiSwerveDrive implements SwerveDriveBase {
             synchronized (signalLock){
                 for (int i = 0; i < errorSignals.size(); i++){
                     if (errorSignals.get(i).getAsBoolean()){
-                        state.logFailedDaq();
+                        volatileState.logFailedDaq();
                         return;
                     }
                 }
@@ -123,19 +209,12 @@ public class SamuraiSwerveDrive implements SwerveDriveBase {
                     modulePositions[i] = modules[i].getPosition();
                 }
             }
-            /* 
-            for (int i = 0; i < 4; i++) {
-                moduleDeltas[i] = new SwerveModulePosition(
-                    modulePositions[i].distanceMeters - oldPositions[i].distanceMeters,
-                    modulePositions[i].angle.minus(oldPositions[i].angle)
-                );
-            }
-            */
+
             synchronized (estimatorLock) {
                 pose = poseEstimator.updateWithTime(timestamp,headingSupplier.get(),modulePositions);
             }
 
-            state.logSuccessfulDaq(
+            var state = volatileState.logSuccessfulDaq(
                 timestamp,
                 modulePositions,
                 moduleStates,
@@ -143,8 +222,20 @@ public class SamuraiSwerveDrive implements SwerveDriveBase {
                 kinematics.toChassisSpeeds(moduleStates),
                 headingSupplier.get()
             );
+
+            telemetryConsumer.ifPresent(
+                (telemetry) -> telemetry.accept(state)
+            );
             
     
+        }
+
+        public SwerveState getState() {
+            return volatileState.get();
+        }
+
+        public void tarePoseEstimator() {
+            poseEstimator.resetPose(new Pose2d());
         }
     }
 
