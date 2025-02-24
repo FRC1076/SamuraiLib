@@ -105,8 +105,8 @@ public class DriveFieldOriented implements SamuraiSwerveRequest {
     public SwerveModuleState[] getModuleStates(SwerveOptimizer optimizer, ControlParameters cparams, SwerveState state) {
         var robotSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(vxField,vyField,omega,state.pose.getRotation());
         var moduleStates = desaturateWheelSpeeds
-            ? optimizer.calculateModuleStates(robotSpeeds,state.moduleStates)
-            : optimizer.calculateModuleStatesNoDesaturation(robotSpeeds,state.moduleStates);
+            ? optimizer.calculateModuleStates(robotSpeeds)
+            : optimizer.calculateModuleStatesNoDesaturation(robotSpeeds);
         return moduleStates;
     }
 

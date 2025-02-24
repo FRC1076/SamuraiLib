@@ -22,7 +22,6 @@ public class LockWheels implements SamuraiSwerveRequest {
             new SwerveModuleState(0,RLRotation),
             new SwerveModuleState(0,RRRotation)
         };
-        optimizer.optimizeStates(moduleStates, state.moduleStates);
         return moduleStates;
     }
 

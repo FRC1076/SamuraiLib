@@ -31,7 +31,7 @@ public class SwerveOptimizer {
      * @return
      * An array containing optimized module states
      */
-    public SwerveModuleState[] calculateModuleStates(ChassisSpeeds speeds,SwerveModuleState[] currentStates) {
+    public SwerveModuleState[] calculateModuleStates(ChassisSpeeds speeds) {
         var tmpStates = kinematics.toSwerveModuleStates(speeds,centerOfRotation);
         SwerveDriveKinematics.desaturateWheelSpeeds(
             tmpStates,
@@ -52,22 +52,12 @@ public class SwerveOptimizer {
             maxTransSpeed,
             maxRotSpeed
         );
-        for (int i = 0; i < 4; i++) {
-            discStates[i].optimize(currentStates[i].angle);
-        }
         return discStates;
     }
 
-    public void optimizeStates(SwerveModuleState[] newStates, SwerveModuleState[] currentStates) {
-        for (int i = 0; i < 4; i ++) {
-            newStates[i].optimize(currentStates[i].angle);
-        }
-    }
-
-    public SwerveModuleState[] calculateModuleStatesNoDesaturation(ChassisSpeeds speeds, SwerveModuleState[] currentStates) {
+    public SwerveModuleState[] calculateModuleStatesNoDesaturation(ChassisSpeeds speeds) {
         var discSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
         var discStates = kinematics.toSwerveModuleStates(discSpeeds,centerOfRotation);
-        optimizeStates(discStates, currentStates);
         return discStates;
     }
 

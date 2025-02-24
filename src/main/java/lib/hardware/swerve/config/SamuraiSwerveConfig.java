@@ -31,10 +31,10 @@ public class SamuraiSwerveConfig {
 
     public static enum AbsoluteEncoderType {
         kIntegrated, //Represents any absolute encoder directly connected to the steer motor controller
-        kCANcoder,
+        kCANcoder, // TODO: Implement
         kCanandmag, // TODO: Implement
-        kDutyCycleEncoder,
-        kAnalogEncoder
+        kDutyCycleEncoder, // TODO: Implement
+        kAnalogEncoder // TODO: Implement
     }
 
     public static class ModuleConfig {
@@ -45,15 +45,15 @@ public class SamuraiSwerveConfig {
         public int driveMotorID;
         public int steerMotorID;
         public int encoderID;
-        public double absoluteEncoderOffset; //Rotations
-        public SlotConfig driveGains;
-        public SlotConfig steerGains;
-        public double voltageComp;
-        public double currentLimit;
-        public double driveGearRatio;
-        public double steerGearRatio;
-        public double wheelRadius;
-        public double maxModuleSpeed;
+        public double absoluteEncoderOffset = 0.0; //Rotations
+        public SlotConfig driveGains = new SlotConfig();
+        public SlotConfig steerGains = new SlotConfig();
+        public double voltageComp = 12;
+        public double currentLimit = 60;
+        public double driveGearRatio = 1;
+        public double steerGearRatio = 1;
+        public double wheelRadius = 1; // The default wheel radius is set to 1 meter in order to serve as a lesson to people who are too lazy to override the defaults
+        public double maxModuleSpeed = 1;
 
         public ModuleConfig withDriveMotorType(MotorType driveMotorType) {
             this.driveMotorType = driveMotorType;
@@ -136,14 +136,14 @@ public class SamuraiSwerveConfig {
         private MotorType driveMotorType;
         private MotorType steerMotorType;
         private AbsoluteEncoderType absoluteEncoderType;
-        private SlotConfig driveGains;
-        private SlotConfig steerGains;
-        private double driveGearRatio;
-        private double steerGearRatio;
-        private double wheelRadius;
-        private double maxModuleSpeed;
-        private double voltageComp;
-        private double currentLimit;
+        private SlotConfig driveGains = new SlotConfig();
+        private SlotConfig steerGains = new SlotConfig();
+        private double driveGearRatio = 1;
+        private double steerGearRatio = 1;
+        private double wheelRadius = 1;
+        private double maxModuleSpeed = 1;
+        private double voltageComp = 12;
+        private double currentLimit = 60;
 
         public ModuleConfigFactory withDriveMotorType(MotorType driveMotorType) {
             this.driveMotorType = driveMotorType;

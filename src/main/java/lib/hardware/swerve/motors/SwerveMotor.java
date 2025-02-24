@@ -3,6 +3,7 @@ package lib.hardware.swerve.motors;
 import lib.hardware.swerve.config.SwerveMotorConfig;
 import lib.hardware.swerve.encoders.SwerveEncoder;
 
+//TODO: Add relative encoder support
 public interface SwerveMotor {
     public abstract void applyConfig(SwerveMotorConfig config);
 

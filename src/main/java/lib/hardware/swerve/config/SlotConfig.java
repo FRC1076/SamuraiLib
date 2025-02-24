@@ -2,12 +2,12 @@ package lib.hardware.swerve.config;
 
 public class SlotConfig {
 
-    public double kP;
-    public double kI;
-    public double kD;
-    public double kS;
-    public double kV;
-    public double kA;
+    public double kP = 0;
+    public double kI = 0;
+    public double kD = 0;
+    public double kS = 0;
+    public double kV = 0;
+    public double kA = 0;
 
     public SlotConfig withP(double kP) {
         this.kP = kP;
