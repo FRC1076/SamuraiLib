@@ -3,6 +3,7 @@ package lib.hardware.swerve;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -49,69 +50,17 @@ public class SamuraiSwerveDrive implements SwerveDriveBase {
         return modules;
     }
 
-    private class AtomicState {
-        private AtomicInteger successfulDaqs;
-        private AtomicInteger failedDaqs;
-        private AtomicReference<Pose2d> pose;
-
-        private AtomicReference<SwerveModulePosition[]> modulePositions;
-        private AtomicReference<SwerveModuleState[]> moduleStates;
-        private AtomicReference<SwerveModuleState[]> moduleTargets;
-
-        private AtomicLong time_mus;
-        private AtomicReference<ChassisSpeeds> speeds;
-        private AtomicReference<Rotation2d> rawHeading;
-        private AtomicLong odometryPeriod_mus;
-
-        public void setTime(double timestampSeconds) {
-            time_mus.getAndSet((int)(timestampSeconds * 1e6));
-        }
-
-        public double getTime() {
-            return time_mus.get()/1000000.0;
-        }
-
-        public void logSuccessfulDaq() {
-            successfulDaqs.addAndGet(1);
-        }
-
-        public void logFailedDaq() {
-            failedDaqs.addAndGet(1);
-        }
-
-        public void clearDaqs() {
-            successfulDaqs.getAndSet(0);
-            failedDaqs.getAndSet(0);
-        }
-
-        public void setPose(Pose2d newPose) {
-            pose.getAcquire(newPose);
-        }
-
-        public Pose2d getPose() {
-            return pose.get();
-        }
-
-        public void setModulePositions(SwerveModulePosition[] newModulePositions) {
-            modulePositions.set(newModulePositions);
-        }
-
-        public SwerveModulePosition[] getModulePositions() {
-            return modulePositions.get();
-        }
-
-    }
-
     /** Implements high-speed odometry and pose estimation for the swerve drive */
     private class Swervometer {
         
-        private volatile SwerveState state;
+        private ConcurrentSwerveState state = new ConcurrentSwerveState();
 
-        private final Lock stateLock = new ReentrantLock();
         private final Lock signalLock = new ReentrantLock();
         private final Lock estimatorLock = new ReentrantLock();
 
         private final SwerveDrivePoseEstimator poseEstimator;
+
+        private SwerveState cachedState; //Odometry thread local
 
         private SwerveModulePosition[] oldPositions = new SwerveModulePosition[4];
         private SwerveModulePosition[] moduleDeltas = new SwerveModulePosition[4];
@@ -152,14 +101,14 @@ public class SamuraiSwerveDrive implements SwerveDriveBase {
         /**Periodic function to run in the odometry thread, updates pose estimator with latest odometry values*/
         private void run(){
 
-            long timestamp = RobotController.getFPGATime();
+            double timestamp = RobotController.getFPGATime()/1000000.0;
+            //cachedState = state.get();
+            Pose2d pose;
 
             synchronized (signalLock){
                 for (int i = 0; i < errorSignals.size(); i++){
                     if (errorSignals.get(i).getAsBoolean()){
-                        synchronized (stateLock) {
-                            state.failedDaqs++;
-                        }
+                        state.logFailedDaq();
                         return;
                     }
                 }
@@ -167,33 +116,34 @@ public class SamuraiSwerveDrive implements SwerveDriveBase {
             
             SwerveModuleState[] moduleStates = new SwerveModuleState[4];
             SwerveModulePosition[] modulePositions = new SwerveModulePosition[4];
-            oldPositions = state.modulePositions; //TODO: Check if this call needs to be synchronized on stateLock
+            // oldPositions = cachedState.modulePositions;
             synchronized (moduleLock) {
                 for (int i = 0; i < 4; i++) {
                     moduleStates[i] = modules[i].getState();
                     modulePositions[i] = modules[i].getPosition();
                 }
             }
+            /* 
             for (int i = 0; i < 4; i++) {
                 moduleDeltas[i] = new SwerveModulePosition(
                     modulePositions[i].distanceMeters - oldPositions[i].distanceMeters,
                     modulePositions[i].angle.minus(oldPositions[i].angle)
                 );
             }
+            */
             synchronized (estimatorLock) {
-                poseEstimator.updateWithTime(timestamp/1000000.0,headingSupplier.get(),modulePositions);
+                pose = poseEstimator.updateWithTime(timestamp,headingSupplier.get(),modulePositions);
             }
-            synchronized (stateLock) {
-                state.successfulDaqs++;
-                state.modulePositions = modulePositions;
-                state.moduleStates = moduleStates;
-                state.timestamp = timestamp;
-                state.rawHeading = headingSupplier.get();
-                state.pose = poseEstimator.getEstimatedPosition();
-                if (telemetryConsumer.isPresent()) {
-                    telemetryConsumer.get().accept(state.clone());
-                }
-            }
+
+            state.logSuccessfulDaq(
+                timestamp,
+                modulePositions,
+                moduleStates,
+                pose,
+                kinematics.toChassisSpeeds(moduleStates),
+                headingSupplier.get()
+            );
+            
     
         }
     }
