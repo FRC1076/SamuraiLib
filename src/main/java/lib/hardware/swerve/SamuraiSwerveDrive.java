@@ -31,6 +31,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import lib.hardware.swerve.requests.SamuraiSwerveRequest;
 
 public class SamuraiSwerveDrive implements SwerveDriveBase {
 
@@ -41,14 +42,54 @@ public class SamuraiSwerveDrive implements SwerveDriveBase {
     private final Lock moduleLock = new ReentrantLock();
     private final Supplier<Rotation2d> headingSupplier; //TODO: Make SwerveIMU interface
     private final SwerveDriveKinematics kinematics;
+    private final SwerveOptimizer optimizer;
     
     //TODO: make swerve drive factory that uses the configurator objects
     public SamuraiSwerveDrive(Translation2d[] moduleTranslations,SwerveModuleBase[] modules, Supplier<Rotation2d> headingSupplier) {
         this.modules = modules;
         this.kinematics = new SwerveDriveKinematics(moduleTranslations);
+        this.optimizer = new SwerveOptimizer(kinematics, 5, 5, 5, new Translation2d()); //TODO: UPDATE MAX SPEEDS
         this.headingSupplier = headingSupplier;
         swervometer = new Swervometer();
         swervometer.start();
+    }
+
+    @Override
+    public SwerveDriveKinematics getKinematics() {
+        return kinematics;
+    }
+
+    @Override
+    public void tareEverything() {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void resetPose(Pose2d pose) {
+        swervometer.resetPoseEstimator(pose);
+    }
+
+    @Override
+    public SwerveState getState() {
+        return swervometer.getState();
+    }
+
+    @Override
+    public void registerTelemetry(Consumer<SwerveState> telemetryConsumer) {
+        swervometer.registerTelemetryConsumer(telemetryConsumer);
+    }
+
+    @Override
+    public void acceptRequest(SamuraiSwerveRequest request) {
+        var desiredStates = request.getModuleStates(optimizer,getState());
+        for (int i = 0; i < 4; i++) {
+            modules[i].setDesiredState(desiredStates[i]);
+        }
+    }
+
+    @Override
+    public void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs) {
+        swervometer.addVisionMeasurement(pose, timestamp, stdDevs);
     }
 
     public SwerveModuleBase[] getModules() {
@@ -234,8 +275,10 @@ public class SamuraiSwerveDrive implements SwerveDriveBase {
             return volatileState.get();
         }
 
-        public void tarePoseEstimator() {
-            poseEstimator.resetPose(new Pose2d());
+        public void resetPoseEstimator(Pose2d pose) {
+            synchronized (estimatorLock) {    
+                poseEstimator.resetPose(pose);
+            }
         }
     }
 

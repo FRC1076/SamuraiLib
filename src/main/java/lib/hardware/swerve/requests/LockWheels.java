@@ -15,7 +15,7 @@ public class LockWheels implements SamuraiSwerveRequest {
     private static final Rotation2d RRRotation = Rotation2d.fromDegrees(-135);
     
     @Override
-    public SwerveModuleState[] getModuleStates(SwerveOptimizer optimizer, ControlParameters cparams, SwerveState state) {
+    public SwerveModuleState[] getModuleStates(SwerveOptimizer optimizer, SwerveState state) {
         SwerveModuleState[] moduleStates = {
             new SwerveModuleState(0,FLRotation),
             new SwerveModuleState(0,FRRotation),

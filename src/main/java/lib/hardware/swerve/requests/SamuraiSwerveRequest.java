@@ -19,7 +19,7 @@ public interface SamuraiSwerveRequest {
         //kIdle //TODO: WIP
     }
     
-    public abstract SwerveModuleState[] getModuleStates(SwerveOptimizer optimizer, ControlParameters cparams, SwerveState state); // Returns module states to be applied to the swerve drive
+    public abstract SwerveModuleState[] getModuleStates(SwerveOptimizer optimizer, SwerveState state); // Returns module states to be applied to the swerve drive
 
     public abstract double[] getXForceFeedforwardsNewtons();
 
