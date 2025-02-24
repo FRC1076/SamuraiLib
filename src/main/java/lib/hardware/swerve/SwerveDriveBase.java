@@ -68,7 +68,9 @@ public interface SwerveDriveBase {
 
     public abstract void tareEverything();
 
-    public abstract Optional<Pose2d> samplePoseAt(double timestamp);
+    public default Optional<Pose2d> samplePoseAt(double timestamp) {
+        return Optional.empty();
+    }
 
     public abstract SwerveDriveKinematics getKinematics();
 

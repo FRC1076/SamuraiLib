@@ -6,7 +6,9 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
@@ -14,14 +16,18 @@ import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
 
@@ -41,6 +47,59 @@ public class SamuraiSwerveDrive implements SwerveDriveBase {
 
     public SwerveModuleBase[] getModules() {
         return modules;
+    }
+
+    private class AtomicState {
+        private AtomicInteger successfulDaqs;
+        private AtomicInteger failedDaqs;
+        private AtomicReference<Pose2d> pose;
+
+        private AtomicReference<SwerveModulePosition[]> modulePositions;
+        private AtomicReference<SwerveModuleState[]> moduleStates;
+        private AtomicReference<SwerveModuleState[]> moduleTargets;
+
+        private AtomicLong time_mus;
+        private AtomicReference<ChassisSpeeds> speeds;
+        private AtomicReference<Rotation2d> rawHeading;
+        private AtomicLong odometryPeriod_mus;
+
+        public void setTime(double timestampSeconds) {
+            time_mus.getAndSet((int)(timestampSeconds * 1e6));
+        }
+
+        public double getTime() {
+            return time_mus.get()/1000000.0;
+        }
+
+        public void logSuccessfulDaq() {
+            successfulDaqs.addAndGet(1);
+        }
+
+        public void logFailedDaq() {
+            failedDaqs.addAndGet(1);
+        }
+
+        public void clearDaqs() {
+            successfulDaqs.getAndSet(0);
+            failedDaqs.getAndSet(0);
+        }
+
+        public void setPose(Pose2d newPose) {
+            pose.getAcquire(newPose);
+        }
+
+        public Pose2d getPose() {
+            return pose.get();
+        }
+
+        public void setModulePositions(SwerveModulePosition[] newModulePositions) {
+            modulePositions.set(newModulePositions);
+        }
+
+        public SwerveModulePosition[] getModulePositions() {
+            return modulePositions.get();
+        }
+
     }
 
     /** Implements high-speed odometry and pose estimation for the swerve drive */
@@ -80,6 +139,12 @@ public class SamuraiSwerveDrive implements SwerveDriveBase {
         public void registerErrorSignal(BooleanSupplier errorSignal){
             synchronized (signalLock) {
                 errorSignals.add(errorSignal);
+            }
+        }
+
+        public void addVisionMeasurement(Pose2d pose, double timestampSeconds, Matrix<N3,N1> stdDevs) {
+            synchronized (estimatorLock) {
+                poseEstimator.addVisionMeasurement(pose,timestampSeconds,stdDevs);
             }
         }
 
