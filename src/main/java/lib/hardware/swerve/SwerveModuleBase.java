@@ -6,8 +6,6 @@ package lib.hardware.swerve;
 
 import java.util.function.BooleanSupplier;
 
-import com.ctre.phoenix6.swerve.jni.SwerveJNI.ModuleState;
-
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
